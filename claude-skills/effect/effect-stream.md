@@ -112,7 +112,7 @@ Halt strategies for `merge`: `"left"`, `"right"`, `"both"` (default), `"either"`
 
 ```ts
 // Group by key
-const grouped = Stream.groupByKey(stream, (exam) => Math.floor(exam.score / 10))
+const grouped = Stream.groupByKey(stream, (exam) => Effect.succeed([Math.floor(exam.score / 10), exam.score]))
 GroupBy.evaluate(grouped, (key, stream) => /* process each group */)
 
 // Partition by predicate (returns [falsy, truthy])
