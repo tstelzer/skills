@@ -179,6 +179,7 @@ Use `Effect.all` with `{ mode: "either" }` to collect all results regardless of 
 
 ## Additional Resources
 
+[For pattern matching](./effect-match.md)
 [For working with streams](./effect-stream.md)
 [Advanced concurrency (when basics aren't enough)](./effect-advanced-concurrency.md)
 [One-time signaling between fibers](./effect-deferred.md)
