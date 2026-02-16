@@ -187,3 +187,4 @@ Use `Effect.all` with `{ mode: "either" }` to collect all results regardless of 
 [Broadcasting messages to multiple subscribers](./effect-pubsub.md)
 [Limiting concurrent access to a resource](./effect-semaphore.md)
 [Blocking fibers until a condition/event](./effect-latch.md)
+[Concurrent-safe LRU caching with TTL](./effect-cache.md)
