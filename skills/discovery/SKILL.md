@@ -7,12 +7,12 @@ description: Use for deep design discovery and problem understanding before plan
 
 ## Overview
 
-Build a shared, rigorous understanding of the problem space. Focus on deep thinking, comprehensive questioning, and edge-case discovery without planning or implementation.
+Build a shared, rigorous understanding of the problem space. Lean into deep thinking, thorough questioning, and edge-case discovery—without planning or implementation.
 
 ## Workflow
 
 ### 1) Front-load questions
-Ask many questions at once to reduce back-and-forth, though no more than 5-7 at a time.
+Ask several questions at once to reduce back-and-forth, though keep it to 5–7 at a time.
 
 Themes:
 - Goal/outcome (what success looks like)
@@ -23,10 +23,10 @@ Themes:
 - Key assumptions and unknowns
 
 ### 2) Stress the edges
-Enumerate edge-cases, abuse cases, and ambiguous scenarios. Call out where requirements are underspecified.
+Enumerate edge cases, abuse cases, and ambiguous scenarios. Call out where requirements feel underspecified.
 
 ### 3) Synthesize the design frame
-Summarize the problem boundaries, decision criteria, and open questions without proposing plans or implementation.
+Summarize the problem boundaries, decision criteria, and open questions—without proposing plans or implementation.
 
 ## Output Formats
 
