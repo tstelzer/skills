@@ -12,9 +12,9 @@ Build a shared, rigorous understanding of the problem space. Focus on deep think
 ## Workflow
 
 ### 1) Front-load questions
-Ask many questions at once to reduce back-and-forth. Prefer breadth over minimalism.
+Ask many questions at once to reduce back-and-forth, though no more than 5-7 at a time.
 
-Capture:
+Themes:
 - Goal/outcome (what success looks like)
 - Audience/user and context
 - Constraints (time, budget, tech, tone, scope)
@@ -22,22 +22,16 @@ Capture:
 - Known pain points and failure modes
 - Key assumptions and unknowns
 
-### 2) Build the knowledge map
-Structure the domain into key entities, flows, constraints, and risk areas. Prefer explicit lists over prose.
-
-### 3) Stress the edges
+### 2) Stress the edges
 Enumerate edge-cases, abuse cases, and ambiguous scenarios. Call out where requirements are underspecified.
 
-### 4) Synthesize the design frame
+### 3) Synthesize the design frame
 Summarize the problem boundaries, decision criteria, and open questions without proposing plans or implementation.
 
 ## Output Formats
 
-Choose the format that fits the request:
-- **Question dump**: 15–40 questions grouped by theme
-- **Knowledge map**: Entities, flows, constraints, risks, and assumptions
-- **Edge-case inventory**: Scenario list with why each matters
-- **Design frame**: Boundaries, criteria, risks, and open questions
+5-7 questions (total) prefixed by theme
+- <theme>: <question>
 
 ## Interaction Notes
 
