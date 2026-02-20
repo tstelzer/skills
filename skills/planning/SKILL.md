@@ -17,7 +17,7 @@ or problem domain. Assume they don't know good test design very well.
 
 **Announce at start:** "I'm using the planning skill to create the implementation plan."
 
-**Save plans to:** `<repository-root>/plans/YYYY-MM-DD_<plan-name>.md`
+**Save plans to:** `<repository-root>/plans/YYYY-MM-DD-HH-MM_<plan-name>.md`
 
 ## Plan Structure
 
