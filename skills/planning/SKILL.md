@@ -1,9 +1,9 @@
 ---
-name: writing-plans
+name: planning
 description: Use when you have a spec or requirements for a multi-step task, before touching code
 ---
 
-# Writing Plans
+# Planning
 
 ## Overview
 
@@ -15,7 +15,7 @@ check, how to test it. Give them the whole plan as bite-sized tasks.
 Assume they are a skilled developer, but know almost nothing about our toolset
 or problem domain. Assume they don't know good test design very well.
 
-**Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
+**Announce at start:** "I'm using the planning skill to create the implementation plan."
 
 **Save plans to:** `<repository-root>/plans/YYYY-MM-DD_<plan-name>.md`
 
