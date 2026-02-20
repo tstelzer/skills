@@ -7,14 +7,11 @@ description: Use for deep design discovery and problem understanding before plan
 
 ## Overview
 
-Build a shared, rigorous understanding of the problem space. Lean into deep thinking, thorough questioning, and edge-case discovery—without planning or implementation.
+Let's get on the same page about the problem before we jump into plans or code. This is where we slow down, ask good questions, and poke at edge cases so we don't miss anything important.
 
-## Workflow
+Ask a small batch of questions up front to cut the back-and-forth, min 3, max 7, so it stays answerable. Prioritize questions based on importance. Start high-level, go deeper when necessary
 
-### 1) Front-load questions
-Ask several questions at once to reduce back-and-forth, though keep it to 5–7 at a time.
-
-Themes:
+Possible Themes (no need to be exhaustive, pick whichever make sense):
 - Goal/outcome (what success looks like)
 - Audience/user and context
 - Constraints (time, budget, tech, tone, scope)
@@ -22,20 +19,10 @@ Themes:
 - Known pain points and failure modes
 - Key assumptions and unknowns
 
-### 2) Stress the edges
-Enumerate edge cases, abuse cases, and ambiguous scenarios. Call out where requirements feel underspecified.
-
-### 3) Synthesize the design frame
-Summarize the problem boundaries, decision criteria, and open questions—without proposing plans or implementation.
-
-## Output Formats
-
-5-7 questions (total) prefixed by theme
-- <theme>: <question>
+Call out edge cases, abuse cases, and fuzzy scenarios. Point out places where the requirements feel squishy or underspecified.
 
 ## Interaction Notes
 
-- Prefer depth over speed; avoid ideation and solutioning.
-- Ask many questions in a single message if it improves clarity.
+- Embrace depth.
 - Do not create plans, roadmaps, or implementation details.
 - If the user asks for a plan or code, pause and confirm whether to switch out of design discovery.

@@ -17,7 +17,7 @@ or problem domain. Assume they don't know good test design very well.
 
 **Announce at start:** "I'm using the planning skill to create the implementation plan."
 
-**Save plans to:** `<repository-root>/plans/YYYY-MM-DD-HH-MM_<plan-name>.md`
+**Save plans to:** `<repository-root>/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`
 
 ## Plan Structure
 
@@ -56,3 +56,5 @@ or problem domain. Assume they don't know good test design very well.
 - Reference relevant skills
 - Order tasks by dependency; call out blocking relationships
 - Each task should be independently verifiable
+- When open questions are answered, integrate the answers into the plan and remove them from **Open Questions**
+- When prerequisites are satisfied or resolved, integrate them into the plan and remove them from **Prerequisites**
