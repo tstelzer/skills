@@ -108,9 +108,9 @@ const usersGroupLive = HttpApiBuilder.group(api, "users", (handlers) =>
       .handle("updateUser", ({ path: { id }, payload: { name } }) =>
         Effect.succeed({ id, name, createdAt: DateTime.unsafeNow() })
       )
-      // Access raw request if needed
-      .handle("withHeaders", ({ request, headers }) =>
-        Effect.succeed(`method: ${request.method}, key: ${headers["x-api-key"]}`)
+      // Access raw request if needed (do not echo secrets)
+      .handle("withHeaders", ({ request }) =>
+        Effect.succeed(`method: ${request.method}`)
       )
   })
 )
