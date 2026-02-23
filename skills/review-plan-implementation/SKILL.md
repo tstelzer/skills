@@ -1,6 +1,6 @@
 ---
-name: review
-description: Review code changes against a plan using the plan location and implementing git commit(s), prioritizing performance then readability then modularity.
+name: review-plan-implementation
+description: Review code changes against a plan using the plan location and implementing git commit(s).
 ---
 
 # Review Implementation
