@@ -14,6 +14,7 @@ check, how to test it. Give them the whole plan as bite-sized tasks.
 
 Assume they are a skilled developer, but know almost nothing about our toolset
 or problem domain. Assume they don't know good test design very well.
+Plans must be standalone documents that do not rely on the prior chat.
 
 **Announce at start:** "I'm using the planning skill to create the implementation plan."
 
@@ -48,13 +49,24 @@ or problem domain. Assume they don't know good test design very well.
 **Verify:** <How to confirm this task is done — command, test, manual check>
 ```
 
+## Standalone Plan Rules
+
+- You MUST write a standalone plan; you MUST NOT reference the chat (e.g., "as discussed above").
+- You MUST restate all assumptions, constraints, definitions, and goals inside the plan body (Summary/Overview/Prerequisites/Open Questions).
+
+## Open Questions Discipline
+
+- All unknowns/decisions MUST appear only in **Open Questions**.
+- Tasks MUST be concrete and decision-free; you MUST NOT propose alternatives inside tasks.
+- If a task depends on an unanswered question, you MUST explicitly block it and mark the dependency.
+- You MUST NOT use ambiguous language in tasks (e.g., "could", "might", "maybe", "either/or", "TBD", "figure out").
+
 ## Remember
 
-- Exact file paths always, with line-numbers if relevant
-- Verbose description of implementation, or even complete code in plan (not "add validation")
-- Exact commands with expected output
-- Reference relevant skills
-- Order tasks by dependency; call out blocking relationships
-- Each task should be independently verifiable
-- When open questions are answered, integrate the answers into the plan and remove them from **Open Questions**
-- When prerequisites are satisfied or resolved, integrate them into the plan and remove them from **Prerequisites**
+- You MUST include exact file paths (line numbers if relevant).
+- You MUST provide concrete, verbose implementation steps (code when useful), not vague directives.
+- You MUST include exact verification commands and expected output.
+- You MUST reference relevant skills when applicable.
+- You MUST order tasks by dependency, call out blocking relationships, and make each task independently verifiable.
+- Open questions and prerequisites MUST be resolved and integrated before implementation.
+- Before finalizing, you MUST run a "standalone + no-open-questions-in-tasks" pass.
