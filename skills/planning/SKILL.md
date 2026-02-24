@@ -43,8 +43,8 @@ Plans must be standalone documents that do not rely on the prior chat.
 ## Task <n>: <name>
 **Files:** `path/to/file.ts:42`, ...
 **Depends on:** Task <m> (if any)
-**Details** <What to do and why>
-<Code Snippets>
+**Details:** <What to do and why>
+**Code Changes:** <Code changes in fenced blocks or patch-style hunks; full-ish for non-trivial edits, abbreviated only for trivial/safe edits>
 
 **Verify:** <How to confirm this task is done — command, test, manual check>
 ```
@@ -60,13 +60,25 @@ Plans must be standalone documents that do not rely on the prior chat.
 - Tasks MUST be concrete and decision-free; you MUST NOT propose alternatives inside tasks.
 - If a task depends on an unanswered question, you MUST explicitly block it and mark the dependency.
 - You MUST NOT use ambiguous language in tasks (e.g., "could", "might", "maybe", "either/or", "TBD", "figure out").
+- If an open question is answered while drafting, you MUST remove it from **Open Questions** and integrate the answer into Summary/Overview/Prerequisites/Tasks before finalizing.
+- Tasks MUST NOT reference **Open Questions** unless the question is still unresolved and the task is explicitly marked blocked.
 
 ## Remember
 
 - You MUST include exact file paths (line numbers if relevant).
 - You MUST provide concrete, verbose implementation steps (code when useful), not vague directives.
-- You MUST include exact verification commands and expected output.
+- Code-in-plan policy:
+  - If a change is extremely trivial and low-risk (for example: a one-line rename, import addition, or obvious constant tweak), you MAY describe it with an abbreviated inline snippet or short example.
+  - Otherwise, you MUST include the full or near-full code that should be added/changed for the task (enough for the implementer to apply it without inventing missing logic).
+  - Prefer full function/component/type definitions or patch-style hunks over dumping entire files when only part of a large file changes.
+  - For large files, include only the changed regions plus enough surrounding context to apply the edit safely.
+  - Do not include generated artifacts or bulky machine-produced diffs (e.g., lockfiles, snapshots, build output) unless they are the core subject of the task.
+  - Do not hide substantive edits behind placeholders like "..." when that omits important logic, control flow, types, or error handling.
+- You MUST format non-trivial code changes in fenced code blocks (preferred) or patch-style hunks, and identify the target file/path near each snippet.
+- For each task, the `**Files:**` list MUST match the files referenced in that task's code snippets/hunks (no extra or missing files).
+- You MUST include exact verification commands and expected output when deterministic; otherwise include the exact command/check and the expected observable result/assertion.
 - You MUST reference relevant skills when applicable.
 - You MUST order tasks by dependency, call out blocking relationships, and make each task independently verifiable.
-- Open questions and prerequisites MUST be resolved and integrated before implementation.
-- Before finalizing, you MUST run a "standalone + no-open-questions-in-tasks" pass.
+- If behavior changes, you MUST include test additions/updates in the same task or a dependent task; if not adding tests, explain why.
+- Prerequisites and open questions MUST be resolved and integrated before any dependent implementation task begins, or the task MUST be explicitly marked blocked.
+- Before finalizing, you MUST run a "standalone + no-open-questions-in-tasks + answered-questions-cleanup" pass.
