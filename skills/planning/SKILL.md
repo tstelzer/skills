@@ -29,7 +29,7 @@ Plans must be standalone documents that do not rely on the prior chat.
 <One paragraph describing what this builds>
 
 ## Prerequisites
-<Setup steps, deps to install, docs to read — skip if none>
+<Only task-specific setup/deps/docs not already implicit from repo context or `AGENTS.md` — skip if none>
 
 ## Open Questions
 <Unknowns or decisions to resolve before/during implementation — skip if none>
@@ -53,6 +53,7 @@ Plans must be standalone documents that do not rely on the prior chat.
 
 - You MUST write a standalone plan; you MUST NOT reference the chat (e.g., "as discussed above").
 - You MUST restate all assumptions, constraints, definitions, and goals inside the plan body (Summary/Overview/Prerequisites/Open Questions).
+- You MUST NOT include redundant global context in **Prerequisites** (for example: repo root path, generic workspace commands already documented in `AGENTS.md`, or a list of skills used to write the plan).
 
 ## Open Questions Discipline
 
@@ -77,7 +78,7 @@ Plans must be standalone documents that do not rely on the prior chat.
 - You MUST format non-trivial code changes in fenced code blocks (preferred) or patch-style hunks, and identify the target file/path near each snippet.
 - For each task, the `**Files:**` list MUST match the files referenced in that task's code snippets/hunks (no extra or missing files).
 - You MUST include exact verification commands and expected output when deterministic; otherwise include the exact command/check and the expected observable result/assertion.
-- You MUST reference relevant skills when applicable.
+- You MUST NOT include meta process notes in the plan (for example, which planning skill(s) you used to produce the plan). Only mention external docs/tools when they are actual implementation inputs.
 - You MUST order tasks by dependency, call out blocking relationships, and make each task independently verifiable.
 - If behavior changes, you MUST include test additions/updates in the same task or a dependent task; if not adding tests, explain why.
 - Prerequisites and open questions MUST be resolved and integrated before any dependent implementation task begins, or the task MUST be explicitly marked blocked.
