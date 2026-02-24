@@ -43,8 +43,8 @@ Plans must be standalone documents that do not rely on the prior chat.
 ## Task <n>: <name>
 **Files:** `path/to/file.ts:42`, ...
 **Depends on:** Task <m> (if any)
-
-<What to do and why. Verbose — include code when useful.>
+**Details** <What to do and why>
+<Code Snippets>
 
 **Verify:** <How to confirm this task is done — command, test, manual check>
 ```
