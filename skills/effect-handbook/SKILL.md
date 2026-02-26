@@ -1,6 +1,6 @@
 ---
 name: effect-handbook
-description: Canonical handbook for Effect ecosystem usage in TypeScript.
+description: Canonical handbook for effect ecosystem usage in TypeScript. Always use when you interacting with effect code.
 ---
 
 # Effect Handbook
