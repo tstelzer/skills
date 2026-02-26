@@ -1,21 +1,25 @@
----
-name: effect-http-streaming
-description: Streaming requests and responses with effect http server
----
+# HTTP Streaming
 
-## Streaming
+## What it is
+Streaming request/response patterns for `HttpApi` endpoints.
 
+## When to use
+- Incremental responses (events/chunks)
+- Binary stream uploads
+
+## When not to use
+- Small, bounded payloads better served as regular JSON
+
+## Minimal examples
 ```ts
-import { HttpApiEndpoint, HttpApiSchema, HttpServerResponse } from "@effect/platform"
-import { Schema, Stream, Schedule } from "effect"
+import { HttpApiBuilder, HttpApiEndpoint, HttpApiSchema, HttpServerResponse } from "@effect/platform"
+import { Schema, Schedule, Stream } from "effect"
 
-// Stream response
 const streamEndpoint = HttpApiEndpoint.get("stream", "/stream")
   .addSuccess(Schema.String.pipe(
     HttpApiSchema.withEncoding({ kind: "Text", contentType: "application/octet-stream" })
   ))
 
-// In handler: return HttpServerResponse.stream(...)
 const streamHandler = HttpApiBuilder.group(api, "group", (handlers) =>
   handlers.handle("stream", () =>
     HttpServerResponse.stream(
@@ -27,7 +31,6 @@ const streamHandler = HttpApiBuilder.group(api, "group", (handlers) =>
   )
 )
 
-// Stream request (binary)
 const acceptStream = HttpApiEndpoint.post("acceptStream", "/upload-stream")
   .setPayload(
     Schema.Uint8ArrayFromSelf.pipe(HttpApiSchema.withEncoding({
@@ -36,3 +39,11 @@ const acceptStream = HttpApiEndpoint.post("acceptStream", "/upload-stream")
     }))
   )
 ```
+
+## Common pitfalls
+- Returning regular success payloads where `HttpServerResponse.stream` is required
+- Forgetting payload encoding for binary streams
+
+## See also
+- `../sections/30-http-server.md`
+- `http-multipart.md`
