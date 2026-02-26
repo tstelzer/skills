@@ -1,9 +1,9 @@
 ---
-name: planning
+name: plan
 description: Use when you have a spec or requirements for a multi-step task, before touching code
 ---
 
-# Planning
+# Plan
 
 ## Overview
 
@@ -16,7 +16,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset
 or problem domain. Assume they don't know good test design very well.
 Plans must be standalone documents that do not rely on the prior chat.
 
-**Announce at start:** "I'm using the planning skill to create the implementation plan."
+**Announce at start:** "I'm using the plan skill to create the implementation plan."
 
 **Save plans to:** `<repository-root>/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`
 
@@ -78,7 +78,7 @@ Plans must be standalone documents that do not rely on the prior chat.
 - You MUST format non-trivial code changes in fenced code blocks (preferred) or patch-style hunks, and identify the target file/path near each snippet.
 - For each task, the `**Files:**` list MUST match the files referenced in that task's code snippets/hunks (no extra or missing files).
 - You MUST include exact verification commands and expected output when deterministic; otherwise include the exact command/check and the expected observable result/assertion.
-- You MUST NOT include meta process notes in the plan (for example, which planning skill(s) you used to produce the plan). Only mention external docs/tools when they are actual implementation inputs.
+- You MUST NOT include meta process notes in the plan (for example, which plan skill(s) you used to produce the plan). Only mention external docs/tools when they are actual implementation inputs.
 - You MUST order tasks by dependency, call out blocking relationships, and make each task independently verifiable.
 - If behavior changes, you MUST include test additions/updates in the same task or a dependent task; if not adding tests, explain why.
 - Prerequisites and open questions MUST be resolved and integrated before any dependent implementation task begins, or the task MUST be explicitly marked blocked.
