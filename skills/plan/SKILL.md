@@ -55,6 +55,15 @@ Plans must be standalone documents that do not rely on the prior chat.
 - You MUST restate all assumptions, constraints, definitions, and goals inside the plan body (Summary/Overview/Prerequisites/Open Questions).
 - You MUST NOT include redundant global context in **Prerequisites** (for example: repo root path, generic workspace commands already documented in `AGENTS.md`, or a list of skills used to write the plan).
 
+## Revision Rules
+
+- When revising a plan after feedback, you MUST rewrite the plan as the desired final artifact, not as a delta from the previous draft.
+- You MUST fold accepted feedback into the affected sections so the revised plan reads as if it were written correctly from scratch.
+- You MUST NOT describe changes relative to the previous draft (for example: "remove X", "do not do Y anymore", "only do A now", "keep B from the earlier plan").
+- If feedback eliminates a feature, task, constraint, or option from the plan, you MUST delete it and rewrite surrounding text for coherence instead of mentioning the removal.
+- Use negative phrasing only for actual product or implementation constraints that belong in the final plan itself, not to reflect plan-edit history.
+- Before finalizing any revision, you MUST do a "fresh-reader" pass: read the document as someone who never saw the earlier draft and remove anything that would require prior conversation context.
+
 ## Open Questions Discipline
 
 - All unknowns/decisions MUST appear only in **Open Questions**.
@@ -82,4 +91,5 @@ Plans must be standalone documents that do not rely on the prior chat.
 - You MUST order tasks by dependency, call out blocking relationships, and make each task independently verifiable.
 - If behavior changes, you MUST include test additions/updates in the same task or a dependent task; if not adding tests, explain why.
 - Prerequisites and open questions MUST be resolved and integrated before any dependent implementation task begins, or the task MUST be explicitly marked blocked.
+- On revisions, deleted scope MUST disappear from the final plan instead of being mentioned as excluded due to review feedback.
 - Before finalizing, you MUST run a "standalone + no-open-questions-in-tasks + answered-questions-cleanup" pass.
