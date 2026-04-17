@@ -88,9 +88,6 @@ commands, constraints, and assumptions when they materially affect the review.>
 log, failing test, type error, missing assertion, docs drift, etc.>
 **Suggested Fix:** <concrete repair or next step; use `None` if no responsible
 fix is clear yet>
-
-## Recommended Follow-ups
-<Only out-of-scope concerns worth tracking separately — skip if none>
 ```
 
 ## Review Rules
@@ -104,10 +101,8 @@ fix is clear yet>
 - `Evidence` MUST explicitly say `Observed` or `Inferred`.
 - Use exact file paths and line numbers when the location is known.
 - Do not invent evidence. If a suspicion is weak, drop it.
-- `## Recommended Follow-ups` is only for out-of-scope issues, not for fixes to
-  findings already listed.
-- If no findings remain after review, write `No findings.` under `## Findings`
-  and omit `## Recommended Follow-ups` unless there is real out-of-scope risk.
+- Use only the sections shown in `## Review Structure`.
+- If no findings remain after review, write `No findings.` under `## Findings`.
 
 ## Examples
 
