@@ -21,6 +21,8 @@ const withRetry = Effect.retry(task, Schedule.exponential("100 millis"))
 - Choosing `Ref` where STM is required for multi-ref atomicity
 
 ## See also
+- `../topics/schema.md`
+- `../topics/option-either.md`
 - `../topics/refs.md`
 - `../topics/cause-exit.md`
 - `../topics/stm.md`
@@ -30,6 +32,7 @@ const withRetry = Effect.retry(task, Schedule.exponential("100 millis"))
 - `../topics/cache.md`
 - `../topics/match.md`
 - `../topics/observability.md`
+- `../topics/request-resolver.md`
 - `../topics/concurrency.md`
 - `../topics/latch.md`
 - `00-foundations.md`

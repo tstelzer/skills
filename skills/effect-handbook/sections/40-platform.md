@@ -1,29 +1,33 @@
-# Platform (Non-HTTP)
+# Platform Services
 
 ## What it is
-`@effect/platform` modules excluding `Http*`: filesystem/path/url/ndjson/workers and stream-sink integration.
+`@effect/platform` modules outside schema-first `HttpApi`: `HttpClient`, `HttpRouter`, `FileSystem`, `Path`, `Url`, `Terminal`, `CommandExecutor`, `KeyValueStore`, `Ndjson`, `Worker`, and related Node layers.
 
 ## When to use
-- Cross-platform runtime services for IO/path/url workflows
+- Cross-platform runtime services for IO, outgoing HTTP, route-first servers, terminal/process work, and worker/file workflows
 
 ## When not to use
-- Top-level HTTP API/server definitions (see `30-http-server.md`)
+- Schema-first `HttpApi` contracts and generated clients (see `30-http-server.md`)
 
 ## Runtime layers (Node)
 
 ```ts
-import { NodeFileSystem, NodePath, NodeRuntime } from "@effect/platform-node"
-import { Effect, Layer } from "effect"
+import { NodeContext, NodeHttpClient, NodeRuntime } from "@effect/platform-node"
+import { Effect } from "effect"
 
-const layer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer)
-
-Effect.gen(function* () {
+const program = Effect.gen(function* () {
   // program
 }).pipe(
-  Effect.provide(layer),
+  Effect.provide(NodeHttpClient.layer), // outgoing HTTP
+  Effect.provide(NodeContext.layer), // FileSystem, Path, Terminal, CommandExecutor, WorkerManager
   NodeRuntime.runMain
 )
 ```
+
+Add targeted layers when needed:
+- `NodeTerminal.layer` for terminal-only programs
+- `NodeCommandExecutor.layer` for subprocess APIs
+- `NodeKeyValueStore.layerFileSystem("./kv")` for persistent key-value storage
 
 ## FileSystem
 
@@ -65,12 +69,26 @@ const buildPath = Effect.gen(function* () {
 })
 ```
 
+## Other high-value services
+
+| Service | Typical entrypoint |
+|---|---|
+| Outgoing HTTP | `../topics/http-client.md` |
+| Route-first servers | `../topics/http-router.md` |
+| Terminal input/output | `Terminal.Terminal`, `NodeTerminal.layer` |
+| Subprocesses | `CommandExecutor.CommandExecutor`, `NodeCommandExecutor.layer` |
+| Key-value storage | `KeyValueStore.KeyValueStore`, `NodeKeyValueStore.layerFileSystem(...)` |
+
 ## Common pitfalls
 - Hardcoding path separators instead of `Path.Path`
+- Forgetting to provide `NodeHttpClient.layer` / `FetchHttpClient.layer` for outgoing HTTP
+- Treating `HttpRouter` and `HttpApi` as interchangeable; choose contract-first vs route-first explicitly
 - Doing protocol transforms in sinks instead of stream/channel stages
 
 ## See also
 - `30-http-server.md`
+- `../topics/http-client.md`
+- `../topics/http-router.md`
 - `../topics/platform-ndjson.md`
 - `../topics/platform-worker.md`
 - `../topics/platform-stream-sink.md`

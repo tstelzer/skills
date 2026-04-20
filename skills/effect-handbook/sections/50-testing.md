@@ -25,10 +25,11 @@ it.effect("works", () => Effect.succeed(expect(1).toBe(1)))
 | `it.live`       | Uses live Effect environment (real clock, logging)   |
 | `it.scoped`     | Provides a `Scope` for resource management           |
 | `it.scopedLive` | Combines `scoped` + `live`                           |
-| `it.flakyTest`  | Retries flaky tests until success or timeout         |
+| `it.flakyTest(effect, timeout?)` | Wraps an Effect with retry-until-timeout logic |
 
 ## Common pitfalls
 - Expecting live clock behavior under `it.effect` without `it.live`
+- Treating `it.flakyTest` like a collector instead of piping an Effect through it
 
 ## See also
 - `10-core-patterns.md`

@@ -86,6 +86,8 @@ Layer.launch(ServerLive).pipe(NodeRuntime.runMain)
 ## See also
 - `40-platform.md`
 - `../topics/http-middleware.md`
+- `../topics/http-client.md`
+- `../topics/http-router.md`
 - `../topics/http-derive-client.md`
 - `../topics/http-swagger.md`
 - `../topics/http-multipart.md`

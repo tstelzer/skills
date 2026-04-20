@@ -130,9 +130,12 @@ const program: Effect.Effect<User, NotFound | Unauthorized> = Effect.gen(functio
 
 ## See also
 - `10-core-patterns.md`
+- `../topics/schema.md`
+- `../topics/option-either.md`
 - `../topics/stream.md`
 - `../topics/match.md`
 - `../topics/concurrency.md`
+- `../topics/request-resolver.md`
 - `../topics/deferred.md`
 - `../topics/queue.md`
 - `../topics/pubsub.md`

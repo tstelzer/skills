@@ -30,7 +30,11 @@ it.effect("test success", () =>
 | `it.live`       | Uses live runtime (real clock/logging)             |
 | `it.scoped`     | Provides scope for resource management             |
 | `it.scopedLive` | `scoped` + `live`                                  |
-| `it.flakyTest`  | Retries flaky tests until success/timeout          |
+| `it.flakyTest(effect, timeout?)` | Wrap an Effect with retry-until-timeout behavior |
+
+## Useful helpers
+
+`@effect/vitest/utils` provides focused helpers like `assertRight`, `assertLeft`, `assertSome`, `assertNone`, and `assertInclude` for Effect-style assertions.
 
 ## Time and resource patterns
 
@@ -48,6 +52,7 @@ it.effect("with simulated time", () =>
 ## Common pitfalls
 - Expecting real-time behavior under `it.effect` instead of `it.live`
 - Forgetting `it.scoped` for acquire/release resources
+- Treating `it.flakyTest` like `it.effect`; it is an Effect wrapper used inside the test body
 
 ## See also
 - `../sections/50-testing.md`

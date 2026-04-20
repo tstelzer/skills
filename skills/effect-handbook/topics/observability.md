@@ -28,3 +28,4 @@ const program = Effect.gen(function* () {
 ## See also
 - `../sections/10-core-patterns.md`
 - `../sections/00-foundations.md`
+- `opentelemetry.md`
