@@ -7,14 +7,17 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context
-for our codebase and questionable taste. Document everything they need to know:
-which files to touch for each task, code, testing, docs they might need to
-check, how to test it. Give them the whole plan as bite-sized tasks.
+Write implementation plans for engineers who have zero project context.
+Document exactly what they need to know: files to touch, code to write, tests to
+update, docs to check, and how to verify the result. Give them the whole plan as
+bite-sized tasks.
 
 Assume they are a skilled developer, but know almost nothing about our toolset
 or problem domain. Assume they don't know good test design very well.
 Plans must be standalone documents that do not rely on the prior chat.
+
+Plan artifacts should be compact in prose and explicit in code. Explanations
+must be clear, but short; code snippets should carry most implementation detail.
 
 **Announce at start:** "I'm using the plan skill to create the implementation plan."
 
@@ -26,28 +29,38 @@ Plans must be standalone documents that do not rely on the prior chat.
 # Plan: <Feature Name>
 
 ## Summary
-<One paragraph describing what this builds>
+<1-3 sentences describing what this builds and why>
 
 ## Prerequisites
 <Only task-specific setup/deps/docs not already implicit from repo context or `AGENTS.md` — skip if none>
 
 ## Open Questions
-<Unknowns or decisions to resolve before/during implementation — skip if none>
+<Bulleted unknowns or decisions to resolve before/during implementation — skip if none>
 
 ## Out of Scope
-<What this plan explicitly does NOT cover>
+<Bulleted boundaries for what this plan explicitly does NOT cover>
 
 ## Overview
-<A couple of paragraphs about approach>
+<1-2 short paragraphs about approach, constraints, and sequencing>
 
 ## Task <n>: <name>
 **Files:** `path/to/file.ts:42`, ...
 **Depends on:** Task <m> (if any)
-**Details:** <What to do and why>
+**Details:** <Compact bullets with what to do and why>
 **Code Changes:** <Code changes in fenced blocks or patch-style hunks; full-ish for non-trivial edits, abbreviated only for trivial/safe edits>
 
 **Verify:** <How to confirm this task is done — command, test, manual check>
 ```
+
+## Writing Style
+
+- Keep prose lean. Prefer short paragraphs and compact bullets over long narrative sections.
+- Preserve reasoning, but make it local and actionable: explain the reason next to the task or code it affects.
+- Do not repeat the same motivation across Summary, Overview, and task Details.
+- Let code snippets, exact paths, and verification commands do the detailed work.
+- Use **Overview** for architecture and sequencing only; do not restate every task.
+- Use **Details** for task-specific rationale and steps, ideally 3-6 bullets.
+- Do not pad the plan with general engineering advice unless it is specific to this implementation.
 
 ## Standalone Plan Rules
 
@@ -84,6 +97,8 @@ Plans must be standalone documents that do not rely on the prior chat.
   - For large files, include only the changed regions plus enough surrounding context to apply the edit safely.
   - Do not include generated artifacts or bulky machine-produced diffs (e.g., lockfiles, snapshots, build output) unless they are the core subject of the task.
   - Do not hide substantive edits behind placeholders like "..." when that omits important logic, control flow, types, or error handling.
+  - Include comments in snippets when they clarify non-obvious invariants, edge cases, error handling, concurrency, performance tradeoffs, security constraints, or domain rules.
+  - Do not add comments that merely narrate obvious syntax. Comments should be useful enough to keep in production code.
 - You MUST format non-trivial code changes in fenced code blocks (preferred) or patch-style hunks, and identify the target file/path near each snippet.
 - For each task, the `**Files:**` list MUST match the files referenced in that task's code snippets/hunks (no extra or missing files).
 - You MUST include exact verification commands and expected output when deterministic; otherwise include the exact command/check and the expected observable result/assertion.
