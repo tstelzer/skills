@@ -1,6 +1,6 @@
 ---
 name: review
-description: Use for professionally adversarial local code review. Route to one review type at a time, default to robustness, and save standalone review artifacts to reviews/.
+description: Use for professionally adversarial local code review. Route to one review type at a time, default to robustness, and write either concise chat findings or a standalone review artifact depending on the request and context.
 ---
 
 # Review
@@ -16,13 +16,29 @@ reasoning, unproven assumptions, and missing coverage over giving praise.
 - Do not read this handbook linearly.
 - Pick exactly one review type first.
 - Default to `robustness.md` when the user asks for a generic review.
-- Use one agent per review type by default. If the user wants multiple review
-  types, split them across parallel agents and write one review file per type.
+- If the user wants multiple review types, handle each review type separately.
+  When subagents are available and explicitly authorized, split the types across
+  parallel agents; otherwise review them one at a time. For formal multi-type
+  reviews, write one review file per type.
 - Follow the shared rules here plus exactly one type-specific file.
 - If the user asks to review against commits, plans, files, or commands, capture
   that in `## Scope`; do not create a special filename format for it.
 - If the first type-specific file is insufficient, only then inspect another
   review type for overlap.
+
+## Workflow
+
+1. Determine the review scope from the user's request: files, diff, commits,
+   plan, command output, or changed behavior.
+2. Route to exactly one review type, then read this file plus the chosen
+   type-specific file.
+3. Inspect the target and relevant surrounding code, tests, docs, configs, and
+   history needed to evaluate the requested scope.
+4. Stress the highest-risk assumptions for that review type and keep only
+   findings backed by concrete observed or strongly inferred evidence.
+5. Report findings in severity order. Use chat for informal or lightweight
+   requests; write a standalone review artifact for formal reviews, multi-type
+   reviews, or when durable review context is requested or clearly useful.
 
 ## Quick Picks (Task -> File)
 
@@ -65,7 +81,7 @@ reasoning, unproven assumptions, and missing coverage over giving praise.
 **Save reviews to:**
 `<repository-root>/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`
 
-Create `reviews/` if it does not exist.
+Create `reviews/` if it does not exist when writing an artifact.
 
 ## Review Structure
 
@@ -92,7 +108,9 @@ fix is clear yet>
 
 ## Review Rules
 
-- Reviews MUST be standalone artifacts; do not rely on the prior chat.
+- Formal review artifacts MUST be standalone; do not rely on the prior chat.
+- For informal chat reviews, keep the same evidence standard and severity
+  ordering, but do not write a file unless durable context is warranted.
 - `## Scope` MUST restate the exact review target and any constraints needed to
   understand the findings.
 - Order findings by severity: `High`, then `Medium`, then `Low`.

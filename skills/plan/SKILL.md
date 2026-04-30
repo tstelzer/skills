@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use when you have a spec or requirements for a multi-step task, before touching code
+description: Use when creating a standalone implementation plan for a multi-step code change, before touching code.
 ---
 
 # Plan
@@ -13,7 +13,8 @@ update, docs to check, and how to verify the result. Give them the whole plan as
 bite-sized tasks.
 
 Assume they are a skilled developer, but know almost nothing about our toolset
-or problem domain. Assume they don't know good test design very well.
+or problem domain. Assume they don't know good test design very well; make the
+test intent, fixture setup, assertions, and failure coverage explicit.
 Plans must be standalone documents that do not rely on the prior chat.
 
 Plan artifacts should be compact in prose and explicit in code. Explanations
@@ -22,6 +23,21 @@ must be clear, but short; code snippets should carry most implementation detail.
 **Announce at start:** "I'm using the plan skill to create the implementation plan."
 
 **Save plans to:** `<repository-root>/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`
+
+Create `plans/` if it does not exist.
+
+## Workflow
+
+1. Inspect the repository before drafting. Read relevant source files, tests,
+   docs, configs, and local guidance such as `AGENTS.md` when present.
+2. Identify the current behavior, affected surfaces, exact files to touch,
+   invariants, dependencies, test strategy, and verification commands.
+3. Resolve unknowns from repo context where possible. Put remaining decisions
+   only in **Open Questions**, and block dependent tasks explicitly.
+4. Draft the saved standalone plan with tasks ordered by dependency and each
+   task independently verifiable.
+5. Before finalizing, run a fresh-reader pass for standalone context, concrete
+   tasks, explicit tests, exact files, and no answered questions left behind.
 
 ## Plan Structure
 
@@ -92,7 +108,7 @@ must be clear, but short; code snippets should carry most implementation detail.
 - You MUST provide concrete, verbose implementation steps (code when useful), not vague directives.
 - Code-in-plan policy:
   - If a change is extremely trivial and low-risk (for example: a one-line rename, import addition, or obvious constant tweak), you MAY describe it with an abbreviated inline snippet or short example.
-  - Otherwise, you MUST include the full or near-full code that should be added/changed for the task (enough for the implementer to apply it without inventing missing logic).
+  - Otherwise, you MUST include full or near-full code for the substantive change paths in the task, enough for the implementer to apply it without inventing missing logic.
   - Prefer full function/component/type definitions or patch-style hunks over dumping entire files when only part of a large file changes.
   - For large files, include only the changed regions plus enough surrounding context to apply the edit safely.
   - Do not include generated artifacts or bulky machine-produced diffs (e.g., lockfiles, snapshots, build output) unless they are the core subject of the task.
