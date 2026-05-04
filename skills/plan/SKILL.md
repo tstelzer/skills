@@ -63,7 +63,7 @@ Create `plans/` if it does not exist.
 **Files:** `path/to/file.ts:42`, ...
 **Depends on:** Task <m> (if any)
 **Details:** <Compact bullets with what to do and why>
-**Code Changes:** <Code changes in fenced blocks or patch-style hunks; full-ish for non-trivial edits, abbreviated only for trivial/safe edits>
+**Code Changes:** <Code changes in fenced blocks or patch-style hunks; full definitions for new/heavily changed units, focused hunks for localized edits>
 
 **Verify:** <How to confirm this task is done — command, test, manual check>
 ```
@@ -108,9 +108,10 @@ Create `plans/` if it does not exist.
 - You MUST provide concrete, verbose implementation steps (code when useful), not vague directives.
 - Code-in-plan policy:
   - If a change is extremely trivial and low-risk (for example: a one-line rename, import addition, or obvious constant tweak), you MAY describe it with an abbreviated inline snippet or short example.
-  - Otherwise, you MUST include full or near-full code for the substantive change paths in the task, enough for the implementer to apply it without inventing missing logic.
-  - Prefer full function/component/type definitions or patch-style hunks over dumping entire files when only part of a large file changes.
-  - For large files, include only the changed regions plus enough surrounding context to apply the edit safely.
+  - For new files, new functions/components/types, or units that are being heavily rewritten, you MUST include full or near-full code for that new or rewritten unit so the implementer can apply it without inventing missing logic.
+  - For localized edits inside an existing file, you MUST use patch-style hunks or focused before/after snippets that show only the changed region plus enough surrounding context to apply the edit safely.
+  - Do not dump an entire existing file when only a small portion changes, even if the file is short. If a one-line change needs context, show the nearby function/block rather than the whole file.
+  - Prefer full function/component/type definitions when most of that unit is new or changed; prefer focused hunks when only a few lines inside the unit change.
   - Do not include generated artifacts or bulky machine-produced diffs (e.g., lockfiles, snapshots, build output) unless they are the core subject of the task.
   - Do not hide substantive edits behind placeholders like "..." when that omits important logic, control flow, types, or error handling.
   - Include comments in snippets when they clarify non-obvious invariants, edge cases, error handling, concurrency, performance tradeoffs, security constraints, or domain rules.
