@@ -37,3 +37,10 @@ measured behavior, or obviously unnecessary work over vague style opinions.
 - Query count changes
 - Complexity increase on hot paths
 - New unbounded loops, buffering, or fan-out
+
+## Severity Hints
+
+- critical: breaks production
+- high: severely impacts user experience, or meaningfully increases runtime cost
+- medium: measurably at least an order of magnitude off
+- low: could be faster, technically
