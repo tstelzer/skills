@@ -1,6 +1,6 @@
 ---
 name: review
-description: Use for professionally adversarial local code review. Route to one review type at a time, default to robustness, and write either concise chat findings or a standalone review artifact depending on the request and context.
+description: Use for professionally adversarial local code review. Read the principles skill first, route to one review type at a time, default to robustness, and write either concise chat findings or a standalone review artifact depending on the request and context.
 ---
 
 # Review
@@ -10,6 +10,8 @@ description: Use for professionally adversarial local code review. Route to one 
 Use this as the entrypoint for local code review. Assume the implementation is
 wrong until it survives scrutiny. Default to finding concrete bugs, weak
 reasoning, unproven assumptions, and missing coverage over giving praise.
+Read the principles skill before reviewing. Use it to choose what assumptions to
+stress, then apply the selected review type.
 
 ## Routing Rules
 
@@ -28,17 +30,34 @@ reasoning, unproven assumptions, and missing coverage over giving praise.
 
 ## Workflow
 
-1. Determine the review scope from the user's request: files, diff, commits,
+1. Read the principles skill.
+2. Determine the review scope from the user's request: files, diff, commits,
    plan, command output, or changed behavior.
-2. Route to exactly one review type, then read this file plus the chosen
+3. Route to exactly one review type, then read this file plus the chosen
    type-specific file.
-3. Inspect the target and relevant surrounding code, tests, docs, configs, and
+4. Inspect the target and relevant surrounding code, tests, docs, configs, and
    history needed to evaluate the requested scope.
-4. Stress the highest-risk assumptions for that review type and keep only
+5. Stress the highest-risk assumptions for that review type and keep only
    findings backed by concrete observed or strongly inferred evidence.
-5. Report findings in severity order. Use chat for informal or lightweight
+6. Report findings in severity order. Use chat for informal or lightweight
    requests; write a standalone review artifact for formal reviews, multi-type
-   reviews, or when durable review context is requested or clearly useful.
+   reviews, or when a saved review would help future work.
+
+## Principles Use
+
+- Use the top-level principles to pick risks to test. Report only concrete
+  risks backed by evidence.
+- For robustness reviews, read deeper principle details when relevant:
+  `shape code by domain`, `keep boundaries sharp`, `parse, don't validate`,
+  `handle it, or die`, `avoid hasty abstractions`, `states are values`, and
+  `design for operation`.
+- For stability reviews, prefer `evolve contracts deliberately`,
+  `keep boundaries sharp`, and `parse, don't validate`.
+- For performance reviews, prefer `performance is not optional`.
+- For docs reviews, prefer `integrated documentation`.
+- For automatic test reviews, prefer `tests are code`.
+- For security reviews, prefer `parse, don't validate`, `keep boundaries sharp`,
+  `handle it, or die`, and `evolve contracts deliberately`.
 
 ## Quick Picks (Task -> File)
 
@@ -93,7 +112,7 @@ Create `reviews/` if it does not exist when writing an artifact.
 
 ## Scope
 <Standalone description of what was reviewed. Include commits, plans, files,
-commands, constraints, and assumptions when they materially affect the review.>
+commands, constraints, and assumptions when they change the review.>
 
 ## Findings
 ### <High|Medium|Low>: <Short issue title>
@@ -110,7 +129,7 @@ fix is clear yet>
 
 - Formal review artifacts MUST be standalone; do not rely on the prior chat.
 - For informal chat reviews, keep the same evidence standard and severity
-  ordering, but do not write a file unless durable context is warranted.
+  ordering, but write a file only when a saved review would help future work.
 - `## Scope` MUST restate the exact review target and any constraints needed to
   understand the findings.
 - Order findings by severity: `High`, then `Medium`, then `Low`.

@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use when creating a standalone implementation plan for a multi-step code change, before touching code.
+description: Use when creating a standalone implementation plan for a multi-step code change, before touching code. Read the principles skill first.
 ---
 
 # Plan
@@ -19,6 +19,8 @@ Plans must be standalone documents that do not rely on the prior chat.
 
 Plan artifacts should be compact in prose and explicit in code. Explanations
 must be clear, but short; code snippets should carry most implementation detail.
+Read the principles skill before planning. Use it to check domain terms,
+module boundaries, error handling, contracts, tests, and operational concerns.
 
 **Announce at start:** "I'm using the plan skill to create the implementation plan."
 
@@ -28,16 +30,31 @@ Create `plans/` if it does not exist.
 
 ## Workflow
 
-1. Inspect the repository before drafting. Read relevant source files, tests,
+1. Read the principles skill.
+2. Inspect the repository before drafting. Read relevant source files, tests,
    docs, configs, and local guidance such as `AGENTS.md` when present.
-2. Identify the current behavior, affected surfaces, exact files to touch,
+3. Identify the current behavior, affected surfaces, exact files to touch,
    invariants, dependencies, test strategy, and verification commands.
-3. Resolve unknowns from repo context where possible. Put remaining decisions
+4. Resolve unknowns from repo context where possible. Put remaining decisions
    only in **Open Questions**, and block dependent tasks explicitly.
-4. Draft the saved standalone plan with tasks ordered by dependency and each
+5. Draft the saved standalone plan with tasks ordered by dependency and each
    task independently verifiable.
-5. Before finalizing, run a fresh-reader pass for standalone context, concrete
+6. Before finalizing, run a fresh-reader pass for standalone context, concrete
    tasks, explicit tests, exact files, and no answered questions left behind.
+
+## Principles Use
+
+- Check every plan against the top-level principles. Mention a principle only
+  when it changes an implementation task.
+- Read deeper details from the principles skill when the change affects that
+  area: `shape code by domain`, `keep boundaries sharp`,
+  `parse, don't validate`, `handle it, or die`, `avoid hasty abstractions`,
+  `tests are code`, `evolve contracts deliberately`, and
+  `design for operation`.
+- Convert principles into concrete tasks: file placement, names, parsing
+  points, error mapping, compatibility steps, test cases, and verification
+  commands.
+- Put principle reasoning next to the affected task.
 
 ## Plan Structure
 
@@ -48,10 +65,10 @@ Create `plans/` if it does not exist.
 <1-3 sentences describing what this builds and why>
 
 ## Prerequisites
-<Only task-specific setup/deps/docs not already implicit from repo context or `AGENTS.md` — skip if none>
+<Only task-specific setup/deps/docs not already implicit from repo context or `AGENTS.md`; skip if none>
 
 ## Open Questions
-<Bulleted unknowns or decisions to resolve before/during implementation — skip if none>
+<Bulleted unknowns or decisions to resolve before/during implementation; skip if none>
 
 ## Out of Scope
 <Bulleted boundaries for what this plan explicitly does NOT cover>
@@ -65,7 +82,7 @@ Create `plans/` if it does not exist.
 **Details:** <Compact bullets with what to do and why>
 **Code Changes:** <Code changes in fenced blocks or patch-style hunks; full definitions for new/heavily changed units, focused hunks for localized edits>
 
-**Verify:** <How to confirm this task is done — command, test, manual check>
+**Verify:** <How to confirm this task is done: command, test, manual check>
 ```
 
 ## Writing Style
