@@ -69,9 +69,9 @@ The artifact is a design document, not a plan or a review.
 - A plan gives concrete implementation steps for building part of a design.
 - A review lists findings about an artifact, such as an implementation, plan, or design.
 
-**Save designs to:** `<repository-root>/designs/YYYY-MM-DD_HH:MM_<design-name>.md`
+**Save designs to:** `<repository-root>/docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md`
 
-Create `designs/` if it does not exist.
+Create `docs/designs/` if it does not exist.
 
 Use this structure as the default, but adapt section names and add/remove
 sections when the topic needs it:

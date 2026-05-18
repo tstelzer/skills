@@ -24,9 +24,9 @@ module boundaries, error handling, contracts, tests, and operational concerns.
 
 **Announce at start:** "I'm using the plan skill to create the implementation plan."
 
-**Save plans to:** `<repository-root>/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`
+**Save plans to:** `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`
 
-Create `plans/` if it does not exist.
+Create `docs/plans/` if it does not exist.
 
 ## Workflow
 

@@ -98,9 +98,9 @@ stress, then apply the selected review type.
 `<review-type>` review."
 
 **Save reviews to:**
-`<repository-root>/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`
+`<repository-root>/docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`
 
-Create `reviews/` if it does not exist when writing an artifact.
+Create `docs/reviews/` if it does not exist when writing an artifact.
 
 ## Review Structure
 
