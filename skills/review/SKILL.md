@@ -36,7 +36,9 @@ stress, then apply the selected review type.
 3. Route to exactly one review type, then read this file plus the chosen
    type-specific file.
 4. Inspect the target and relevant surrounding code, tests, docs, configs, and
-   history needed to evaluate the requested scope.
+   history needed to evaluate the requested scope. Treat credentials and other
+   sensitive values as toxic: identify their location and use, but do not copy
+   their raw contents into notes, chat, or review artifacts.
 5. Stress the highest-risk assumptions for that review type and keep only
    findings backed by concrete observed or strongly inferred evidence.
 6. Report findings in severity order. Use chat for informal or lightweight
@@ -102,6 +104,20 @@ stress, then apply the selected review type.
 
 Create `docs/reviews/` if it does not exist when writing an artifact.
 
+## Sensitive Evidence Rules
+
+- Never quote or reproduce secrets, credentials, tokens, private keys, session
+  values, cookies, authorization headers, connection strings, or raw log lines
+  that contain them.
+- Redact sensitive values as `<redacted>` before including evidence. Keep the
+  file path, line number, variable or field name, sink, and code path.
+- For credential leaks, prove the issue by describing the secret type and
+  exposure path, for example: `config/prod.env:12` stores `DATABASE_URL` in
+  plaintext and `scripts/debug.ts:44` logs it.
+- Do not include prefixes, suffixes, hashes, lengths, screenshots, command
+  output, or payload samples when they could help reconstruct or validate a
+  secret.
+
 ## Review Structure
 
 ```markdown
@@ -119,8 +135,9 @@ commands, constraints, and assumptions when they change the review.>
 **Category:** <specific category within the review type>
 **Impact:** <why this matters>
 **Location:** `path/to/file.ts:42`, `path/to/other.ts:10`
-**Evidence:** <Observed|Inferred>. <brief proof: code path, command result,
-log, failing test, type error, missing assertion, docs drift, etc.>
+**Evidence:** <Observed|Inferred>. <brief redacted proof: code path, command
+result with secrets removed, failing test, type error, missing assertion, docs
+drift, etc.>
 **Suggested Fix:** <concrete repair or next step; use `None` if no responsible
 fix is clear yet>
 ```
