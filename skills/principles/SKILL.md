@@ -17,7 +17,7 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Name nouns and verbs precisely.
 - Prefer domain language over technical mechanism.
 - Structure by domain: `users`, `machines`, `orders` over `components`, `controllers`, `repositories`, `routes`.
-- Include mechanism only to disambiguate, e.g. `UserRepository` (code), `user.repository.ts` (file).
+- Include mechanism only to mark a real concern boundary (HTTP, persistence, external contract), e.g. `UserRepository` (code), `user.repository.ts` (file). Do not split one concept across `.types.ts` / `.schema.ts` / `.constants.ts` files; keep them in `user.ts`.
 - Avoid generic names in broad scopes: `data`, `entity`, `item`, `manager`, `helper`.
 - Check existing naming before introducing new terms.
 - Use abbreviations when they improve local readability.

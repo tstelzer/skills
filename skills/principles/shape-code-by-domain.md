@@ -115,6 +115,42 @@ src/
 Mechanism words are useful when they clarify role. They should not become the
 primary organizing idea.
 
+### mechanism separates concerns, not kinds of code
+
+A "role" here is a real concern boundary: HTTP, persistence, an external
+contract. It is not the TypeScript construct kind (types, schema, constants).
+
+Weak:
+
+```text
+src/
+  users/
+    user.types.ts
+    user.schema.ts
+    user.constants.ts
+    user.dto.ts
+    user.dto-schema.ts
+    user.dto-types.ts
+```
+
+Stronger:
+
+```text
+src/
+  users/
+    user.ts         // domain types, schemas, constants, small helpers
+    user.dto.ts     // DTO types and schemas, mapping helpers
+```
+
+Controllers, services, repositories, and DTOs have different reasons to
+change: they sit on different sides of a boundary. Types, schemas, and
+constants for one concept do not. They describe the same thing and change
+together. Co-locate them in one file named for the concept.
+
+Add a mechanism suffix when you cross a real boundary (`user.dto.ts` for the
+wire shape, `user.repository.ts` for persistence). Do not add a suffix to
+split a single concept by the kind of TypeScript construct it happens to be.
+
 ### local helpers before shared helpers
 
 Weak:
