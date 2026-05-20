@@ -1,6 +1,6 @@
 ---
 name: review
-description: Use for professionally adversarial local code review. Read the principles skill first, route to one review type at a time, default to robustness, and write either concise chat findings or a standalone review artifact depending on the request and context.
+description: Use for professionally adversarial local code review. Read the principles skill first, route to one review type at a time, default to robustness, and write a standalone review artifact by default (only report inline when the user asks for an informal, ad-hoc, or inline review).
 ---
 
 # Review
@@ -41,9 +41,9 @@ stress, then apply the selected review type.
    their raw contents into notes, chat, or review artifacts.
 5. Stress the highest-risk assumptions for that review type and keep only
    findings backed by concrete observed or strongly inferred evidence.
-6. Report findings in severity order. Use chat for informal or lightweight
-   requests; write a standalone review artifact for formal reviews, multi-type
-   reviews, or when a saved review would help future work.
+6. Report findings in severity order. Write a standalone review artifact by
+   default. Only report inline in chat when the user explicitly asks for an
+   `informal`, `ad-hoc`, or `inline` review.
 
 ## Principles Use
 
@@ -144,9 +144,10 @@ fix is clear yet>
 
 ## Review Rules
 
-- Formal review artifacts MUST be standalone; do not rely on the prior chat.
-- For informal chat reviews, keep the same evidence standard and severity
-  ordering, but write a file only when a saved review would help future work.
+- Review artifacts MUST be standalone; do not rely on the prior chat.
+- Write a review artifact by default. Only skip the file and report inline
+  when the user explicitly asks for an `informal`, `ad-hoc`, or `inline`
+  review; inline reports keep the same evidence standard and severity ordering.
 - `## Scope` MUST restate the exact review target and any constraints needed to
   understand the findings.
 - Order findings by severity: `High`, then `Medium`, then `Low`.
