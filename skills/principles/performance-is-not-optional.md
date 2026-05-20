@@ -6,25 +6,41 @@ A system that returns the right answer too late is wrong. Latency and resource
 use are part of the behavior the user sees. Treat them like any other
 requirement.
 
-Know the rough scale before you commit to a shape. A loop over ten items and
-a loop over ten million items want different code, and changing the shape
-after the fact is much more expensive than picking it once.
+Optimize shape before code. Know the rough scale before you commit to a
+design: item count, request rate, fan-out, bytes moved, rows scanned, objects
+allocated, locks held, retries attempted, and external calls made. If the bound
+is not named, assume it will be exceeded.
 
-Resources have different costs. Network, disk, memory, and CPU do not fail
-in the same way and do not improve with the same fix. CPU-bound work may
-benefit from parallelism. IO-bound work usually benefits first from fewer
-round trips, batching, or bounded concurrency.
+Averages are weak evidence. Users feel tail latency. Mean latency hides it. In
+a fan-out path, the slowest child often sets the parent latency. Track p95,
+p99, and worst-case behavior for critical paths.
+
+Resources queue before they look full. Low average utilization can hide short
+bursts of saturation. Check utilization, saturation, and errors for every
+resource that can block progress: CPU, memory, disk, network, database,
+connection pool, worker pool, lock, queue, rate limit, and third-party service.
+
+Concurrency is a budget. Parallelism helps only when the parallel part is the
+bottleneck and the downstream resource can absorb it. Unbounded concurrency is
+load amplification. It moves the queue to a dependency, a pool, or the kernel.
+
+Overload is a design case. A system past capacity should reject, shed, defer,
+or degrade before it fills every queue and times out every caller. Slow failure
+is worse than fast refusal.
 
 Removing work usually beats speeding it up. A cache that turns a thousand
 repeated database lookups into one almost always saves more wall time than
 rewriting the loop that drives them.
 
+Caches are contracts. Every cache needs an owner, a key, a maximum size, a
+freshness rule, an invalidation rule, and a failure mode. An unbounded cache is
+a memory leak.
+
 Three patterns cause most performance problems: accidental quadratic work,
 chatty IO, and unbounded memory. They are easy to miss in tests because tests
-usually run on small data. Look for them on every change that touches a hot
-path or a collection whose size you do not control. When the rough shape is
-right, profile before going deeper. Intuition about hot spots is usually
-wrong.
+usually run on small data. Add fan-out, queue growth, and allocation churn to
+that list for service code. When the rough shape is right, profile before going
+deeper. Intuition about hot spots is usually wrong.
 
 ## examples
 
@@ -56,6 +72,46 @@ async function buildReport(orders: Order[]): Promise<Report> {
 
 Now there is one batch query, and the cost scales with the number of unique
 customers.
+
+### model the request cost
+
+Weak:
+
+```ts
+async function listDashboard(userId: UserId): Promise<Dashboard> {
+  const projects = await projectsForUser(userId)
+  const cards = await Promise.all(
+    projects.map((project) => loadCards(project.id)),
+  )
+  const comments = await Promise.all(
+    cards.flat().map((card) => loadRecentComments(card.id)),
+  )
+
+  return buildDashboard(projects, cards.flat(), comments.flat())
+}
+```
+
+The endpoint looks like one request. Its cost is `1 + projects + cards`
+queries, and the caller controls the shape through account size.
+
+Stronger:
+
+```ts
+async function listDashboard(userId: UserId): Promise<Dashboard> {
+  const projects = await projectsForUser(userId, { limit: 50 })
+  const projectIds = projects.map((project) => project.id)
+  const cards = await loadCardsForProjects(projectIds, { limitPerProject: 20 })
+  const comments = await loadRecentCommentsForCards(
+    cards.map((card) => card.id),
+    { limitPerCard: 5 },
+  )
+
+  return buildDashboard(projects, cards, comments)
+}
+```
+
+The operation has visible bounds and batch points. Review the cost from the
+public request inward.
 
 ### avoid accidental quadratic work
 
@@ -246,3 +302,137 @@ function sum(xs: number[]): number {
 Profile first. Optimize whichever entry sits at the top of the profile. A
 small per-call cost can dominate the total when the call sits in a tight
 loop, which is hard to estimate by eye.
+
+### measure the tail
+
+Weak:
+
+```ts
+metrics.histogram("http.request.latency", durationMs)
+metrics.gauge("http.request.latency.avg", averageLatencyMs)
+```
+
+The average can stay flat while one user in a hundred waits seconds.
+
+Stronger:
+
+```ts
+metrics.histogram("http.request.latency", durationMs, {
+  route,
+  status,
+})
+```
+
+```text
+Dashboard:
+- request rate by route
+- error rate by route
+- p50, p95, p99 latency by route and status
+- saturation for the limiting pool or dependency
+```
+
+Measure the distribution. Split success and failure latency when failures have
+a different path.
+
+### cap concurrency at the bottleneck
+
+Weak:
+
+```ts
+await Promise.all(files.map((file) => uploadFile(file)))
+```
+
+A large import opens every upload at once. The queue moves to the network,
+object store, file descriptors, or memory.
+
+Stronger:
+
+```ts
+await pMap(files, uploadFile, { concurrency: 8 })
+```
+
+With Effect:
+
+```ts
+yield* Effect.forEach(files, uploadFile, {
+  concurrency: 8,
+  discard: true,
+})
+```
+
+Pick the limit from the downstream resource, then measure. More concurrency
+must earn its cost.
+
+### reject before queues fill
+
+Weak:
+
+```ts
+const queue: Job[] = []
+
+function enqueue(job: Job): void {
+  queue.push(job)
+}
+```
+
+Under load, memory becomes the backpressure mechanism. The caller times out
+after the service has already accepted work it cannot finish.
+
+Stronger:
+
+```ts
+const queue = new BoundedQueue<Job>({ capacity: 1000 })
+
+async function enqueue(job: Job): Promise<EnqueueResult> {
+  const accepted = await queue.offer(job, { timeoutMs: 50 })
+  return accepted
+    ? { _tag: "Accepted" }
+    : { _tag: "Rejected", retryAfterMs: 5000 }
+}
+```
+
+Capacity is part of the interface. The service refuses work before it loses
+control of memory and latency.
+
+### make cache contracts explicit
+
+Weak:
+
+```ts
+const usersById = new Map<UserId, User>()
+
+async function loadUser(id: UserId): Promise<User> {
+  const cached = usersById.get(id)
+  if (cached) return cached
+
+  const user = await users.findById(id)
+  usersById.set(id, user)
+  return user
+}
+```
+
+The cache has no size, freshness rule, invalidation path, or failure mode.
+
+Stronger:
+
+```ts
+const usersById = new LruCache<UserId, User>({
+  maxEntries: 10_000,
+  ttlMs: 60_000,
+})
+
+async function loadUser(id: UserId): Promise<User> {
+  const cached = usersById.get(id)
+  if (cached) return cached
+
+  const user = await users.findById(id)
+  usersById.set(id, user)
+  return user
+}
+
+events.on("user.updated", (event) => {
+  usersById.delete(event.userId)
+})
+```
+
+The cache names its memory bound, staleness bound, and invalidation event.

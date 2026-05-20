@@ -47,6 +47,21 @@ description: Core engineering principles. Use as a guiding reference for designi
 
 [Details](parse-dont-validate.md)
 
+### privilege is earned
+
+- Treat caller-controlled input, identity, origin, and external systems as untrusted.
+- Authenticate identity before using it.
+- Authorize every action against the target resource.
+- Deny ambiguous access by default.
+- Grant the least authority needed for the operation.
+- Keep secrets out of source, logs, errors, telemetry, URLs, and clients.
+- Return only data the caller is allowed to know.
+- Constrain filesystem, network, browser, and third-party capabilities.
+- Make privileged actions auditable.
+- Treat attacker-triggered resource exhaustion as a security bug.
+
+[Details](privilege-is-earned.md)
+
 ### handle it, or die
 
 - Expected failures are named domain errors, carried by the Effect error channel, `Result`, etc.
@@ -74,14 +89,16 @@ description: Core engineering principles. Use as a guiding reference for designi
 
 ### performance is not optional
 
-- Consider performance from the outset.
-- Measure before deep optimization.
-- Know the expected scale.
-- Sketch costs across network, disk, memory, and CPU.
-- Consider bandwidth and latency.
-- Optimize the slowest resources first, adjusted by frequency.
+- Treat latency and resource use as behavior.
+- Model request cost before committing to a shape.
+- Name bounds for item count, fan-out, bytes, rows, memory, retries, and concurrency.
+- Measure tail latency, saturation, and errors, not only averages.
+- Check every blocking resource: CPU, memory, disk, network, pools, locks, queues, and dependencies.
+- Treat concurrency as a budget.
+- Reject, shed, defer, or degrade before overload fills queues.
 - Prefer avoiding work over making work faster.
-- Avoid accidental quadratic work, chatty IO, and unbounded memory.
+- Make cache size, freshness, invalidation, and failure mode explicit.
+- Avoid accidental quadratic work, chatty IO, unbounded memory, queue growth, and allocation churn.
 
 [Details](performance-is-not-optional.md)
 
@@ -105,11 +122,15 @@ description: Core engineering principles. Use as a guiding reference for designi
 
 ### integrated documentation
 
-- Document what is not evident from code: why, context, decisions.
+- Document why, context, decisions, constraints, and contracts.
+- Put docs where readers look.
+- Match the doc shape to the reader's job: tutorial, how-to, reference, or explanation.
+- Treat public docs, commands, config snippets, and examples as contracts.
 - Prioritize interface docs via `/** ... */`.
-- Avoid redundant docs covered by the type-system.
-- Document how/what only for non-trivial code.
-- Keep docs in sync.
+- Avoid redundant docs covered by names, types, schemas, or tests.
+- Prefer one source of truth and links over duplicated prose.
+- Update docs in the same diff as behavior.
+- Delete stale docs.
 
 [Details](integrated-documentation.md)
 
