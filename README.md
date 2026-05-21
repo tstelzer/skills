@@ -2,20 +2,16 @@
 
 ## Maturity
 
-- principles: solid
-- zod-v4: solid
-- effect-handbook: solid
-
-- discovery: wip
-- review: wip
-- plan: wip
-
-- create-skill: prototype
-- implement: prototype
-- learning: prototype
-- log: prototype
-- workflow-implement-review: prototype
-- workflow-plan-review: prototype
+- principles: mature
+- zod-v4: mature
+- effect-v3: mature
+- explore: draft
+- review: draft
+- plan: draft
+- workflow-implement-review: draft
+- workflow-plan-review: draft
+- implement: draft
+- log: draft
 
 ## Architecture
 
@@ -203,7 +199,7 @@ External skills use semantic names:
 
 ```text
 skill: principles
-skill: effect-handbook
+skill: effect-v3
 skill: zod-v4
 ```
 

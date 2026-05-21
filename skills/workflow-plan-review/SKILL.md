@@ -31,6 +31,7 @@ Use this when the user asks for an implementation plan and wants a review loop. 
 ### CREATE_LOG
 
 - Use the `log` skill to create the shared workflow log.
+- Record the user request as `Source request:`. Link a design artifact when one exists, or copy the request inline.
 - Always pass the same log path to every judge pass.
 
 ### DISPATCH_PLAN
@@ -63,7 +64,7 @@ You are the review judge. Use `skill: review`.
 
 Workflow log path: <path>.
 
-Review the plan artifact linked in the log against the source request.
+Review the plan artifact linked in the log against the source request. Score the plan only; there is no implementation diff in this workflow.
 
 Return exactly one status line:
 STATUS: DONE
@@ -73,6 +74,10 @@ STATUS: ESCALATE: <reason>
 
 ### ROUTE_NEXT_PASS
 
+- Read `## Open Findings` and `## Current State` from the log before deciding.
+- Increment the round counter in `## Current State` after each completed review pass.
+- If subagent dispatch fails (tool error, no return), stop with `STATUS: BLOCKED: subagents unavailable`.
+- If a dispatched judge returns no status line or more than one, stop with `STATUS: BLOCKED: invalid handoff`.
 - If planning or review returns `BLOCKED` or `ESCALATE`, stop and report.
 - If review has no `fix now` findings, stop with `STATUS: DONE`.
 - If review has `fix now` findings and the round limit is not reached, dispatch planning again with the same log path.
@@ -82,5 +87,5 @@ STATUS: ESCALATE: <reason>
 ## Stop Conditions
 
 - `STATUS: DONE`: latest review pass completed and `## Open Findings` has no `fix now` findings.
-- `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is unavailable. Includes `subagents unavailable` and `review loop limit reached`.
+- `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is unavailable. Includes `subagents unavailable`, `invalid handoff`, and `review loop limit reached`.
 - `STATUS: ESCALATE: <reason>`: a human decision is needed.

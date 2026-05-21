@@ -1,9 +1,9 @@
 ---
-name: effect-handbook
-description: Canonical handbook for Effect ecosystem usage in TypeScript. Always use when interacting with Effect code.
+name: effect-v3
+description: Canonical handbook for Effect v3 in TypeScript. Always use when interacting with Effect code.
 ---
 
-# Effect Handbook
+# Effect v3
 
 ## Purpose
 Use this as the single source of truth for Effect-related guidance in this repository. Sections are index buckets, not a reading order.
