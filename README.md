@@ -11,9 +11,11 @@
 - plan: wip
 
 - create-skill: prototype
+- implement: prototype
 - learning: prototype
 - log: prototype
-- workflow-build: prototype
+- workflow-implement-review: prototype
+- workflow-plan-review: prototype
 
 ## Architecture
 
@@ -71,7 +73,7 @@ The router chooses the next judge. It does not synthesize findings.
 
 Examples:
 
-- run `plan`, then `workflow-build`, then `review`
+- run `plan`, then `workflow-implement-review`, then `review`
 - run only `review` for a prepared diff
 - run one formal review now, then stop
 

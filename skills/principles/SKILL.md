@@ -57,7 +57,6 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Keep secrets out of source, logs, errors, telemetry, URLs, and clients.
 - Return only data the caller is allowed to know.
 - Constrain filesystem, network, browser, and third-party capabilities.
-- Make privileged actions auditable.
 - Treat attacker-triggered resource exhaustion as a security bug.
 
 [Details](privilege-is-earned.md)
@@ -71,7 +70,6 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Do not leak library errors inward or domain errors outward.
 - Avoid catch-log-rethrow.
 - Log unhandled errors exactly once, at the boundary.
-- Inline assertions on invariants can be useful.
 - Do not continue after corrupted invariants.
 - Do not encode programmer bugs as recoverable business errors.
 
@@ -138,7 +136,7 @@ description: Core engineering principles. Use as a guiding reference for designi
 
 - Assume good intent, not good context.
 - Avoid perpetuating bad code patterns.
-- Leave code cleaner than you found it, but keep changes scoped.
+- Leave code cleaner than you found it, but keep changes scoped. Bad or outdated tests in the touched area can be purged.
 - Refactor opportunistically when the change already touches the code.
 
 [Details](fight-entropy.md)

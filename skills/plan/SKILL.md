@@ -1,144 +1,160 @@
 ---
 name: plan
-description: Use when creating a standalone implementation plan for a multi-step code change, before touching code. Read the principles skill first.
+description: Use as the planning judge for a standalone implementation plan for a multi-step code change, before touching code.
 ---
 
 # Plan
 
-## Overview
+## Required Reading
 
-Write implementation plans for engineers who have zero project context.
-Document exactly what they need to know: files to touch, code to write, tests to
-update, docs to check, and how to verify the result. Give them the whole plan as
-bite-sized tasks.
+- skill: principles (read details you deem relevant)
 
-Assume they are a skilled developer, but know almost nothing about our toolset
-or problem domain. Assume they don't know good test design very well; make the
-test intent, fixture setup, assertions, and failure coverage explicit.
-Plans must be standalone documents that do not rely on the prior chat.
+## Role
 
-Plan artifacts should be compact in prose and explicit in code. Explanations
-must be clear, but short; code snippets should carry most implementation detail.
-Read the principles skill before planning. Use it to check domain terms,
-module boundaries, error handling, contracts, tests, and operational concerns.
+Plan is a judge.
 
-**Announce at start:** "I'm using the plan skill to create the implementation plan."
+It owns scope, context loading, decisions, task sequencing, verification
+strategy, and the saved plan artifact.
 
-**Save plans to:** `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`
+The judge may do the work directly. Delegate only when a bounded investigation
+can run independently, such as API contract discovery, migration risk, test
+inventory, or rollout constraints. Workers return raw notes. The judge writes
+the plan.
 
-Create `docs/plans/` if it does not exist.
+This skill fits a three-tier workflow:
+
+- router: chooses when to run planning, build, and review
+- judge: owns the planning decision and artifact
+- worker: answers one bounded planning question
+
+Default to direct execution.
 
 ## Workflow
 
-1. Read the principles skill.
-2. Inspect the repository before drafting. Read relevant source files, tests,
-   docs, configs, and local guidance such as `AGENTS.md` when present.
-3. Identify the current behavior, affected surfaces, exact files to touch,
-   invariants, dependencies, test strategy, and verification commands.
-4. Resolve unknowns from repo context where possible. Put remaining decisions
-   only in **Open Questions**, and block dependent tasks explicitly.
-5. Draft the saved standalone plan with tasks ordered by dependency and each
-   task independently verifiable.
-6. Before finalizing, run a fresh-reader pass for standalone context, concrete
-   tasks, explicit tests, exact files, and no answered questions left behind.
+1. DETERMINE_SCOPE
+2. LOAD_CONTEXT
+3. DELEGATE_INVESTIGATIONS
+4. RESOLVE_DECISIONS
+5. DRAFT_PLAN
+6. CHECK_GATES
+7. WRITE_ARTIFACT
 
-## Principles Use
+### DETERMINE_SCOPE
 
-- Check every plan against the top-level principles. Mention a principle only
-  when it changes an implementation task.
-- Read deeper details from the principles skill when the change affects that
-  area: `shape code by domain`, `keep boundaries sharp`,
-  `parse, don't validate`, `handle it, or die`, `avoid hasty abstractions`,
-  `tests are code`, `evolve contracts deliberately`, and
-  `design for operation`.
-- Convert principles into concrete tasks: file placement, names, parsing
-  points, error mapping, compatibility steps, test cases, and verification
-  commands.
-- Put principle reasoning next to the affected task.
+- Determine the requested change, affected product behavior, explicit
+  exclusions, and planning depth.
+- Name the repository root and planned artifact path:
+  `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
+- Create `docs/plans/` if it does not exist.
 
-## Plan Structure
+### LOAD_CONTEXT
 
-```markdown
+- Read relevant source, tests, docs, configs, `AGENTS.md`, and local guidance.
+- Identify current behavior, affected files, invariants, dependencies,
+  contracts, test seams, and verification commands.
+- Use semantic skill names for external skills, e.g. `skill: principles`.
+- Use paths for local files. Do not copy reference material into the plan unless
+  the implementer needs the exact snippet.
+
+### DELEGATE_INVESTIGATIONS
+
+- Skip when direct planning is cheaper.
+- Delegate only independent, bounded questions.
+- Worker prompts must include the question, exact scope, files or skills to
+  read, expected output shape, and the rule that workers must not write the
+  plan artifact.
+- Treat worker output as evidence. Deduplicate and reconcile it before
+  planning.
+
+### RESOLVE_DECISIONS
+
+- Resolve unknowns from repo context when possible.
+- Keep unresolved decisions only in `Open Questions`.
+- Do not place alternatives inside implementation tasks.
+- If a task depends on an unresolved question, mark that task blocked and name
+  the dependency.
+
+### DRAFT_PLAN
+
+- Write for a skilled engineer with no prior chat context.
+- Use exact file paths, line numbers when useful, and dependency-ordered tasks.
+- Make each task independently verifiable.
+- Put tests in the same task as the behavior change or in a dependent test
+  task. If no tests are added, state why.
+- Prefer concise prose and concrete code.
+
+Code-in-plan policy:
+
+- Trivial low-risk edits may use inline snippets.
+- New files, new functions, new components, new types, or heavily rewritten
+  units need full or near-full code.
+- Localized edits need patch-style hunks or focused before/after snippets with
+  enough context to apply them safely.
+- Do not dump whole existing files for small edits.
+- Do not include generated artifacts, lockfiles, snapshots, or build output
+  unless they are the subject of the change.
+- Do not hide substantive logic behind `...`.
+- Add comments only for non-obvious invariants, edge cases, error handling,
+  concurrency, performance, security, or domain rules.
+
+### CHECK_GATES
+
+Before writing the artifact, verify:
+
+- The plan stands alone without prior chat.
+- Every non-trivial task lists exact files.
+- Every task is concrete and decision-free.
+- `Open Questions` contains only unresolved decisions.
+- No answered question remains as an open question.
+- Blocked tasks name their blocker.
+- Verification commands and expected results are explicit.
+- Task file lists match the snippets or hunks in that task.
+- The plan has no meta notes about this skill or the planning process.
+
+### WRITE_ARTIFACT
+
+- Write the final plan to
+  `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
+- When revising a plan, rewrite the complete final artifact. Do not write a
+  delta from the previous draft.
+- Fold accepted feedback into the relevant sections.
+- Delete superseded scope instead of describing that it was removed.
+
+## Artifact Template
+
+````markdown
 # Plan: <Feature Name>
 
 ## Summary
 <1-3 sentences describing what this builds and why>
 
 ## Prerequisites
-<Only task-specific setup/deps/docs not already implicit from repo context or `AGENTS.md`; skip if none>
+<Task-specific setup, dependencies, or docs; skip if none>
 
 ## Open Questions
-<Bulleted unknowns or decisions to resolve before/during implementation; skip if none>
+<Unresolved decisions only; skip if none>
 
 ## Out of Scope
-<Bulleted boundaries for what this plan explicitly does NOT cover>
+<Boundaries this plan does not cover>
 
 ## Overview
-<1-2 short paragraphs about approach, constraints, and sequencing>
+<1-2 short paragraphs about architecture, approach, constraints, and sequencing>
 
 ## Task <n>: <name>
-**Files:** `path/to/file.ts:42`, ...
-**Depends on:** Task <m> (if any)
-**Details:** <Compact bullets with what to do and why>
-**Code Changes:** <Code changes in fenced blocks or patch-style hunks; full definitions for new/heavily changed units, focused hunks for localized edits>
+**Files:** `path/to/file.ts:42`, `path/to/test.ts`
+**Depends on:** Task <m> or `None`
+**Blocked by:** <open question or external dependency; omit if unblocked>
 
-**Verify:** <How to confirm this task is done: command, test, manual check>
+**Details:**
+- <Concrete implementation step>
+- <Concrete implementation step>
+
+**Code Changes:**
+```ts
+// Full definition, focused snippet, or patch-style hunk.
 ```
 
-## Writing Style
-
-- Keep prose lean. Prefer short paragraphs and compact bullets over long narrative sections.
-- Preserve reasoning, but make it local and actionable: explain the reason next to the task or code it affects.
-- Do not repeat the same motivation across Summary, Overview, and task Details.
-- Let code snippets, exact paths, and verification commands do the detailed work.
-- Use **Overview** for architecture and sequencing only; do not restate every task.
-- Use **Details** for task-specific rationale and steps, ideally 3-6 bullets.
-- Do not pad the plan with general engineering advice unless it is specific to this implementation.
-
-## Standalone Plan Rules
-
-- You MUST write a standalone plan; you MUST NOT reference the chat (e.g., "as discussed above").
-- You MUST restate all assumptions, constraints, definitions, and goals inside the plan body (Summary/Overview/Prerequisites/Open Questions).
-- You MUST NOT include redundant global context in **Prerequisites** (for example: repo root path, generic workspace commands already documented in `AGENTS.md`, or a list of skills used to write the plan).
-
-## Revision Rules
-
-- When revising a plan after feedback, you MUST rewrite the plan as the desired final artifact, not as a delta from the previous draft.
-- You MUST fold accepted feedback into the affected sections so the revised plan reads as if it were written correctly from scratch.
-- You MUST NOT describe changes relative to the previous draft (for example: "remove X", "do not do Y anymore", "only do A now", "keep B from the earlier plan").
-- If feedback eliminates a feature, task, constraint, or option from the plan, you MUST delete it and rewrite surrounding text for coherence instead of mentioning the removal.
-- Use negative phrasing only for actual product or implementation constraints that belong in the final plan itself, not to reflect plan-edit history.
-- Before finalizing any revision, you MUST do a "fresh-reader" pass: read the document as someone who never saw the earlier draft and remove anything that would require prior conversation context.
-
-## Open Questions Discipline
-
-- All unknowns/decisions MUST appear only in **Open Questions**.
-- Tasks MUST be concrete and decision-free; you MUST NOT propose alternatives inside tasks.
-- If a task depends on an unanswered question, you MUST explicitly block it and mark the dependency.
-- You MUST NOT use ambiguous language in tasks (e.g., "could", "might", "maybe", "either/or", "TBD", "figure out").
-- If an open question is answered while drafting, you MUST remove it from **Open Questions** and integrate the answer into Summary/Overview/Prerequisites/Tasks before finalizing.
-- Tasks MUST NOT reference **Open Questions** unless the question is still unresolved and the task is explicitly marked blocked.
-
-## Remember
-
-- You MUST include exact file paths (line numbers if relevant).
-- You MUST provide concrete, verbose implementation steps (code when useful), not vague directives.
-- Code-in-plan policy:
-  - If a change is extremely trivial and low-risk (for example: a one-line rename, import addition, or obvious constant tweak), you MAY describe it with an abbreviated inline snippet or short example.
-  - For new files, new functions/components/types, or units that are being heavily rewritten, you MUST include full or near-full code for that new or rewritten unit so the implementer can apply it without inventing missing logic.
-  - For localized edits inside an existing file, you MUST use patch-style hunks or focused before/after snippets that show only the changed region plus enough surrounding context to apply the edit safely.
-  - Do not dump an entire existing file when only a small portion changes, even if the file is short. If a one-line change needs context, show the nearby function/block rather than the whole file.
-  - Prefer full function/component/type definitions when most of that unit is new or changed; prefer focused hunks when only a few lines inside the unit change.
-  - Do not include generated artifacts or bulky machine-produced diffs (e.g., lockfiles, snapshots, build output) unless they are the core subject of the task.
-  - Do not hide substantive edits behind placeholders like "..." when that omits important logic, control flow, types, or error handling.
-  - Include comments in snippets when they clarify non-obvious invariants, edge cases, error handling, concurrency, performance tradeoffs, security constraints, or domain rules.
-  - Do not add comments that merely narrate obvious syntax. Comments should be useful enough to keep in production code.
-- You MUST format non-trivial code changes in fenced code blocks (preferred) or patch-style hunks, and identify the target file/path near each snippet.
-- For each task, the `**Files:**` list MUST match the files referenced in that task's code snippets/hunks (no extra or missing files).
-- You MUST include exact verification commands and expected output when deterministic; otherwise include the exact command/check and the expected observable result/assertion.
-- You MUST NOT include meta process notes in the plan (for example, which plan skill(s) you used to produce the plan). Only mention external docs/tools when they are actual implementation inputs.
-- You MUST order tasks by dependency, call out blocking relationships, and make each task independently verifiable.
-- If behavior changes, you MUST include test additions/updates in the same task or a dependent task; if not adding tests, explain why.
-- Prerequisites and open questions MUST be resolved and integrated before any dependent implementation task begins, or the task MUST be explicitly marked blocked.
-- On revisions, deleted scope MUST disappear from the final plan instead of being mentioned as excluded due to review feedback.
-- Before finalizing, you MUST run a "standalone + no-open-questions-in-tasks + answered-questions-cleanup" pass.
+**Verify:**
+- `<command>`
+- Expected: <observable result>
+````

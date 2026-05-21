@@ -278,26 +278,3 @@ function applyTransition(state: State, event: Event): State {
 If the type says the state is impossible, treat reaching it as a bug. Do not
 make callers recover from broken program assumptions.
 
-### assert corrupted invariants
-
-Weak:
-
-```ts
-if (invoice.total < 0) {
-  return Result.fail(new InvalidInvoiceTotal())
-}
-
-await charge(invoice.total)
-```
-
-Stronger:
-
-```ts
-assert(invoice.total >= 0, "invoice total must not be negative")
-
-await charge(invoice.total)
-```
-
-If a negative total is rejected user input, parse it at the boundary and return
-a normal error. If a negative total can only happen because internal state is
-corrupt, stop immediately.
