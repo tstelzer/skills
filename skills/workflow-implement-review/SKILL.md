@@ -19,7 +19,7 @@ It runs a fixed sequence:
 
 It dispatches judge passes to subagents, reads status and finding dispositions, and routes the next pass. It does not edit, review, or verify code itself.
 
-Use this when the user asks to build, implement, fix, or change code and wants a review loop. This skill does not create a plan. If the task needs discovery or planning first, stop with `STATUS: ESCALATE: planning required`.
+Use this when the user asks to build, implement, fix, or change code and wants a review loop. This skill does not create a plan. The user request can be ad-hoc or linked to a prior plan.
 
 ## Workflow
 
@@ -31,6 +31,8 @@ Use this when the user asks to build, implement, fix, or change code and wants a
 ### CREATE_LOG
 
 - Use the `log` skill to create the shared workflow log.
+- Record the user request as `Source request:`. Link a plan or design artifact when one exists, or copy the request inline.
+- Record the workflow baseline: base ref (current `git HEAD`) and starting dirty files (`git status`).
 - Always pass the same log path to every judge pass.
 
 ### DISPATCH_IMPLEMENT
@@ -73,6 +75,10 @@ STATUS: ESCALATE: <reason>
 
 ### ROUTE_NEXT_PASS
 
+- Read `## Open Findings` and `## Current State` from the log before deciding.
+- Increment the round counter in `## Current State` after each completed review pass.
+- If subagent dispatch fails (tool error, no return), stop with `STATUS: BLOCKED: subagents unavailable`.
+- If a dispatched judge returns no status line or more than one, stop with `STATUS: BLOCKED: invalid handoff`.
 - If implementation or review returns `BLOCKED` or `ESCALATE`, stop and report.
 - If review has no `fix now` findings, stop with `STATUS: DONE`.
 - If review has `fix now` findings and the round limit is not reached, dispatch implementation again with the same log path.
@@ -82,5 +88,5 @@ STATUS: ESCALATE: <reason>
 ## Stop Conditions
 
 - `STATUS: DONE`: latest review pass completed and `## Open Findings` has no `fix now` findings.
-- `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is unavailable. Includes `subagents unavailable` and `review loop limit reached`.
+- `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is unavailable. Includes `subagents unavailable`, `invalid handoff`, and `review loop limit reached`.
 - `STATUS: ESCALATE: <reason>`: a human decision is needed.

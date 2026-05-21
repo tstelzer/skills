@@ -1,9 +1,9 @@
 ---
-name: discovery
-description: Use for deep discovery of a problem or solution space before planning, implementation, or review.
+name: explore
+description: Use for deep exploration of a problem or solution space before planning, implementation, or review.
 ---
 
-# Discovery
+# Explore
 
 ## Required Reading
 
@@ -12,13 +12,13 @@ description: Use for deep discovery of a problem or solution space before planni
 
 ## Role
 
-Discovery is a judge.
+Explore is a judge.
 
 It owns scope, context loading, questions, synthesis, decisions, and any saved
 design artifact. Use it to build a source of truth about a problem space,
 solution space, domain, workflow, system behavior, or product decision.
 
-Discovery may run as chat or produce a written artifact.
+Exploration may run as chat or produce a written artifact.
 
 Default to chat. Write an artifact when the user asks for one, the result should
 outlive the conversation, or later planning, implementation, or review depends
@@ -34,15 +34,15 @@ Workers return notes. The judge writes the artifact.
 1. DETERMINE_OUTPUT
 2. LOAD_CONTEXT
 3. MAP_SPACE
-4. RUN_DISCOVERY_LOOP
+4. RUN_EXPLORATION_LOOP
 5. FINISH_OR_CONTINUE
 
 ### DETERMINE_OUTPUT
 
 - Choose `chat` or `written artifact`.
 - Name the subject and scope.
-- Identify whether discovery should feed planning, implementation, review,
-  strategy, documentation, or future discovery.
+- Identify whether exploration should feed planning, implementation, review,
+  strategy, documentation, or future exploration.
 
 ### LOAD_CONTEXT
 
@@ -72,9 +72,9 @@ Adapt the map to the topic. A general problem space may need taxonomy,
 principles, tradeoffs, history, or competing frames. A product workflow may need
 actors, states, failure modes, and constraints.
 
-### RUN_DISCOVERY_LOOP
+### RUN_EXPLORATION_LOOP
 
-Repeat until the discovery is clear enough, the user pauses, or the user asks
+Repeat until the exploration is clear enough, the user pauses, or the user asks
 to move to another phase:
 
 1. ASK_QUESTIONS
@@ -104,7 +104,7 @@ Give each material item a disposition:
 - open question
 - out of scope
 - risk
-- follow-up discovery target
+- follow-up exploration target
 
 Resolve disagreements and contradictions when possible. Preserve them as open
 questions or risks when they remain unresolved.
@@ -113,13 +113,13 @@ questions or risks when they remain unresolved.
 
 At each synthesis point, verify:
 
-- The synthesis answers the requested discovery scope.
+- The synthesis answers the requested exploration scope.
 - Assumptions are labeled.
 - Open questions are real unresolved unknowns.
 - Risks, edge cases, and constraints are captured when relevant.
-- The output stays at discovery level: concepts, constraints, decisions,
+- The output stays at exploration level: concepts, constraints, decisions,
   tradeoffs, risks, and open questions.
-- The next phase is clear: continue discovery, plan, implement, review, document,
+- The next phase is clear: continue exploration, plan, implement, review, document,
   or stop.
 
 For written artifacts, also verify:
@@ -139,10 +139,10 @@ For written artifacts, also verify:
 
 ### FINISH_OR_CONTINUE
 
-- Continue discovery when useful questions remain.
+- Continue exploration when useful questions remain.
 - Move to planning, implementation, review, documentation, or stop when the
   next phase is clear.
-- If chat discovery has produced durable context, ask whether to save it before
+- If chat exploration has produced durable context, ask whether to save it before
   switching phases.
 
 ## Artifact Template
@@ -160,7 +160,7 @@ For written artifacts, also verify:
 <Outcomes this design understanding should support.>
 
 ## Non-Goals
-<Boundaries for this discovery. Skip if none.>
+<Boundaries for this exploration. Skip if none.>
 
 ## Current Understanding
 <Domain facts, user needs, system behavior, constraints, assumptions, and edge cases.>
@@ -181,5 +181,5 @@ For written artifacts, also verify:
 <Unresolved decisions or unknowns. Skip if none.>
 
 ## Next Step
-<Continue discovery, plan, implement, review, document, or stop.>
+<Continue exploration, plan, implement, review, document, or stop.>
 ```
