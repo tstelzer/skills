@@ -21,7 +21,9 @@ change costs little. The same cleanup as a separate PR rarely happens.
 
 Keep the cleanup scoped. The point is to leave the area slightly more
 ordered. Bug fixes that touch forty files are hard to review and easy to
-abandon. If the cleanup needs its own decision, give it its own PR.
+abandon. If the cleanup needs its own decision, give it its own PR. Bad or
+outdated tests in the touched area are an exception: they are cheap to
+purge in place and unlikely to be purged later.
 
 One caveat: before removing a strange thing, find out why it is there. Some
 weird code is a fence around a real problem. Check the blame and the tests

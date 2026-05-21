@@ -43,10 +43,6 @@ Resource exhaustion is a security bug when an attacker can trigger it. Bounds,
 timeouts, rate limits, pagination, upload limits, archive limits, and
 concurrency caps are part of the trust decision.
 
-Security logs should prove who did what to which target without leaking the
-thing being protected. Privileged actions, failed authorization, exports,
-deletes, tenant access, impersonation, and billing changes need an audit trail.
-
 ## common trust boundaries
 
 - Access control: bind actor, action, and target resource. A login check is not
@@ -306,45 +302,3 @@ return redirect(next)
 
 The redirect only grants same-origin navigation.
 
-### audit privileged actions
-
-Weak:
-
-```ts
-app.post("/admin/users/:id/disable", requireUser, disableUser)
-```
-
-The route does not prove admin authority and leaves no durable record of the
-actor, target, and action.
-
-Stronger:
-
-```ts
-app.post("/admin/users/:id/disable", requireAdmin, async (req, res) => {
-  const command = DisableUserCommand.parse({
-    actorId: req.user.id,
-    targetUserId: req.params.id,
-  })
-
-  await users.disableByAdmin(command)
-
-  res.status(204).end()
-})
-```
-
-```ts
-async function disableByAdmin(command: DisableUserCommand): Promise<void> {
-  await userStore.transaction(async (tx) => {
-    await users.disable(tx, command.targetUserId)
-    await audit.write(tx, {
-      actorId: command.actorId,
-      action: "user.disable",
-      targetType: "user",
-      targetId: command.targetUserId,
-    })
-  })
-}
-```
-
-The operation names the actor, action, and target. The audit event commits
-with the privileged change.

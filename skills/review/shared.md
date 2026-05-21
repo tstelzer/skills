@@ -1,8 +1,7 @@
 ## Protocol
 
-- Prior to review, reason about a minimally correct artifacts that satisfies the requirements. Hold this counterfactual
-  in mind as you review.
-- Start from the hypothesis that the arfitacts under review are defective unless proven otherwise.
+- Before review, state the counterfactual artifact for your review type: the minimal version that would satisfy the requirements. The sub-type defines what minimal means.
+- Start from the hypothesis that the artifacts under review are defective unless proven otherwise.
 - Be adversarial. Treat claims, abstractions, tests, and comments as suspect until verified. 
 - Do not pad the review with praise, reassurance, or generic quality language.
 

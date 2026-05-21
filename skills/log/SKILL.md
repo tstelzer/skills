@@ -28,7 +28,11 @@ Create `docs/workflows/` if it does not exist.
 
 - Read the current log before acting.
 - Keep `## Timeline` append-only.
-- Only `## Current State` and `## Open Findings` are mutable.
+- Only `## Current State`, `## Scope`, and `## Open Findings` are mutable.
+- Link the source request: plan/design artifact when one exists, or the copied
+  user request when no durable artifact exists.
+- Record the workflow baseline before changes start: base ref, starting dirty
+  files, or another explicit scope boundary the workflow can review against.
 - Link every artifact created or consumed by the workflow.
 - Do not list implementation files as artifacts. Code files, README changes,
   configs, and tests belong in pass artifacts, diffs, or phase scope.
@@ -45,6 +49,7 @@ Create `docs/workflows/` if it does not exist.
 Write entries only for workflow coordination:
 
 - Current workflow status and next pass.
+- Source request and review baseline.
 - Artifact links: plans, reviews, audits, verdicts, screenshots, test reports.
 - Deviations from the expected plan, design, task, or prior handoff.
 - Non-obvious findings that future passes must account for.
@@ -83,9 +88,14 @@ precondition. Use `ESCALATE` when a human decision is needed.
 ## Current State
 - Workflow: `<workflow-name>`
 - Status: `<active | blocked | done | escalated>`
-- Pass: `<n>/<max>`
+- Round: `<n>/<max>`
 - Next pass: `<implement | review | other>`
 - Next handoff: <one concrete instruction>
+
+## Scope
+- Source request: <link to plan/design, or copied user request>
+- Baseline: <base ref, starting dirty files, or explicit review boundary>
+- Review scope: <what later review should include and exclude>
 
 ## Artifacts
 - `<artifact-type>`: [docs/path/to/artifact.md](../path/to/artifact.md)
@@ -110,14 +120,18 @@ STATUS: DONE
 
 ## Finding Dispositions
 
-Use one disposition for every finding that enters the workflow:
+Use one workflow disposition for every accepted finding:
 
 - `fix now`: must be addressed before the workflow can finish.
 - `follow-up`: valid issue, outside the current workflow scope. Record the
   executable follow-up.
 - `waiver`: accepted risk. Record the reason and evidence.
 
-No finding may disappear silently.
+During judge synthesis, findings may also be recorded as `duplicate`, `out of
+scope`, `rejected with evidence`, or `blocked`. These do not remain in
+`## Open Findings` unless later workflow passes must account for them.
+
+No material finding may disappear silently.
 
 When a finding is fully fixed, leave it in `## Open Findings` only if it still
 matters for future passes. Otherwise record the resolution in `## Timeline` and

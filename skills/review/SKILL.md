@@ -7,7 +7,7 @@ description: Use for local code review.
 
 ## Required Reading
 
-- skill: principles
+- skill: principles (read details you deem relevant)
 
 ## Workflow
 
@@ -39,7 +39,7 @@ description: Use for local code review.
 
 - The judge owns review type selection, scope, worker prompts, aggregation, severity normalization, and artifact writing.
 - Workers own one review type only.
-- Workers must not spawn other workers, widen scope, or write the final artifact.
+- Workers must not spawn other workers, widen scope, write any file, or aggregate findings.
 - If more than one review type is required, spawn sub-agent workers for each review type, which should report findings to the judge.
 - If only one review type is required or the scope is small enough, the judge may perform the review directly.
 - The prompt of each reviewer MUST include:
@@ -49,7 +49,7 @@ description: Use for local code review.
         - [shared.md](./shared.md)
         - [review-template.md](./review-template.md)
         - Any review-local files referenced by the review type file.
-    - The rule that findings MUST follow the [review-template.md](./review-template.md) structure.
+    - The rule that findings MUST follow the [review-template.md](./review-template.md) structure and be returned inline in chat, never written as a file.
     - The review context and scope.
 - Use semantic skill names only for external skills, e.g. `skill: principles`.
 
@@ -60,6 +60,7 @@ description: Use for local code review.
 
 ### WRITE_ARTIFACT
 
+- Only the judge writes the artifact.
 - Skip if the user explicitly asks for an informal or ad-hoc review.
 - Create `<repository-root>/docs/reviews/` if it doesn't exist yet.
 - Write the findings to `<repository-root>/docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.

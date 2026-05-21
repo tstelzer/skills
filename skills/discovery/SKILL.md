@@ -1,133 +1,185 @@
 ---
 name: discovery
-description: Use for deep design discovery and problem understanding before planning or implementation. Read the principles skill first. Trigger when the user wants to think deeply, build knowledge, find edge cases, ask many questions, or explore the problem space without producing plans or code; save a design artifact when the user asks for one or future work needs it.
+description: Use for deep discovery of a problem or solution space before planning, implementation, or review.
 ---
 
 # Discovery
 
-## Overview
+## Required Reading
 
-Understand the problem before planning or coding. Ask useful questions. Probe
-edge cases. Name unclear requirements early.
+- skill: principles
+- all principle details relevant to the topic
 
-Read the principles skill before discovery. Use it to check domain language,
-boundaries, states, contracts, operational risks, and tradeoffs.
+## Role
 
-Start by choosing the interaction depth:
+Discovery is a judge.
 
-- Lightweight discovery: use for informal exploration, question-only requests,
-  or cases where writing a file would be overhead. Ask the 1-3
-  most important questions, or summarize what is already known. End with a
-  concise chat summary and any open questions.
-- Full discovery: use when the topic is complex, the answers will feed future
-  planning or implementation, or the user asks for a design artifact. Ask a
-  focused batch of 3-7 questions, iterate as needed, and write a standalone
-  design artifact at the end.
+It owns scope, context loading, questions, synthesis, decisions, and any saved
+design artifact. Use it to build a source of truth about a problem space,
+solution space, domain, workflow, system behavior, or product decision.
 
-Ask questions only when the answers change the design understanding.
-Keep each batch answerable, never more than 7 questions at once. Prioritize by
-importance. Start high-level, then go deeper when needed.
+Discovery may run as chat or produce a written artifact.
 
-Possible themes:
-- Goal/outcome (what success looks like)
-- Audience/user and context
-- Constraints (time, budget, tech, tone, scope)
-- Current state (what exists today, what to avoid)
-- Known pain points and failure modes
-- Key assumptions and unknowns
+Default to chat. Write an artifact when the user asks for one, the result should
+outlive the conversation, or later planning, implementation, or review depends
+on the captured understanding.
 
-Call out edge cases, abuse cases, and unclear scenarios. Name underspecified
-requirements plainly.
+The judge may do the work directly. Delegate only when a bounded lens can run
+independently, such as domain modeling, existing behavior, user workflow, API
+contracts, state models, abuse cases, operations, migration risk, or prior art.
+Workers return notes. The judge writes the artifact.
 
-At the end of discovery, decide whether to save a design artifact:
+## Workflow
 
-- Write a standalone design artifact when the user asks for one, the discovery
-  found decisions or constraints that should not be lost, or future
-  planning/implementation is likely to depend on the result.
-- Otherwise, summarize the useful conclusions in chat and do not write a file.
+1. DETERMINE_OUTPUT
+2. LOAD_CONTEXT
+3. MAP_SPACE
+4. RUN_DISCOVERY_LOOP
+5. FINISH_OR_CONTINUE
 
-**Announce at start:** "I'm using the discovery skill to understand the design space."
+### DETERMINE_OUTPUT
 
-## Principles Use
+- Choose `chat` or `written artifact`.
+- Name the subject and scope.
+- Identify whether discovery should feed planning, implementation, review,
+  strategy, documentation, or future discovery.
 
-- Use the top-level principles to choose questions and summarize answers.
-- Read deeper details from the principles skill when needed: `shape code by
-  domain`, `keep boundaries sharp`, `states are values`,
-  `evolve contracts deliberately`, `performance is not optional`, and
-  `design for operation`.
-- Use principle names for design facts, tradeoffs, and risks.
-- Capture domain terms, state models, trust boundaries, long-lived contracts,
-  operational constraints, and risks in artifacts.
+### LOAD_CONTEXT
 
-## Design Artifact
+- Read repo files, docs, configs, prior plans, prior designs, `AGENTS.md`, and
+  external references when they change the understanding.
+- Read relevant principle detail docs and use them as lenses for the topic.
+- Use semantic skill names for external skills, e.g. `skill: principles`.
+- Use paths for local files.
 
-The artifact is a design document, not a plan or a review.
+### MAP_SPACE
 
-- A design records the problem understanding, goals, constraints, decisions,
-  options, tradeoffs, ruled-out approaches, risks, edge cases, and open
-  questions.
-- A plan gives concrete implementation steps for building part of a design.
-- A review lists findings about an artifact, such as an implementation, plan, or design.
+Build the smallest useful map:
 
-**Save designs to:** `<repository-root>/docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md`
+- goal or decision
+- users, actors, readers, or operators
+- current state
+- domain terms
+- states and transitions
+- boundaries and ownership
+- contracts and long-lived interfaces
+- constraints
+- assumptions
+- risks and edge cases
+- unknowns
 
-Create `docs/designs/` if it does not exist.
+Adapt the map to the topic. A general problem space may need taxonomy,
+principles, tradeoffs, history, or competing frames. A product workflow may need
+actors, states, failure modes, and constraints.
 
-Use this structure as the default, but adapt section names and add/remove
-sections when the topic needs it:
+### RUN_DISCOVERY_LOOP
+
+Repeat until the discovery is clear enough, the user pauses, or the user asks
+to move to another phase:
+
+1. ASK_QUESTIONS
+2. SYNTHESIZE
+3. CHECK_GATES
+4. WRITE_ARTIFACT
+
+For written artifacts, write early and keep the design document current after
+each meaningful synthesis. The user should be able to stop and resume from the
+artifact without losing important context.
+
+### ASK_QUESTIONS
+
+- Ask only questions whose answers change the understanding.
+- Prefer one critical question over several weak ones.
+- Keep question batches answerable and purposeful.
+- Explain what decision or uncertainty each question unlocks when useful.
+- Stop asking when the next synthesis step is clear enough.
+
+### SYNTHESIZE
+
+Give each material item a disposition:
+
+- accepted fact
+- assumption
+- decision
+- open question
+- out of scope
+- risk
+- follow-up discovery target
+
+Resolve disagreements and contradictions when possible. Preserve them as open
+questions or risks when they remain unresolved.
+
+### CHECK_GATES
+
+At each synthesis point, verify:
+
+- The synthesis answers the requested discovery scope.
+- Assumptions are labeled.
+- Open questions are real unresolved unknowns.
+- Risks, edge cases, and constraints are captured when relevant.
+- The output stays at discovery level: concepts, constraints, decisions,
+  tradeoffs, risks, and open questions.
+- The next phase is clear: continue discovery, plan, implement, review, document,
+  or stop.
+
+For written artifacts, also verify:
+
+- The artifact stands alone without prior chat.
+- Durable terms, decisions, rejected options, and constraints are preserved.
+- Section choices fit the topic.
+
+### WRITE_ARTIFACT
+
+- For chat output, summarize the current understanding, tradeoffs, risks, open
+  questions, and next phase.
+- For written output, create `docs/designs/` if needed, then create or update:
+  `<repository-root>/docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md`.
+- Rewrite the whole artifact on each update so it reads as the current source
+  of truth.
+
+### FINISH_OR_CONTINUE
+
+- Continue discovery when useful questions remain.
+- Move to planning, implementation, review, documentation, or stop when the
+  next phase is clear.
+- If chat discovery has produced durable context, ask whether to save it before
+  switching phases.
+
+## Artifact Template
 
 ```markdown
 # Design: <Name>
 
 ## Summary
-<1-3 sentences describing the problem, intended outcome, and current design understanding.>
+<The problem or solution space and current understanding.>
 
 ## Context
-<Relevant background, users/audience, existing state, constraints, and why this matters.>
+<Background, audience, existing state, constraints, and why this matters.>
 
 ## Goals
-<Bulleted outcomes this design should support.>
+<Outcomes this design understanding should support.>
 
 ## Non-Goals
-<Bulleted boundaries for what this design is not trying to solve. Skip if not useful.>
+<Boundaries for this discovery. Skip if none.>
 
-## What We Learned
-<Important discoveries, domain facts, user needs, constraints, assumptions, and edge cases.>
+## Current Understanding
+<Domain facts, user needs, system behavior, constraints, assumptions, and edge cases.>
 
 ## Design Shape
-<Current conceptual model, requirements, principles, interfaces, UX shape, system behavior, or other design-relevant structure. Keep this at design level, not implementation-task level.>
+<Conceptual model, requirements, interfaces, UX shape, system behavior, or decision frame.>
+
+## Decisions
+<Resolved decisions and rationale. Skip if none.>
 
 ## Options Considered
-<Candidate approaches, including approaches ruled out. Capture why they matter and why they were accepted, rejected, or deferred.>
+<Accepted, rejected, and deferred approaches with rationale.>
 
 ## Risks and Edge Cases
-<Known failure modes, abuse cases, unclear scenarios, and places where the design may break down.>
+<Failure modes, abuse cases, unclear scenarios, and weak assumptions.>
 
 ## Open Questions
-<Unresolved decisions or unknowns that future discovery, planning, or review should address. Skip only if none remain.>
+<Unresolved decisions or unknowns. Skip if none.>
+
+## Next Step
+<Continue discovery, plan, implement, review, document, or stop.>
 ```
-
-## Artifact Rules
-
-- Write a design artifact only at the end of discovery and only when the result
-  should be saved, unless the user explicitly asks to continue discovery.
-- Do not write a design artifact when the user asks not to write files or only
-  wants a lightweight discussion.
-- When not writing an artifact, end with a concise chat summary of the current
-  understanding, important tradeoffs, and open questions.
-- The design MUST be standalone; do not rely on the prior chat.
-- Preserve learnings that are likely to matter later, especially constraints,
-  rejected approaches, and unresolved questions.
-- Do not include ordered implementation tasks, file-level change lists, verification commands, or roadmaps.
-- Do not force every section when it would add noise; keep the artifact useful.
-- If the user asks to move from discovery into planning or implementation, offer
-  to save a design artifact first only when important context would otherwise be
-  lost.
-
-## Interaction Notes
-
-- Embrace depth.
-- Do not create plans, roadmaps, implementation steps, or code.
-- If the user asks for a plan or code, switch out of discovery when enough
-  context exists. If the design context is substantial and not yet captured, ask
-  whether to save it before switching.
