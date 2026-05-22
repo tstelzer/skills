@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+skills_dir="$repo_root/skills"
+marker_name=".managed-by-tstelzer-skills"
+
+targets=(
+  "$HOME/.agents/skills"
+  "$HOME/.claude/skills"
+)
+
+if [[ ! -d "$skills_dir" ]]; then
+  echo "missing skills directory: $skills_dir" >&2
+  exit 1
+fi
+
+if ! command -v rsync >/dev/null 2>&1; then
+  echo "missing required command: rsync" >&2
+  exit 1
+fi
+
+for target in "${targets[@]}"; do
+  mkdir -p -- "$target"
+done
+
+status=0
+
+for skill_dir in "$skills_dir"/*; do
+  [[ -d "$skill_dir" ]] || continue
+  [[ -f "$skill_dir/SKILL.md" ]] || continue
+
+  skill_name="$(basename -- "$skill_dir")"
+
+  for target in "${targets[@]}"; do
+    dest="$target/$skill_name"
+    marker="$dest/$marker_name"
+
+    if [[ -L "$dest" ]]; then
+      rm -- "$dest"
+    elif [[ -e "$dest" && ! -d "$dest" ]]; then
+      echo "conflict: $dest exists and is not a directory" >&2
+      status=1
+      continue
+    elif [[ -d "$dest" && ! -f "$marker" ]]; then
+      echo "conflict: $dest exists and is not managed by this repo" >&2
+      status=1
+      continue
+    fi
+
+    mkdir -p -- "$dest"
+    rsync -a --delete --exclude "$marker_name" -- "$skill_dir/" "$dest/"
+    printf 'source=%s\n' "$skill_dir" >"$marker"
+    echo "synced: $dest"
+  done
+done
+
+exit "$status"
