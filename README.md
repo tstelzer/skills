@@ -12,6 +12,8 @@
 - workflow-plan-review: draft
 - implement: draft
 - log: draft
+- design-ui: draft
+- review-ui: draft
 
 ## Architecture
 
