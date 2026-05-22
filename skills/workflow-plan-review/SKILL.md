@@ -35,6 +35,9 @@ Use this when the user asks for an implementation plan and wants a review loop. 
 
 - Use the `log` skill to create the shared workflow log.
 - Record the user request as `Source request:`. Link a design artifact when one exists, or copy the request inline.
+- In this workflow, the router owns log creation and routing state. Each
+  judge pass owns its own log entry, artifact links, findings, worker dispatch
+  count and types, and handoff.
 - Always pass the same log path to every judge pass.
 
 ### DISPATCH_PLAN
@@ -50,6 +53,12 @@ Workflow log path: <path>.
 Task input:
 - On pass 1: produce the plan for the linked source request from the log.
 - On later passes: revise the plan to resolve every open `fix now` finding in the log and the latest review handoff.
+
+Before returning, you must:
+- Write the plan artifact.
+- Write or update the workflow log at `<path>`.
+- Record worker dispatches as `<count> (<types>)`, e.g. `0 (judge direct)` or
+  `2 (api-contract, test-inventory)`.
 
 Return exactly one status line:
 STATUS: DONE
@@ -68,6 +77,15 @@ You are the review judge. Use `skill: review`.
 Workflow log path: <path>.
 
 Review the plan artifact linked in the log against the source request. Score the plan only; there is no implementation diff in this workflow.
+
+This is a formal workflow review, not an informal review. You must write a
+separate review artifact, even when there are no findings.
+
+Before returning, you must:
+- Write the review artifact.
+- Write or update the workflow log at `<path>`.
+- Record worker dispatches as `<count> (<types>)`, e.g. `0 (judge direct)` or
+  `2 (automatic-testing, robustness)`.
 
 Return exactly one status line:
 STATUS: DONE
