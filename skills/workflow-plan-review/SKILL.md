@@ -5,9 +5,12 @@ description: Use when a user asks to plan a code change with a subagent-dispatch
 
 # Workflow Plan Review
 
-## Required Reading
+## Router Required Reading
 
 - skill: log
+
+Do not read `plan` or `review` in the router. Pass those skill names
+verbatim to the dispatched judges.
 
 ## Role
 

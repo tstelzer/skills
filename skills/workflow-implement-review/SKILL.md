@@ -5,9 +5,12 @@ description: Use when a user asks to implement or fix code with a subagent-dispa
 
 # Workflow Implement Review
 
-## Required Reading
+## Router Required Reading
 
 - skill: log
+
+Do not read `implement` or `review` in the router. Pass those skill names
+verbatim to the dispatched judges.
 
 ## Role
 

@@ -1,6 +1,6 @@
 ---
 name: log
-description: Use with workflow skills to keep a shared workflow log: current state, pass artifacts, deviations, findings, decisions, verification, and handoff.
+description: Use with workflow skills to keep a shared workflow log
 ---
 
 # Log
