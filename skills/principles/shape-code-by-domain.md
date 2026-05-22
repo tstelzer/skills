@@ -10,6 +10,11 @@ Domain names carry intent. Mechanism names carry implementation. A module named
 `controllers` tells you which framework shape happened to be used. The latter
 may be true, but it is rarely the most important fact.
 
+Use one internal term for one domain concept. If the product, a partner API, a
+database table, or a legacy screen uses another word, translate that word at
+the boundary. Do not let `customer`, `client`, `account`, and `user` spread
+through the same core model unless they mean different things.
+
 Good names make illegal abstractions harder to hide. If everything is an
 `entity` or a `manager`, the code can drift without friction. If the code says
 `subscription` or `workOrder`, the reader can ask domain questions.
@@ -55,6 +60,49 @@ function scheduleWorkOrder(workOrder: WorkOrder) {
 
 The stronger version gives the reader something to reason about. It also makes
 the wrong abstraction easier to spot.
+
+### one concept, one internal term
+
+Weak:
+
+```ts
+type Customer = {
+  id: string
+  plan: string
+}
+
+function activateClient(account: Customer) {
+  return users.activate(account.id)
+}
+```
+
+Stronger:
+
+```ts
+type Account = {
+  id: AccountId
+  plan: BillingPlan
+}
+
+function activateAccount(account: Account) {
+  return accounts.activate(account.id)
+}
+```
+
+If the UI says "customer" and the payment provider says "client", map those
+terms at the edge:
+
+```ts
+function toAccount(customer: CustomerDto): Account {
+  return {
+    id: AccountId.parse(customer.id),
+    plan: BillingPlan.parse(customer.plan),
+  }
+}
+```
+
+Internal code should not preserve every synonym it receives. It should preserve
+the domain distinction.
 
 ### structure by domain
 

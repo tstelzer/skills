@@ -15,11 +15,13 @@ description: Core engineering principles. Use as a guiding reference for designi
 ### shape code by domain
 
 - Name nouns and verbs precisely.
+- Use one internal term for one domain concept.
 - Prefer domain language over technical mechanism.
 - Structure by domain: `users`, `machines`, `orders` over `components`, `controllers`, `repositories`, `routes`.
 - Include mechanism only to mark a real concern boundary (HTTP, persistence, external contract), e.g. `UserRepository` (code), `user.repository.ts` (file). Do not split one concept across `.types.ts` / `.schema.ts` / `.constants.ts` files; keep them in `user.ts`.
 - Avoid generic names in broad scopes: `data`, `entity`, `item`, `manager`, `helper`.
 - Check existing naming before introducing new terms.
+- Translate external names, legacy names, UI labels, and synonyms at boundaries.
 - Use abbreviations when they improve local readability.
 - Avoid kitchen-sink `utils`. Put extractable library-esque code in `lib`. Co-locate everything else with its domain.
 
