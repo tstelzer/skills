@@ -40,8 +40,10 @@ description: Use for local code review.
 - The judge owns review type selection, scope, worker prompts, aggregation, severity normalization, and artifact writing.
 - Workers own one review type only.
 - Workers must not spawn other workers, widen scope, write any file, or aggregate findings.
-- If more than one review type is required, spawn sub-agent workers for each review type, which should report findings to the judge.
-- If only one review type is required or the scope is small enough, the judge may perform the review directly.
+- Only when the user explicitly requests exactly one review type may the judge
+  perform that review directly.
+- Otherwise, including the default review type set, spawn one sub-agent worker
+  for each selected review type. Workers report findings to the judge.
 - The prompt of each reviewer MUST include:
     - The review type.
     - The local review files the worker must read by path, relative to this skill directory:

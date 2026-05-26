@@ -52,6 +52,9 @@ diff.
 - Track phase and round counters in `## Current State`: `plan round`,
   `implementation round`, and current phase.
 - Always pass the same log path to every judge pass.
+- Codex sub-agent dispatch must not fork parent history. Set
+  `fork_context: false` and use a self-contained prompt: cwd, log path, source
+  request, baseline, relevant artifacts, and output contract.
 
 ### PLAN_LOOP
 
@@ -80,7 +83,6 @@ Before returning, you must:
 - Record the dispatched judge model/effort and every worker model/effort in the
   workflow log.
 - Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `0 (judge direct)` or
   `2 (api-contract: opus high, test-inventory: gpt-5.5 high)`.
 
 Return exactly one status line:
@@ -117,7 +119,6 @@ Before returning, you must:
 - Record the dispatched judge model/effort and every worker model/effort in the
   workflow log.
 - Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `0 (judge direct)` or
   `2 (automatic-testing: opus high, robustness: gpt-5.5 high)`.
 
 Return exactly one status line:
@@ -152,7 +153,7 @@ Before returning, you must:
 - Record the dispatched judge model/effort and every worker model/effort in the
   workflow log.
 - Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `0 (judge direct)` or `2 (frontend: sonnet high, backend: gpt-5.3-codex high)`.
+  `2 (frontend: sonnet high, backend: gpt-5.3-codex high)`.
 
 Return exactly one status line:
 STATUS: DONE
@@ -189,7 +190,6 @@ Before returning, you must:
 - Record the dispatched judge model/effort and every worker model/effort in the
   workflow log.
 - Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `0 (judge direct)` or
   `2 (automatic-testing: opus high, robustness: gpt-5.5 high)`.
 
 Return exactly one status line:

@@ -16,3 +16,6 @@ Do not use em dashes. Do not write in threes for cadence. Do not say
 
 If a sentence can be cut, cut it. If an example can replace an abstraction,
 use the example. If the answer is done, stop.
+
+When editing skills, prefer rephrasing unclear rules over adding conditionals.
+Delete escape hatches when a sharper rule covers the intended behavior.
