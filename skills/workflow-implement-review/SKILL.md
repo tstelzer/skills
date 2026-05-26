@@ -85,6 +85,7 @@ Workflow log path: <path>.
 Dispatched judge model/effort: <model> <effort>.
 
 Review the workflow-owned diff against the source request, workflow baseline, and latest implementation handoff in the log.
+Run the review against all review types from `skill: review`.
 
 This is a formal workflow review, not an informal review. You must write a
 separate review artifact, even when there are no findings.

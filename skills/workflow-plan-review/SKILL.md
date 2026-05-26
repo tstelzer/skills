@@ -86,6 +86,7 @@ Workflow log path: <path>.
 Dispatched judge model/effort: <model> <effort>.
 
 Review the plan artifact linked in the log against the source request. Score the plan only; there is no implementation diff in this workflow.
+Run the review against all review types from `skill: review`.
 
 This is a formal workflow review, not an informal review. You must write a
 separate review artifact, even when there are no findings.
