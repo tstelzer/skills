@@ -47,7 +47,7 @@ Use this when the user asks to build, implement, fix, or change code and wants a
 
 ### DISPATCH_IMPLEMENT
 
-- Dispatch a sub-agent with models: `sonnet high` or `gpt-5.3-codex high`.
+- Dispatch a sub-agent with models: `sonnet high` or `gpt-5.5 medium`.
 - Prompt:
 
 ```text
