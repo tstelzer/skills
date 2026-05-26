@@ -25,6 +25,13 @@ ships everywhere. Inline values that have never varied and probably never
 will. A config key adds documentation, an ops surface, and a chance of
 misconfiguration.
 
+Function extraction is an abstraction over local control flow. Extract only
+when the new function earns its name: reuse, isolated testing, a meaningful
+domain operation, or a clearer caller. If the extracted body is a tiny object
+literal, a parameter reshuffle, or a pass-through wrapper, keep it inline.
+Both sides must improve. A readable body hidden behind a worse call site is
+not an improvement.
+
 ## examples
 
 ### duplicate until the pattern is clear
@@ -168,6 +175,39 @@ function recentOrders(customerId: CustomerId): Promise<Order[]> {
 
 If another use appears, name the concept then. If ops needs to tune it,
 promote it to config then.
+
+### keep one-use construction inline
+
+Weak:
+
+```ts
+const getDealerReportScope = (user: User, dealerId: string): ReportScope => ({
+  type: "dealer",
+  dealerId,
+  dealerFamilyId: user.dealerFamily._id,
+  dealerFamilyName: user.dealerFamily.name,
+})
+
+return getDealerReportScope(user, dealerId)
+```
+
+The function does not hide complexity, protect an invariant, or make a
+business rule testable. It moves a plain construction away from the place that
+uses it.
+
+Stronger:
+
+```ts
+return {
+  type: "dealer",
+  dealerId,
+  dealerFamilyId: user.dealerFamily._id,
+  dealerFamilyName: user.dealerFamily.name,
+}
+```
+
+Inline code is clearest when the operation is local, one-use, and already
+named by its surrounding context.
 
 ### configuration is an abstraction
 

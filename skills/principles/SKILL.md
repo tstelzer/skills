@@ -84,6 +84,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Abstract only proven repetition.
 - Configuration is an abstraction; only promote what genuinely varies.
 - Inline values that are not shared and unlikely to change.
+- Keep one-use code inline unless extraction improves the caller and the body.
+- Do not extract tiny object builders or pass-through wrappers just to name them.
 
 [Details](avoid-hasty-abstractions.md)
 
@@ -156,6 +158,9 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Use imperative code when it is clearer or when control/performance matters.
 - Use FP-style code for most domain/application logic: pure functions, immutable values, composition, and explicit effects.
 - Use OO when identity, lifecycle, resource ownership, or encapsulated mutable state is central.
+- When extraction is earned, use top-level functions for pure, stateless logic.
+- Use methods for behavior that depends on instance state, constructor-injected dependencies, lifecycle, or encapsulation.
+- Do not turn a method into a function by passing half the object as parameters.
 - Avoid OO at boundaries; exchange plain data.
 - Avoid inheritance; prefer composition and small explicit interfaces.
 - Do not standardize on one paradigm for all problems.

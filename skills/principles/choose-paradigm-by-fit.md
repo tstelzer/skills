@@ -16,6 +16,11 @@ Object-oriented style fits identity and lifecycle. A connection pool, a
 hardware device, or a long-lived session exists over time, owns resources,
 and holds encapsulated mutable state. Modelling those as pure functions
 usually produces a thin wrapper around the class you tried to avoid.
+Methods also fit behavior that depends on constructor-injected dependencies
+or private instance state. If a function needs `repo`, `clock`, `logger`,
+`user`, and several IDs only because a method was pulled out of a class, put
+the behavior back on the class. Passing half the object as parameters is not
+decoupling.
 
 Imperative style still wins in some places. Tight inner loops, low-level
 state machines, and code where an early `break` or `return` makes the
@@ -119,6 +124,52 @@ const orderTotal = total(order)
 
 Pure functions composing over a value. Each is testable on its own, and
 nothing has to be constructed before calling them.
+
+### methods for class context
+
+Weak:
+
+```ts
+async function assertCanReadDealerReport(
+  dealers: DealerRepository,
+  user: User,
+  dealerId: string,
+): Promise<void> {
+  const dealer = await dealers.findById(dealerId)
+  if (dealer === null) throw new NotFoundError(`Dealer ${dealerId} not found`)
+  if (dealer.dealerFamilyId !== user.dealerFamily._id) {
+    throw new AccessForbiddenError()
+  }
+}
+```
+
+The function is only free-standing because the class dependency was passed in
+by hand. It is orchestration over an injected repository, not a reusable
+domain rule.
+
+Stronger:
+
+```ts
+class ReportService {
+  constructor(private readonly dealers: DealerRepository) {}
+
+  private async assertCanReadDealerReport(
+    user: User,
+    dealerId: string,
+  ): Promise<void> {
+    const dealer = await this.dealers.findById(dealerId)
+    if (dealer === null) {
+      throw new NotFoundError(`Dealer ${dealerId} not found`)
+    }
+    if (dealer.dealerFamilyId !== user.dealerFamily._id) {
+      throw new AccessForbiddenError()
+    }
+  }
+}
+```
+
+The repository dependency stays with the object that owns it. Extract pure
+predicates from the method when they stand on their own.
 
 ### object-oriented for identity and lifecycle
 
