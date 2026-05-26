@@ -43,8 +43,12 @@ diff.
 - Record the workflow baseline: base ref (current `git HEAD`) and starting
   dirty files (`git status`).
 - In this workflow, the router owns log creation and routing state. Each judge
-  pass owns its own log entry, artifact links, findings, worker dispatch count
-  and types, and handoff.
+  pass owns its own log entry, artifact links, findings, worker dispatch count,
+  types, models, efforts, and handoff.
+- The router must record the exact selected model and effort for each
+  dispatched judge in the workflow log.
+- When composing a judge prompt, replace `<model> <effort>` with the actual
+  selected values.
 - Track phase and round counters in `## Current State`: `plan round`,
   `implementation round`, and current phase.
 - Always pass the same log path to every judge pass.
@@ -64,6 +68,7 @@ Run:
 You are the planning judge. Use `skill: plan`.
 
 Workflow log path: <path>.
+Dispatched judge model/effort: <model> <effort>.
 
 Task input:
 - On pass 1: produce the plan for the linked source request from the log.
@@ -72,8 +77,11 @@ Task input:
 Before returning, you must:
 - Write the plan artifact.
 - Write or update the workflow log at `<path>`.
-- Record worker dispatches as `<count> (<types>)`, e.g. `0 (judge direct)` or
-  `2 (api-contract, test-inventory)`.
+- Record the dispatched judge model/effort and every worker model/effort in the
+  workflow log.
+- Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
+  `0 (judge direct)` or
+  `2 (api-contract: opus high, test-inventory: gpt-5.5 high)`.
 
 Return exactly one status line:
 STATUS: DONE
@@ -90,6 +98,7 @@ STATUS: ESCALATE: <reason>
 You are the review judge. Use `skill: review`.
 
 Workflow log path: <path>.
+Dispatched judge model/effort: <model> <effort>.
 
 Review the plan artifact linked in the log against the source request. Score the plan only; there is no implementation diff yet.
 
@@ -104,8 +113,11 @@ Before returning, you must:
 - Write the review artifact.
 - Write or update the workflow log at `<path>`.
 - For every planning-phase open finding, prefix `Source` with `plan-review:`.
-- Record worker dispatches as `<count> (<types>)`, e.g. `0 (judge direct)` or
-  `2 (automatic-testing, robustness)`.
+- Record the dispatched judge model/effort and every worker model/effort in the
+  workflow log.
+- Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
+  `0 (judge direct)` or
+  `2 (automatic-testing: opus high, robustness: gpt-5.5 high)`.
 
 Return exactly one status line:
 STATUS: DONE
@@ -128,6 +140,7 @@ Run after PLAN_LOOP completes with no planning-phase `fix now` findings:
 You are the implementation judge. Use `skill: implement`.
 
 Workflow log path: <path>. Respect the recorded baseline; do not absorb unrelated pre-existing user changes.
+Dispatched judge model/effort: <model> <effort>.
 
 Task input:
 - On pass 1: implement the reviewed plan artifact linked in the log.
@@ -135,8 +148,10 @@ Task input:
 
 Before returning, you must:
 - Write or update the workflow log at `<path>`.
-- Record worker dispatches as `<count> (<types>)`, e.g. `0 (judge direct)` or
-  `2 (frontend, backend)`.
+- Record the dispatched judge model/effort and every worker model/effort in the
+  workflow log.
+- Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
+  `0 (judge direct)` or `2 (frontend: sonnet high, backend: gpt-5.3-codex high)`.
 
 Return exactly one status line:
 STATUS: DONE
@@ -153,6 +168,7 @@ STATUS: ESCALATE: <reason>
 You are the review judge. Use `skill: review`.
 
 Workflow log path: <path>.
+Dispatched judge model/effort: <model> <effort>.
 
 Review the workflow-owned diff against the reviewed plan artifact, source request, workflow baseline, and latest implementation handoff in the log.
 
@@ -168,8 +184,11 @@ Before returning, you must:
 - Write or update the workflow log at `<path>`.
 - For every implementation-phase open finding, prefix `Source` with
   `implement-review:`.
-- Record worker dispatches as `<count> (<types>)`, e.g. `0 (judge direct)` or
-  `2 (automatic-testing, robustness)`.
+- Record the dispatched judge model/effort and every worker model/effort in the
+  workflow log.
+- Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
+  `0 (judge direct)` or
+  `2 (automatic-testing: opus high, robustness: gpt-5.5 high)`.
 
 Return exactly one status line:
 STATUS: DONE
