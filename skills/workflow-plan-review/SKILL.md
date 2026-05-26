@@ -42,7 +42,7 @@ Use this when the user asks for an implementation plan and wants a review loop. 
 
 ### DISPATCH_PLAN
 
-- Dispatch a sub-agent with model `opus high`.
+- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 xhigh`.
 - Prompt:
 
 ```text
@@ -68,7 +68,7 @@ STATUS: ESCALATE: <reason>
 
 ### DISPATCH_REVIEW
 
-- Dispatch a sub-agent with model `opus high`.
+- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 high`.
 - Prompt:
 
 ```text

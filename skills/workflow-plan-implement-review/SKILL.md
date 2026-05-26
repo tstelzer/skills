@@ -57,7 +57,7 @@ Run:
 
 #### DISPATCH_PLAN
 
-- Dispatch a sub-agent with model `opus high`.
+- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 xhigh`.
 - Prompt:
 
 ```text
@@ -83,7 +83,7 @@ STATUS: ESCALATE: <reason>
 
 #### DISPATCH_PLAN_REVIEW
 
-- Dispatch a sub-agent with model `opus high`.
+- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 high`.
 - Prompt:
 
 ```text
@@ -121,7 +121,7 @@ Run after PLAN_LOOP completes with no planning-phase `fix now` findings:
 
 #### DISPATCH_IMPLEMENT
 
-- Dispatch a sub-agent with model `sonnet high`.
+- Dispatch a sub-agent with models: `sonnet high` or `gpt-5.3-codex high`.
 - Prompt:
 
 ```text
@@ -146,7 +146,7 @@ STATUS: ESCALATE: <reason>
 
 #### DISPATCH_IMPLEMENT_REVIEW
 
-- Dispatch a sub-agent with model `opus high`.
+- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 high`.
 - Prompt:
 
 ```text

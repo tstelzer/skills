@@ -43,7 +43,7 @@ Use this when the user asks to build, implement, fix, or change code and wants a
 
 ### DISPATCH_IMPLEMENT
 
-- Dispatch a sub-agent with model `sonnet high`.
+- Dispatch a sub-agent with models: `sonnet high` or `gpt-5.3-codex high`.
 - Prompt:
 
 ```text
@@ -68,7 +68,7 @@ STATUS: ESCALATE: <reason>
 
 ### DISPATCH_REVIEW
 
-- Dispatch a sub-agent with model `opus high`.
+- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 high`.
 - Prompt:
 
 ```text
