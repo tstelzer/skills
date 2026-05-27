@@ -71,7 +71,7 @@ Before returning, you must:
 - Record the dispatched judge model/effort and every worker model/effort in the
   workflow log.
 - Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `2 (frontend: sonnet high, backend: gpt-5.3-codex high)`.
+  `2 (frontend: sonnet high, backend: gpt-5.5 medium)`.
 
 Return exactly one status line:
 STATUS: DONE
