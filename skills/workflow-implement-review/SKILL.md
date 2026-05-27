@@ -44,9 +44,12 @@ Use this when the user asks to build, implement, fix, or change code and wants a
 - When composing a judge prompt, replace `<model> <effort>` with the actual
   selected values.
 - Always pass the same log path to every judge pass.
-- Codex sub-agent dispatch must not fork parent history. Set
-  `fork_context: false` and use a self-contained prompt: cwd, log path, source
-  request, baseline, relevant artifacts, and output contract.
+- Sub-agents must start with fresh context. Never fork parent history. Use a
+  self-contained prompt: cwd, log path, source request, baseline, relevant
+  artifacts, and output contract.
+- Always close sub-agents once they return. After each pass returns its status
+  line, kill the spawned sub-agent before routing the next pass; do not let them
+  stick around.
 
 ### DISPATCH_IMPLEMENT
 
