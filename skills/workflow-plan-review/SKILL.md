@@ -60,7 +60,7 @@ Dispatched judge model/effort: <model> <effort>.
 
 Task input:
 - On pass 1: produce the plan for the linked source request from the log.
-- On later passes: revise the plan to resolve every open `fix now` finding in the log and the latest review handoff.
+- On later passes: revise the plan to resolve every open blocking finding in the log and the latest review handoff.
 
 Before returning, you must:
 - Write the plan artifact.
@@ -92,6 +92,13 @@ Run the review against all review types from `skill: review`.
 
 This is a formal workflow review, not an informal review. You must write a
 separate review artifact, even when there are no findings.
+When updating `## Open Findings`, preserve each finding severity in the
+finding text, e.g. `critical: missing rollback step`. Critical and high
+findings must be recorded as `fix now`; do not downgrade them to `follow-up` or
+`waiver`. If a critical or high finding needs a human exception, return
+`STATUS: ESCALATE`. Low findings inside the workflow scope should be `fix now`;
+use `follow-up` only for work outside the current scope and record the
+executable follow-up.
 
 Before returning, you must:
 - Write the review artifact.
@@ -114,13 +121,16 @@ STATUS: ESCALATE: <reason>
 - If subagent dispatch fails (tool error, no return), stop with `STATUS: BLOCKED: subagents unavailable`.
 - If a dispatched judge returns no status line or more than one, stop with `STATUS: BLOCKED: invalid handoff`.
 - If planning or review returns `BLOCKED` or `ESCALATE`, stop and report.
-- If review has no `fix now` findings, stop with `STATUS: DONE`.
-- If review has `fix now` findings and the round limit is not reached, dispatch planning again with the same log path.
+- Treat these as blocking findings:
+  - any `fix now` finding
+  - any open critical or high finding, regardless of disposition
+- If review has no blocking findings, stop with `STATUS: DONE`.
+- If review has blocking findings and the round limit is not reached, dispatch planning again with the same log path.
 - Default round limit is 3 unless the user sets another. One round is one planning pass followed by one review pass.
-- If the round limit is reached with open `fix now` findings, stop with `STATUS: BLOCKED: review loop limit reached`.
+- If the round limit is reached with open blocking findings, stop with `STATUS: BLOCKED: review loop limit reached`.
 
 ## Stop Conditions
 
-- `STATUS: DONE`: latest review pass completed and `## Open Findings` has no `fix now` findings.
+- `STATUS: DONE`: latest review pass completed and `## Open Findings` has no blocking findings.
 - `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is unavailable. Includes `subagents unavailable`, `invalid handoff`, and `review loop limit reached`.
 - `STATUS: ESCALATE: <reason>`: a human decision is needed.
