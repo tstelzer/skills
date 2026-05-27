@@ -353,3 +353,11 @@ Examples:
 - Treat templates as APIs.
 - Make the base case direct execution, not delegation.
 - Remove ceremony that does not change the result.
+
+## TODO
+
+Might want to elevate the work log to be more central to _designs_, not just individual workflows. This would solve the
+problem of "i start a planning session, and have to tell the thing about all the things already done"
+
+- Would likely require any workflow-* skill to discover existing logs, or maybe prompt the user in the beginning to link it.
+- If logs are inter-workflow, pass counts etc need to be scoped.

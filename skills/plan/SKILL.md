@@ -7,7 +7,11 @@ description: Use as the planning judge for a standalone implementation plan for 
 
 ## Required Reading
 
-- skill: principles (read details you deem relevant)
+- skill: principles
+  - Read `principles/SKILL.md`.
+  - Read every linked principle detail document before planning.
+  - Treat the principle details as binding planning constraints, not optional
+    background.
 
 ## Role
 
@@ -35,14 +39,15 @@ Default to direct execution.
 2. LOAD_CONTEXT
 3. DELEGATE_INVESTIGATIONS
 4. RESOLVE_DECISIONS
-5. DRAFT_PLAN
-6. CHECK_GATES
-7. WRITE_ARTIFACT
+5. DESIGN_TEST_SIGNALS
+6. DRAFT_PLAN
+7. CHECK_GATES
+8. WRITE_ARTIFACT
 
 ### DETERMINE_SCOPE
 
-- Determine the requested change, affected product behavior, explicit
-  exclusions, and planning depth.
+- Determine the requested change, affected product behavior, planning depth,
+  and any plausible nearby work the plan intentionally rejects or defers.
 - Name the repository root and planned artifact path:
   `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
 - Create `docs/plans/` if it does not exist.
@@ -74,14 +79,30 @@ Default to direct execution.
 - If a task depends on an unresolved question, mark that task blocked and name
   the dependency.
 
+### DESIGN_TEST_SIGNALS
+
+- Re-read the `tests are code` principle detail before planning test changes.
+- For each non-trivial behavior change, decide the automated regression signal
+  before drafting tasks.
+- Each planned test change must name:
+  - the behavior, invariant, or contract protected
+  - the public boundary exercised
+  - the regression that should fail
+- If no tests are added, name the existing automated signal or explain why no
+  durable signal exists.
+
 ### DRAFT_PLAN
 
 - Write for a skilled engineer with no prior chat context.
 - Use exact file paths, line numbers when useful, and dependency-ordered tasks.
-- Make each task independently verifiable.
+- Make each task leave the repository coherent after its dependencies are
+  applied. Do not split a refactor so an earlier task breaks imports, types,
+  tests, or runtime behavior that a later task repairs.
+- If a task cannot be verified honestly before a dependent task, merge the tasks.
 - Put tests in the same task as the behavior change or in a dependent test
-  task. If no tests are added, state why.
-- Prefer concise prose and concrete code.
+  task. For each test task, include the test signal from DESIGN_TEST_SIGNALS.
+- Use `Details` for intent, invariants, and sequencing. Put exact mechanics in
+  `Code Changes`; do not repeat hunks in prose.
 
 Code-in-plan policy:
 
@@ -104,10 +125,15 @@ Before writing the artifact, verify:
 - The plan stands alone without prior chat.
 - Every non-trivial task lists exact files.
 - Every task is concrete and decision-free.
+- Every task's `Verify` section is valid immediately after that task and its
+  dependencies are applied.
 - `Open Questions` contains only unresolved decisions.
+- Optional sections marked `skip if none` are omitted when empty.
 - No answered question remains as an open question.
 - Blocked tasks name their blocker.
 - Verification commands and expected results are explicit.
+- Every non-trivial behavior change has an automated test signal, an existing
+  signal, or an explicit reason no durable signal exists.
 - Task file lists match the snippets or hunks in that task.
 - The plan has no meta notes about this skill or the planning process.
 
@@ -135,7 +161,7 @@ Before writing the artifact, verify:
 <Unresolved decisions only; skip if none>
 
 ## Out of Scope
-<Boundaries this plan does not cover>
+<Nearby work the reader might reasonably expect from this plan, but this plan rejects or defers; skip if none>
 
 ## Overview
 <1-2 short paragraphs about architecture, approach, constraints, and sequencing>
@@ -146,8 +172,10 @@ Before writing the artifact, verify:
 **Blocked by:** <open question or external dependency; omit if unblocked>
 
 **Details:**
-- <Concrete implementation step>
-- <Concrete implementation step>
+- <Intent, invariant, or sequencing note not obvious from the code>
+- <Concrete step only when no code hunk carries it>
+
+**Test Signal:** <For test tasks only: behavior protected, boundary exercised, and regression that should fail; omit otherwise>
 
 **Code Changes:**
 ```ts
