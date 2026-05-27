@@ -129,7 +129,7 @@ STATUS: ESCALATE: <reason>
   - any open critical or high finding, regardless of disposition
 - If review has no blocking findings, stop with `STATUS: DONE`.
 - If review has blocking findings and the round limit is not reached, dispatch implementation again with the same log path.
-- Default round limit is 3 unless the user sets another. One round is one implementation pass followed by one review pass.
+- Default round limit is 5 unless the user sets another. One round is one implementation pass followed by one review pass.
 - If the round limit is reached with open blocking findings, stop with `STATUS: BLOCKED: review loop limit reached`.
 
 ## Stop Conditions
