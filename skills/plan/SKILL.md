@@ -85,11 +85,11 @@ Default to direct execution.
 
 Code-in-plan policy:
 
-- Trivial low-risk edits may use inline snippets.
-- New files, new functions, new components, new types, or heavily rewritten
-  units need full or near-full code.
-- Localized edits need patch-style hunks or focused before/after snippets with
-  enough context to apply them safely.
+- Default to diffs. For a small change to a preexisting file, show only the
+  changed lines as a patch-style hunk with a few lines of surrounding context.
+- Use larger code blocks only for new files, or when extra context is needed to
+  understand the change. New files, new functions, new components, new types,
+  and heavily rewritten units need full or near-full code.
 - Do not dump whole existing files for small edits.
 - Do not include generated artifacts, lockfiles, snapshots, or build output
   unless they are the subject of the change.
@@ -151,7 +151,7 @@ Before writing the artifact, verify:
 
 **Code Changes:**
 ```ts
-// Full definition, focused snippet, or patch-style hunk.
+// Patch-style hunk for small edits; full definition only for new/rewritten code.
 ```
 
 **Verify:**
