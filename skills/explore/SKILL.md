@@ -18,12 +18,6 @@ It owns scope, context loading, questions, synthesis, decisions, and any saved
 design artifact. Use it to build a source of truth about a problem space,
 solution space, domain, workflow, system behavior, or product decision.
 
-Exploration may run as chat or produce a written artifact.
-
-Default to chat. Write an artifact when the user asks for one, the result should
-outlive the conversation, or later planning, implementation, or review depends
-on the captured understanding.
-
 The judge may do the work directly. Delegate only when a bounded lens can run
 independently, such as domain modeling, existing behavior, user workflow, API
 contracts, state models, abuse cases, operations, migration risk, or prior art.
@@ -31,32 +25,32 @@ Workers return notes. The judge writes the artifact.
 
 ## Workflow
 
-1. DETERMINE_OUTPUT
+1. SET_SCOPE
 2. LOAD_CONTEXT
 3. MAP_SPACE
 4. RUN_EXPLORATION_LOOP
 5. FINISH_OR_CONTINUE
 
-### DETERMINE_OUTPUT
+### SET_SCOPE
 
-- Choose `chat` or `written artifact`.
-- Name the subject and scope.
-- Identify whether exploration should feed planning, implementation, review,
-  strategy, documentation, or future exploration.
+- Treat exploration as knowledge finding.
+- Explore the problem space, solution space, existing system, constraints,
+  tradeoffs, decisions, risks, and open questions.
+- Name the subject and boundary of the exploration.
+- Default to chat. Write an artifact only when the user asks for one or the
+  understanding should outlive the conversation.
 
 ### LOAD_CONTEXT
 
 - Read repo files, docs, configs, prior plans, prior designs, `AGENTS.md`, and
   external references when they change the understanding.
 - Read relevant principle detail docs and use them as lenses for the topic.
-- Use semantic skill names for external skills, e.g. `skill: principles`.
-- Use paths for local files.
 
 ### MAP_SPACE
 
 Build the smallest useful map:
 
-- goal or decision
+- problem or decision
 - users, actors, readers, or operators
 - current state
 - domain terms
@@ -74,8 +68,8 @@ actors, states, failure modes, and constraints.
 
 ### RUN_EXPLORATION_LOOP
 
-Repeat until the exploration is clear enough, the user pauses, or the user asks
-to move to another phase:
+Repeat until the exploration is clear enough, the user pauses, or the requested
+scope changes:
 
 1. ASK_QUESTIONS
 2. SYNTHESIZE
@@ -99,12 +93,23 @@ artifact without losing important context.
 Give each material item a disposition:
 
 - accepted fact
-- assumption
+- source-owned contract
+- constraint
 - decision
+- non-binding example
+- implementation implication
+- assumption
 - open question
 - out of scope
 - risk
 - follow-up exploration target
+
+Before writing, classify each concrete implementation statement as a decision,
+constraint, example, implementation implication, or planning note. Exclude
+planning notes from durable artifacts.
+
+When a concrete implementation choice is a design decision, explain the reason
+or context that makes it part of the design. Do not leave it as a task command.
 
 Resolve disagreements and contradictions when possible. Preserve them as open
 questions or risks when they remain unresolved.
@@ -114,72 +119,69 @@ questions or risks when they remain unresolved.
 At each synthesis point, verify:
 
 - The synthesis answers the requested exploration scope.
+- The confidence level matches the evidence gathered.
 - Assumptions are labeled.
 - Open questions are real unresolved unknowns.
-- Risks, edge cases, and constraints are captured when relevant.
-- The output stays at exploration level: concepts, constraints, decisions,
-  tradeoffs, risks, and open questions.
-- The next phase is clear: continue exploration, plan, implement, review, document,
-  or stop.
+- Remaining uncertainty is clear enough for the user to decide whether to keep
+  exploring.
 
 For written artifacts, also verify:
 
 - The artifact stands alone without prior chat.
-- Durable terms, decisions, rejected options, and constraints are preserved.
 - Section choices fit the topic.
 
 ### WRITE_ARTIFACT
 
-- For chat output, summarize the current understanding, tradeoffs, risks, open
-  questions, and next phase.
+- For chat output, summarize the current understanding, tradeoffs, risks, and
+  open questions.
 - For written output, create `docs/designs/` if needed, then create or update:
   `<repository-root>/docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md`.
 - Rewrite the whole artifact on each update so it reads as the current source
   of truth.
+- When source files or reference docs own a contract, link to the owner with line
+  numbers and summarize only the semantic facts needed for the exploration. Do
+  not inline copied source contracts, generated output, schemas, or command
+  definitions unless the source is unavailable or the snippet is explicitly
+  illustrative.
+- Use durable design language. Prefer terms like `initial scope`, `accepted
+  constraint`, `deferred capability`, `required behavior`, and `known
+  implementation implication`.
+- Avoid roadmap and task-order language such as `next`, `before`, `for v1`,
+  `V1 should`, and step sequencing unless sequencing itself is a design
+  constraint.
+
+#### Artifact Shape
+
+Do not force a standard section list.
+
+Use domain- or problem-specific sections. Headings should name real concepts,
+workflows, states, decisions, contracts, risks, or boundaries in the explored
+space.
+
+Each section should explain the relevant context, current understanding,
+constraints, decisions, rationale, risks, assumptions, and open questions for
+that part of the domain. Include only the parts that carry knowledge.
+
+Write short, dense prose. Use plain words and active voice. Prefer concrete
+examples over abstract framing. Cut filler, transition phrases, roadmap language,
+and empty setup.
+
+The first section after the title should summarize the problem being explored,
+the current understanding, and the decision space. Do not write a task list or
+roadmap.
+
+Preserve:
+
+- source-owned contracts, linked rather than copied;
+- decisions and their reasons;
+- rejected or deferred options when they clarify the decision space;
+- risks, edge cases, assumptions, and open questions.
+
+Omit empty sections.
 
 ### FINISH_OR_CONTINUE
 
 - Continue exploration when useful questions remain.
-- Move to planning, implementation, review, documentation, or stop when the
-  next phase is clear.
-- If chat exploration has produced durable context, ask whether to save it before
-  switching phases.
-
-## Artifact Template
-
-```markdown
-# Design: <Name>
-
-## Summary
-<The problem or solution space and current understanding.>
-
-## Context
-<Background, audience, existing state, constraints, and why this matters.>
-
-## Goals
-<Outcomes this design understanding should support.>
-
-## Non-Goals
-<Boundaries for this exploration. Skip if none.>
-
-## Current Understanding
-<Domain facts, user needs, system behavior, constraints, assumptions, and edge cases.>
-
-## Design Shape
-<Conceptual model, requirements, interfaces, UX shape, system behavior, or decision frame.>
-
-## Decisions
-<Resolved decisions and rationale. Skip if none.>
-
-## Options Considered
-<Accepted, rejected, and deferred approaches with rationale.>
-
-## Risks and Edge Cases
-<Failure modes, abuse cases, unclear scenarios, and weak assumptions.>
-
-## Open Questions
-<Unresolved decisions or unknowns. Skip if none.>
-
-## Next Step
-<Continue exploration, plan, implement, review, document, or stop.>
-```
+- Stop when the requested scope is understood well enough, or when remaining
+  uncertainty is explicit.
+- If chat exploration has produced durable context, ask whether to save it.
