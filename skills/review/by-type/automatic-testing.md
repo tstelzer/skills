@@ -32,7 +32,7 @@ Read details for:
 ## Workflow
 
 1. Build a behavior-to-signal map for the reviewed change.
-2. Inspect each signal for absence, weakness, misleading confidence, or missing execution.
+2. Inspect each signal for absence, weakness, misleading confidence, or missing execution. For every test, check that the body constructs the scenario its name claims and asserts the outcome the name implies. A name describing a scenario the body does not produce is a misleading signal even when the test passes.
 3. Falsify the signal: name the broken implementation that would still pass.
 4. Keep only issues with a concrete regression path.
 5. Return findings in the shared review template.
@@ -42,7 +42,7 @@ Read details for:
 These are anchors. Use judgment when a case sits between levels.
 
 - `critical`: changed behavior on a high-stakes path (auth, money, data integrity) ships with no automated signal.
-- `high`: changed behavior has no automated signal, or a test asserts implementation rather than the claim.
+- `high`: changed behavior has no automated signal, a test asserts implementation rather than the claim, or a test's name describes a scenario its body does not produce.
 - `low`: weak counterfactual, missing edge case, redundant or slow test.
 
 ## Category Hints
@@ -57,3 +57,4 @@ These are anchors. Use judgment when a case sits between levels.
 - `ci-wiring`
 - `flakiness`
 - `test-maintainability`
+- `name-body-alignment`

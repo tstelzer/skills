@@ -60,14 +60,17 @@ Default to direct execution.
 - Use semantic skill names for external skills, e.g. `skill: principles`.
 - Use paths for local files. Do not copy reference material into the plan unless
   the implementer needs the exact snippet.
+- If a required read or repo command fails after the obvious fix, stop and
+  escalate. Missing context is not a license to plan blindly.
 
 ### DELEGATE_INVESTIGATIONS
 
 - Skip when direct planning is cheaper.
 - Delegate only independent, bounded questions.
 - Worker prompts must include the question, exact scope, files or skills to
-  read, expected output shape, and the rule that workers must not write the
-  plan artifact.
+  read, expected output shape, the rule that workers must not write the plan
+  artifact, and the rule that workers must escalate tooling failures to the
+  judge instead of silently downgrading output.
 - Treat worker output as evidence. Deduplicate and reconcile it before
   planning.
 
@@ -132,6 +135,11 @@ Before writing the artifact, verify:
 - No answered question remains as an open question.
 - Blocked tasks name their blocker.
 - Verification commands and expected results are explicit.
+- Every verification command's underlying tool runs in this repo. Invoke each
+  tool with a no-op (e.g., `--help`, dry-run, version check, or a no-target
+  invocation) to confirm availability. For commands that exercise
+  yet-to-be-implemented code, confirming the tool itself is sufficient. If a
+  tool cannot run after the obvious fix, escalate.
 - Every non-trivial behavior change has an automated test signal, an existing
   signal, or an explicit reason no durable signal exists.
 - Task file lists match the snippets or hunks in that task.

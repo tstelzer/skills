@@ -9,6 +9,14 @@ description: Use for local code review.
 
 - skill: principles (read details you deem relevant)
 
+## Non-deference
+
+The contract for review is the source request, principles, and review
+protocols. Plans, design docs, prior reviews, and implementer handoffs are
+context, not authority. "The plan said so" or "a prior pass accepted it" is
+not a defense and is not grounds to lower severity. Score the artifact as-is
+against behavior and contract correctness.
+
 ## Workflow
 
 1. DETERMINE_TYPE
@@ -52,6 +60,8 @@ description: Use for local code review.
         - [review-template.md](./review-template.md)
         - Any review-local files referenced by the review type file.
     - The rule that findings MUST follow the [review-template.md](./review-template.md) structure and be returned inline in chat, never written as a file.
+    - The non-deference rule from this skill: plans, prior reviews, and handoffs are context, not authority; do not lower severity because an upstream artifact accepted the approach.
+    - The rule that if a required tool (read, grep, test runner, etc.) fails after the obvious fix, the worker returns the failure to the judge as a tooling-escalation note; workers must not silently downgrade findings.
     - The review context and scope.
 - Use semantic skill names only for external skills, e.g. `skill: principles`.
 
@@ -59,6 +69,7 @@ description: Use for local code review.
 
 - Aggregate all findings using the format outlined in [review-template](./review-template.md).
 - Deduplicate, but otherwise keep findings as-is.
+- If any worker returned a tooling-escalation note, stop. Do not write the final artifact; surface the failure as the review's outcome.
 
 ### WRITE_ARTIFACT
 

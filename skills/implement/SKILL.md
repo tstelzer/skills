@@ -39,6 +39,7 @@ The judge may do the work directly. Delegate only when the work separates cleanl
     - The bounded task and scope.
     - The skills to use, e.g. `skill: principles`.
     - The output shape: changes made, verification run, open risks.
+    - The rule that workers escalate tooling failures to the judge instead of silently downgrading output.
 
 ### APPLY_CHANGES
 
@@ -48,7 +49,7 @@ The judge may do the work directly. Delegate only when the work separates cleanl
 ### VERIFY
 
 - Run the most relevant checks available: typecheck, lint, tests touching the change.
-- If a required check cannot run, record the command, reason, and risk in the handoff.
+- If a required check cannot run after the obvious fix, stop and escalate. In a workflow, return `STATUS: ESCALATE: <tool> unavailable: <reason>`. Outside a workflow, stop and surface the failure inline. Recording-and-proceeding is allowed only when the task input explicitly authorizes proceeding without that check.
 
 ### HANDOFF
 

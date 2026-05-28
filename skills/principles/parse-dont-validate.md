@@ -2,31 +2,30 @@
 
 ## reasoning
 
-Validation asks whether a value looks acceptable. Parsing turns an unknown value
-into a known value, or refuses to produce one.
+Validation asks whether a value looks acceptable. Parsing turns an unknown value into a known value, or refuses to
+produce one.
 
-That difference matters. A boolean validator usually leaves the original
-value behind, still broad and still easy to misuse after the check. A parser
-should return a smaller type that the rest of the program can trust.
+That difference matters. A boolean validator usually leaves the original value behind, still broad and still easy to
+misuse after the check. A parser should return a smaller type that the rest of the program can trust.
 
-Do this at boundaries: HTTP payloads, CLI args, env, config, database rows,
-queue messages, events, files, local storage, model output, and third-party API
-responses. A boundary is any place where TypeScript did not create the value.
+Do this at boundaries: HTTP payloads, CLI args, env, config, database rows, queue messages, events, files, local
+storage, model output, and third-party API responses. A boundary is any place where TypeScript did not create the value.
 
-After the boundary, stop acting scared. Do not keep re-checking the same fields
-inside every function. If the value was parsed into a domain type, write normal
-code against that domain type. If a later function still needs `unknown`, casts,
-or defensive checks, the parse boundary is probably in the wrong place or the
-parsed type is too weak.
+After the boundary, stop acting scared. Do not keep re-checking the same fields inside every function. If the value was
+parsed into a domain type, write normal code against that domain type. If a later function still needs `unknown`, casts,
+or defensive checks, the parse boundary is probably in the wrong place or the parsed type is too weak.
 
-Parsing should also translate shape. External names, wire formats, nullable
-fields, stringly typed numbers, and permissive legacy shapes should not leak
-far into the domain. Parse them once, then deal with the domain model.
+Parsing should also translate shape. External names, wire formats, nullable fields, stringly typed numbers, and
+permissive legacy shapes should not leak far into the domain. Parse them once, then deal with the domain model.
 
-Parsing should preserve invariants. If a value has variants, parse it into
-variants. Prefer discriminated unions over broad objects with many optional
-fields. Optional-property shapes force every consumer to rediscover which
-combinations are legal.
+Parsing should preserve invariants. If a value has variants, parse it into variants. Prefer discriminated unions over
+broad objects with many optional fields. Optional-property shapes force every consumer to rediscover which combinations
+are legal.
+
+A typed value is not a parsed value. If month: number was assigned from an untyped backend JSON field with no Zod step
+in between, that number carries the full IEEE-754 input domain — including 0, 13, 0.5, and NaN. Treat the first function
+that uses the value (formatter, indexer, math) as the parse site if none earlier owned it. The fix is either to parse
+into a smaller domain at the true boundary, or to make the leaf function refuse out-of-domain input explicitly.
 
 ## examples
 
