@@ -13,6 +13,7 @@
 - workflow-plan-review: draft
 - workflow-prototype: draft
 - implement: draft
+- effect-v4: draft
 - log: draft
 
 ## Architecture

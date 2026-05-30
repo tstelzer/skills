@@ -1,6 +1,6 @@
 ---
 name: effect-v3
-description: Canonical handbook for Effect v3 in TypeScript. Always use when interacting with Effect code.
+description: Canonical handbook for Effect v3 in TypeScript. Use when interacting with Effect code on effect@3 / @effect/platform@0.x style packages. For effect@4 / beta (imports from effect/unstable/*, Context.Service, single-versioned @effect/* packages), use effect-v4 instead.
 ---
 
 # Effect v3
