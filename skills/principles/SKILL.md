@@ -43,6 +43,9 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Parse unknown values at every boundary: IO, HTTP, DB, config, queues, env.
 - Prefer type safety over casts and defensive programming.
 - Use one schema library consistently.
+- Put coercion, extraction, normalization, and domain transforms in the boundary schema when they belong to the type.
+- Do not add one-off `parse*` utilities after the boundary. Merge that logic into the schema when possible.
+- Treat `parse*` or `validate*` calls inside trusted code as a smell.
 - After parsing, rely on types instead of re-checking everywhere.
 - Parsing should produce a smaller, trusted type.
 - Prefer discriminated unions over optional-property variants.

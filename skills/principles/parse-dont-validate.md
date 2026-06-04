@@ -139,6 +139,66 @@ const config = Config.parse(process.env)
 
 The trusted value now has application names and application types.
 
+### do not parse twice
+
+Weak:
+
+```ts
+const ImportFile = z.object({
+  name: z.string(),
+  contents: z.string(),
+})
+
+const files = z.array(ImportFile).parse(await readImportFiles())
+
+for (const file of files) {
+  const metadata = parseInvoiceFileName(file.name)
+
+  await importInvoice({
+    customerId: metadata.customerId,
+    period: metadata.period,
+    contents: file.contents,
+  })
+}
+```
+
+`parseInvoiceFileName` is boundary logic hiding inside trusted code. The file
+name already crossed the boundary. If the name encodes domain data, parse that
+data there too.
+
+Stronger:
+
+```ts
+const invoiceFileName =
+  /^invoice-(?<customerId>[a-z0-9-]+)-(?<period>\d{4}-\d{2})\.csv$/
+
+const ImportFile = z.object({
+  name: z.string().regex(invoiceFileName),
+  contents: z.string(),
+}).transform((file) => {
+  const match = invoiceFileName.exec(file.name)
+
+  return {
+    customerId: match?.groups?.customerId,
+    period: match?.groups?.period,
+    contents: file.contents,
+  }
+}).pipe(z.object({
+  customerId: z.string().min(1),
+  period: z.string(),
+  contents: z.string(),
+}))
+
+const files = z.array(ImportFile).parse(await readImportFiles())
+
+for (const file of files) {
+  await importInvoice(file)
+}
+```
+
+The parser returns the domain shape the importer needs. No later `parse*`
+helper has to rediscover meaning from a string.
+
 ### parse variants into discriminated unions
 
 Weak:
