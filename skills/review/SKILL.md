@@ -1,6 +1,6 @@
 ---
 name: review
-description: Use for local code review.
+description: Review local code. Only explicitly triggered by user.
 ---
 
 # Review

@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use as the planning judge for a standalone implementation plan for a multi-step code change, before touching code.
+description: Plan a multi-step code change before editing. Only explicitly triggered by user.
 ---
 
 # Plan

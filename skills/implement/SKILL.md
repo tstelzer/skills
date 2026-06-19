@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Use for implementing or fixing code.
+description: Implement or fix code. Only explicitly triggered by user.
 ---
 
 # Implement

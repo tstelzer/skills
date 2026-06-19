@@ -1,6 +1,6 @@
 ---
 name: workflow-plan-review
-description: Use when a user asks to plan a code change with a subagent-dispatched plan-review loop, shared workflow log, bounded retries, and clear stop conditions.
+description: Run a plan-review loop. Only explicitly triggered by user.
 ---
 
 # Workflow Plan Review

@@ -1,6 +1,6 @@
 ---
 name: explore
-description: Use for deep exploration of a problem or solution space before planning, implementation, or review.
+description: Explore. Only explicitly triggered by user.
 ---
 
 # Explore

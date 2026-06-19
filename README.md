@@ -5,16 +5,45 @@
 - principles: mature
 - zod-v4: mature
 - effect-v3: mature
+- chat: draft
+- debug: draft
 - explore: draft
 - review: draft
 - plan: draft
+- implement: draft
+- log: draft
 - workflow-implement-review: draft
-- workflow-plan-implement-review: draft
 - workflow-plan-review: draft
 - workflow-prototype: draft
-- implement: draft
 - effect-v4: draft
-- log: draft
+
+## Invocation
+
+Most local workflow skills are explicit-only. Invoke them by name:
+
+- `$chat`
+- `$debug`
+- `$explore`
+- `$plan`
+- `$implement`
+- `$review`
+- `$workflow-plan-review`
+- `$workflow-implement-review`
+- `$workflow-prototype`
+
+Reference skills may trigger by topic:
+
+- `principles`
+- `zod-v4`
+- `effect-v3`
+- `effect-v4`
+
+Use `chat` to discuss, inspect, run read-only commands, or search without
+changing files.
+
+Use `debug` for a concrete failure. It may edit by default, but only after it
+has reproduced or bounded the symptom, traced the cause, and chosen a remedy
+that fixes the owning boundary.
 
 ## Architecture
 

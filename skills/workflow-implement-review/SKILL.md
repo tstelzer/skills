@@ -1,6 +1,6 @@
 ---
 name: workflow-implement-review
-description: Use when a user asks to implement or fix code with a subagent-dispatched implementation-review loop, shared workflow log, bounded retries, and clear stop conditions.
+description: Run an implement-review loop. Only explicitly triggered by user.
 ---
 
 # Workflow Implement Review

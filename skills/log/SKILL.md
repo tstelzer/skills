@@ -1,6 +1,6 @@
 ---
 name: log
-description: Use with workflow skills to keep a shared workflow log
+description: Keep a shared workflow log. Only explicitly triggered by user.
 ---
 
 # Log
