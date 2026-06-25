@@ -23,6 +23,7 @@ Read details for:
 - Test commands, CI jobs, fixtures, helpers, mocks, data builders, and harness code required to verify the change.
 - Gaps where changed behavior has no automated failure signal.
 - Gaps where the relevant automated signal exists but is wired to the wrong layer, command, or environment.
+- Bad tests in the touched area that should be reported as findings.
 
 ## Out Of Scope
 
@@ -32,18 +33,29 @@ Read details for:
 ## Workflow
 
 1. Build a behavior-to-signal map for the reviewed change.
-2. Inspect each signal for absence, weakness, misleading confidence, or missing execution. For every test, check that the body constructs the scenario its name claims and asserts the outcome the name implies. A name describing a scenario the body does not produce is a misleading signal even when the test passes.
-3. Falsify the signal: name the broken implementation that would still pass.
-4. Keep only issues with a concrete regression path.
-5. Return findings in the shared review template.
+2. Inspect each signal for absence, weakness, misleading confidence, or missing execution. For every test, check that
+   the body constructs the scenario its name claims and asserts the outcome the name implies. A name describing a
+   scenario the body does not produce is a misleading signal even when the test passes.
+3. Flag bad tests. Treat a test as a bad signal when it only restates implementation, duplicates another signal, asserts
+   constants, exercises type-only wiring, renders without behavior, checks pass-through wrappers, mirrors framework or
+   library behavior, verifies test helpers without real logic, or fails during harmless refactors.
+4. For bad-test findings, recommend deletion when the test adds no signal. Recommend a behavior-level rewrite when the
+   test points at the right risk but asserts the wrong thing. Do not edit test code from a review worker.
+5. Falsify every remaining signal: name the broken implementation that would still pass.
+6. Report a bad test when its signal is false, duplicate, obsolete, or more brittle than the behavior it claims to
+   protect. Do not keep it because coverage count drops, because it used to pass, or because no replacement is obvious.
+7. Keep missing-coverage issues only when changed behavior has a concrete regression path.
+8. Return findings in the shared review template.
 
 ## Severity Hints
 
 These are anchors. Use judgment when a case sits between levels.
 
 - `critical`: changed behavior on a high-stakes path (auth, money, data integrity) ships with no automated signal.
-- `high`: changed behavior has no automated signal, a test asserts implementation rather than the claim, or a test's name describes a scenario its body does not produce.
-- `low`: weak counterfactual, missing edge case, redundant or slow test.
+- `high`: changed behavior has no automated signal, a test asserts implementation rather than the claim, or a test's
+  name describes a scenario its body does not produce.
+- `low`: weak counterfactual, missing edge case, redundant or slow test, or any touched bad test that should be
+  reported.
 
 ## Category Hints
 
