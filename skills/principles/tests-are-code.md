@@ -25,6 +25,12 @@ rediscover during a refactor: parsing rules, state transitions, error mapping,
 contract behavior, persistence shape, authorization boundaries, idempotency,
 ordering, retries, cleanup, and surprising edge cases.
 
+Do not add tests that only repeat what the code already says. A test should add
+new information. It should prove a behavior, contract, boundary, regression, or
+stable invariant. Tests that assert constants, render components without
+behavior, check prop forwarding, mirror library behavior, or verify test helpers
+usually add noise.
+
 Do not use tests to freeze design too early. If a test mostly proves that a
 helper was called, an object was assembled in a particular order, or a private
 branch happened to run, it is probably testing the current implementation more
@@ -34,6 +40,96 @@ The best tests read like small, executable examples of the system. The worst
 tests read like debug traces.
 
 ## examples
+
+### low-value tests
+
+Bad tests make claims the code already makes more clearly. Delete them.
+
+Weak:
+
+```ts
+expect(DEFAULT_PAGE_SIZE).toBe(25)
+```
+
+A constant already says this. If `25` matters, test the behavior that exposes it:
+
+```ts
+const result = await listUsers({})
+expect(result).toEqual({
+  users: expectedUsers,
+  pageSize: 25,
+  nextCursor: "cursor-2",
+})
+```
+
+Weak:
+
+```tsx
+render(<UserMenu user={owner} />)
+```
+
+Rendering without an assertion proves almost nothing.
+
+Weak:
+
+```tsx
+render(<UserMenu user={owner} />)
+expect(screen.getByText("Ada Lovelace")).toBeInTheDocument()
+```
+
+This may still be too weak if the component only prints its props.
+
+Weak:
+
+```tsx
+render(<UserMenu user={owner} onDelete={onDelete} />)
+
+await userEvent.click(screen.getByRole("button", { name: "Delete user" }))
+
+expect(onDelete).toHaveBeenCalledWith(owner.id)
+```
+
+This only proves that a leaf component forwards an event to a prop.
+
+Stronger:
+
+```tsx
+render(<UsersPage />)
+
+await userEvent.click(screen.getByRole("button", { name: "Delete Ada" }))
+await userEvent.click(screen.getByRole("button", { name: "Confirm" }))
+
+expect(screen.queryByText("Ada Lovelace")).not.toBeInTheDocument()
+expect(await screen.findByText("User deleted")).toBeVisible()
+```
+
+This protects the workflow: the user can delete a user, the list updates, and
+the success state is visible.
+
+Weak:
+
+```ts
+expect(formatDate(date)).toBe(format(date, "yyyy-MM-dd"))
+```
+
+This tests that a wrapper calls a library. Delete the wrapper test, or test the
+domain contract:
+
+```ts
+expect(formatInvoiceDate(new Date("2026-01-02T12:00:00Z"))).toEqual("2026-01-02")
+```
+
+Weak:
+
+```ts
+expect(makeTestUser()).toEqual({
+  id: "user-1",
+  role: "member",
+})
+```
+
+Do not test test helpers unless they contain real logic. Prefer keeping helpers
+small enough to read at the call site.
 
 ### data over internals
 

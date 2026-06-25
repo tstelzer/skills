@@ -110,11 +110,12 @@ description: Core engineering principles. Use as a guiding reference for designi
 ### tests are code
 
 - Treat tests like production code.
-- Avoid an explosion of unit tests.
+- Add tests only when they protect behavior, contracts, boundaries, regressions, or stable invariants.
+- Do not test constants, type-only wiring, render-only components, pass-through wrappers, or framework plumbing.
 - Prefer public behavior, boundaries, and interfaces over internals.
 - Prefer plain code and data equality over framework-heavy test machinery.
 - Prefer `.test.each` / `.it.each` for repeated data cases.
-- Purge bad tests.
+- Delete tests that restate implementation, duplicate other checks, or fail during harmless refactors.
 - Avoid complex and long blocks of assertions.
 - Prefer parsing test outputs with schemas, or simple, single equality checks.
 - Prefer error type or tag checks over error message checks.
