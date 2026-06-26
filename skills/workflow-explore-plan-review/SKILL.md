@@ -5,26 +5,28 @@ description: Run an interactive explore phase followed by a plan-review loop. On
 
 # Workflow Explore Plan Review
 
-## Required Reading
+## Router Required Reading
 
-- skill: explore
 - skill: workflow-plan-review
 
-Do not read `plan`, `review`, or `log` in this workflow. The delegated
-`workflow-plan-review` skill owns that routing and its required reading.
+Do not read `explore`, `plan`, `review`, or `log` in this router. Pass
+`explore` verbatim to the dispatched exploration judge. The delegated
+`workflow-plan-review` skill owns log creation, planning, review, routing,
+round limits, finding dispositions, and stop conditions.
 
 ## Role
 
-Workflow Explore Plan Review is an adapter.
+Workflow Explore Plan Review is a router.
 
-First, the parent agent is an exploration judge. It uses `skill: explore` in
-the active conversation, loads context, asks questions, synthesizes decisions,
-and writes the design artifact.
+It runs a fixed sequence:
 
-After the design gate passes, the parent agent invokes
-`skill: workflow-plan-review` with the accepted design artifact as source
-context. The delegated workflow owns log creation, planning, review, routing,
-round limits, finding dispositions, and stop conditions.
+`judge-explore -> user gate -> workflow-plan-review`
+
+The router dispatches an exploration judge, relays conversation between that
+judge and the user, gates the accepted design, then invokes
+`workflow-plan-review` with the design artifact as binding source context.
+
+The router does not explore, synthesize, plan, review, or edit code.
 
 Use this when the user wants to explore a problem interactively, agree on a
 design, then produce and review an implementation plan. This skill does not
@@ -32,42 +34,75 @@ implement code. The design and plan are artifacts.
 
 ## Workflow
 
-1. EXPLORE_DESIGN
-2. PASS_DESIGN_GATE
-3. RUN_PLAN_REVIEW
+1. DISPATCH_EXPLORE
+2. RELAY_EXPLORATION
+3. PASS_DESIGN_GATE
+4. RUN_PLAN_REVIEW
 
-### EXPLORE_DESIGN
+### DISPATCH_EXPLORE
 
-- Use `skill: explore` as an in-thread judge. Do not dispatch exploration to a
-  sub-agent. Keep this phase interactive with the user.
-- The parent agent owns scope, context loading, questions, synthesis,
-  decisions, and the design artifact.
-- Treat this phase as knowledge finding, not routing.
-- Explore the problem space, solution space, existing system, constraints,
-  tradeoffs, decisions, risks, and open questions.
+- Dispatch one exploration judge with model `gpt-5.5 xhigh` or `opus high`.
+- Keep the same exploration judge session alive for the whole exploration
+  phase. Do not spawn a fresh judge for each user question.
+- If exploration judge dispatch fails, stop with
+  `STATUS: BLOCKED: subagents unavailable`.
+- Prompt:
+
+```text
+You are the exploration judge. Use `skill: explore`.
+
+Dispatched judge model/effort: <model> <effort>.
+
+Task input:
+- Explore the original user request interactively.
+- Own context loading, questions, synthesis, decisions, and the design artifact.
+- Write the design artifact when the design is coherent enough for user gate
+  review.
+- Use `docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md` for the design artifact.
+
+Interaction contract:
 - Ask only questions whose answers change the design.
-- Synthesize after context loads and after material user input.
-- Write the design artifact at the end of this phase, after the user and parent
-  agent agree the design is coherent enough to plan from.
-- Follow `explore` artifact rules for source-owned contracts, durable design
-  language, standalone context, and domain-specific sections.
-- The artifact path is
-  `docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md`.
+- Return user-facing questions or gate summaries for the router to relay.
+- Do not ask the router to synthesize or decide design content.
+- If the user gives feedback after a gate summary, update the design and return
+  a new gate summary.
+
+Return exactly one status line at the end of each response:
+STATUS: NEEDS_USER_INPUT
+STATUS: DESIGN_READY: <design-artifact-path>
+STATUS: BLOCKED: <reason>
+STATUS: ESCALATE: <reason>
+```
+
+### RELAY_EXPLORATION
+
+- Relay each exploration judge question or synthesis to the user.
+- Relay each user answer or correction back to the same exploration judge.
+- Do not summarize, reinterpret, or resolve the substance of the exchange.
+- If the judge returns `STATUS: NEEDS_USER_INPUT`, continue the relay loop.
+- If the judge returns `STATUS: DESIGN_READY` without a user-facing gate
+  summary and design artifact path, close the judge session and stop with
+  `STATUS: BLOCKED: invalid handoff`.
+- If the judge returns `STATUS: BLOCKED` or `STATUS: ESCALATE`, close the judge
+  session, stop, and report the status.
+- If the judge returns no status line or more than one, close the judge session
+  and stop with `STATUS: BLOCKED: invalid handoff`.
+- If the user pauses before the design gate, keep the workflow paused with the
+  exploration judge state as the active context.
 
 ### PASS_DESIGN_GATE
 
-- State the design gate in chat: proposed design artifact path, core decisions,
-  accepted constraints, assumptions, risks, and unresolved questions.
+- When the judge returns `STATUS: DESIGN_READY: <design-artifact-path>`, relay
+  the judge's gate summary to the user.
 - The gate passes only when:
-  - the design artifact exists;
-  - the parent agent judges the design good enough to plan from;
+  - the design artifact path is present;
+  - the exploration judge says the design is ready;
   - the user explicitly accepts the design or asks to proceed after seeing the
     gate summary.
-- If the parent agent is not satisfied, continue `EXPLORE_DESIGN`.
-- If the user is not satisfied, continue `EXPLORE_DESIGN` using the feedback.
-- When the user accepts the gate summary, write the design artifact. If open
-  questions remain, record them as assumptions, risks, deferred capabilities,
-  or follow-up exploration targets before passing the gate.
+- If the user accepts the design, close the exploration judge session and
+  continue to `RUN_PLAN_REVIEW`.
+- If the user does not accept the design, relay the feedback back to the same
+  exploration judge and continue `RELAY_EXPLORATION`.
 - After the gate passes, do not revise the design unless the user explicitly
   returns the workflow to exploration.
 
@@ -81,7 +116,7 @@ Source request:
 <original user request>
 
 Design artifact:
-<path to accepted design artifact>
+<accepted design artifact path>
 
 Plan-review constraints:
 - Treat the design artifact as binding source context.
@@ -96,9 +131,13 @@ Plan-review constraints:
 
 ## Stop Conditions
 
-- Before `RUN_PLAN_REVIEW`, continue exploration until the design gate passes
-  or the user pauses.
-- After `RUN_PLAN_REVIEW`, use the status returned by
-  `workflow-plan-review`.
+- `STATUS: DONE`: the delegated `workflow-plan-review` returns done.
+- `STATUS: BLOCKED: subagents unavailable`: exploration judge dispatch failed.
+- `STATUS: BLOCKED: invalid handoff`: the exploration judge returned no status
+  line or more than one.
+- `STATUS: BLOCKED: <reason>`: the exploration judge or delegated
+  `workflow-plan-review` returns blocked.
+- `STATUS: ESCALATE: <reason>`: the exploration judge or delegated
+  `workflow-plan-review` returns escalate.
 - `STATUS: ESCALATE: design change required`: the accepted design cannot stand
   as the source for a valid plan.
