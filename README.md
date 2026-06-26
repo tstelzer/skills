@@ -5,15 +5,16 @@
 - principles: mature
 - zod-v4: mature
 - effect-v3: mature
+- explore: mature
+- review: mature
+- plan: mature
+- workflow-implement-review: mature
 - chat: draft
 - debug: draft
-- explore: draft
-- review: draft
-- plan: draft
 - implement: draft
 - log: draft
-- workflow-implement-review: draft
 - workflow-plan-review: draft
+- workflow-explore-plan-review: draft
 - workflow-prototype: draft
 - effect-v4: draft
 
@@ -28,6 +29,7 @@ Most local workflow skills are explicit-only. Invoke them by name:
 - `$implement`
 - `$review`
 - `$workflow-plan-review`
+- `$workflow-explore-plan-review`
 - `$workflow-implement-review`
 - `$workflow-prototype`
 
