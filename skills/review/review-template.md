@@ -3,6 +3,12 @@
 ## Review Type
 <review type>
 
+## Reviewer Metadata
+Judge: provider `<provider>`, model `<model>`, reasoning `<level>`
+Workers:
+- `<review-type>`: provider `<provider>`, model `<model>`, reasoning `<level>`
+- `<review-type>`: provider `<provider>`, model `<model>`, reasoning `<level>`
+
 ## Scope
 <Standalone description of what was reviewed. Include commits, plans, files,
 commands, constraints, and assumptions when they change the review.
