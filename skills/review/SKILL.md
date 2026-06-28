@@ -53,9 +53,9 @@ against behavior and contract correctness.
   model availability permits. Use different model classes for the two workers so the judge gets independent
   perspectives. If only one model class is available, spawn one worker for that review type.
 - Choose worker model classes by provider and model availability, in this priority order:
-    1. OpenAI `gpt` latest, reasoning `xhigh`
-    2. Anthropic `opus` latest, reasoning `xhigh`
-    3. OpenRouter `glm` latest, reasoning `xhigh`
+    1. OpenRouter `glm` latest, reasoning `xhigh`
+    2. OpenAI `gpt` latest, reasoning `xhigh`
+    3. Anthropic `opus` latest, reasoning `xhigh`
     4. OpenRouter `gemini flash` latest, reasoning `high`
     5. OpenRouter `deepseek v4 pro` latest, reasoning `high`
 - A model class is one provider/model-family pair from the priority list. Do not spawn two workers of the same review
