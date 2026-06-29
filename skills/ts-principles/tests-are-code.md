@@ -3,8 +3,8 @@
 ## reasoning
 
 Tests are part of the system. They have readers, maintenance cost, failure
-modes, and design pressure. Bad tests are not harmless; they slow down change
-and teach people to ignore failures.
+modes, and design pressure. Bad tests are defects: they slow change, hide
+regressions behind noise, and teach people to ignore failures.
 
 Tests are code first and framework usage second. The runner gives names,
 lifecycle, and assertions. It should not become the design surface. Prefer
@@ -25,16 +25,16 @@ rediscover during a refactor: parsing rules, state transitions, error mapping,
 contract behavior, persistence shape, authorization boundaries, idempotency,
 ordering, retries, cleanup, and surprising edge cases.
 
-Do not add tests that only repeat what the code already says. A test should add
-new information. It should prove a behavior, contract, boundary, regression, or
-stable invariant. Tests that assert constants, render components without
-behavior, check prop forwarding, mirror library behavior, or verify test helpers
-usually add noise.
+Every test must add information the implementation does not already state. Keep
+it only when it proves a behavior, contract, boundary, regression, or stable
+invariant. Tests that assert constants, render components without behavior,
+check prop forwarding, mirror library behavior, or verify test helpers are false
+coverage.
 
-Do not use tests to freeze design too early. If a test mostly proves that a
+Tests must not freeze design early. If a test mostly proves that a
 helper was called, an object was assembled in a particular order, or a private
-branch happened to run, it is probably testing the current implementation more
-than the useful behavior.
+branch happened to run, it protects the current implementation instead of useful
+behavior.
 
 The best tests read like small, executable examples of the system. The worst
 tests read like debug traces.
@@ -43,7 +43,7 @@ tests read like debug traces.
 
 ### low-value tests
 
-Bad tests make claims the code already makes more clearly. Delete them.
+Bad tests are false coverage: they make weak claims look protected. Delete them.
 
 Weak:
 
@@ -77,7 +77,7 @@ render(<UserMenu user={owner} />)
 expect(screen.getByText("Ada Lovelace")).toBeInTheDocument()
 ```
 
-This may still be too weak if the component only prints its props.
+This is still weak when the component only prints its props.
 
 Weak:
 
@@ -292,7 +292,7 @@ vi.mock("../permission-builder", () => ({ build: vi.fn() }))
 vi.mock("../email-renderer", () => ({ render: vi.fn() }))
 ```
 
-Mocking several local helpers usually means the test is coupled to the
+Mocking several local helpers means the test is coupled to the
 decomposition rather than the result.
 
 ### errors are data too
@@ -377,4 +377,4 @@ encode/decode round trips, normalization idempotency, ordering, set membership,
 permission monotonicity, parsing boundaries, or state-machine transitions.
 
 Do not force them onto example-shaped business rules. A property test without a
-clear invariant is usually a harder-to-read unit test.
+clear invariant is a harder-to-read unit test.

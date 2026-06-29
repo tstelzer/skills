@@ -28,9 +28,10 @@ Create `docs/workflows/` if it does not exist.
 
 - Read the current log before acting.
 - Keep `## Timeline` append-only.
-- Only `## Current State`, `## Scope`, and `## Open Findings` are mutable.
+- `## Current State`, `## Scope`, `## Artifacts`, and `## Open Findings` are mutable.
 - Link the source request: plan/design artifact when one exists, or the copied
   user request when no durable artifact exists.
+- Keep `## Artifacts` to artifact links only.
 - Record the workflow baseline before changes start: base ref, starting dirty
   files, or another explicit scope boundary the workflow can review against.
 - Link every artifact created or consumed by the workflow.

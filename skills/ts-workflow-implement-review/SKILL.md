@@ -44,6 +44,8 @@ Use this when the user asks to build, implement, fix, or change code and wants a
 - When composing a judge prompt, replace `<model> <effort>` with the actual
   selected values.
 - Always pass the same log path to every judge pass.
+- Use the owning skill's artifact directory for each pass: reviews in
+  `docs/reviews/`, workflow logs in `docs/workflows/`.
 - Sub-agents must start with fresh context. Never fork parent history. Use a
   self-contained prompt: cwd, log path, source request, baseline, relevant
   artifacts, and output contract.
@@ -103,9 +105,20 @@ findings must be recorded as `fix now`; do not downgrade them to `follow-up` or
 use `follow-up` only for work outside the current scope and record the
 executable follow-up.
 
+Review status semantics:
+- `STATUS: DONE`: review completed with no blocking findings.
+- `STATUS: BLOCKED`: review completed with blocking findings for the next implementation pass.
+- `STATUS: ESCALATE`: a human decision or exception is needed.
+
 Before returning, you must:
-- Write the review artifact.
+- Write the review artifact using the `ts-review` artifact rules.
 - Write or update the workflow log at `<path>`.
+- Use these artifact destinations:
+  - Review artifact: `docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
+  - Workflow log: `<path>`.
+- Record the review artifact link in `## Artifacts`.
+- Keep the workflow log as coordination state with links, finding dispositions,
+  pass status, worker metadata, and handoff.
 - Record the dispatched judge model/effort and every worker model/effort in the
   workflow log.
 - Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
@@ -123,7 +136,9 @@ STATUS: ESCALATE: <reason>
 - Increment the round counter in `## Current State` after each completed review pass.
 - If subagent dispatch fails (tool error, no return), stop with `STATUS: BLOCKED: subagents unavailable`.
 - If a dispatched judge returns no status line or more than one, stop with `STATUS: BLOCKED: invalid handoff`.
-- If implementation or review returns `BLOCKED` or `ESCALATE`, stop and report.
+- If implementation returns `BLOCKED` or `ESCALATE`, stop and report.
+- If review returns `ESCALATE`, stop and report.
+- If review returns `BLOCKED`, route from `## Open Findings`.
 - Treat these as blocking findings:
   - any `fix now` finding
   - any open critical or high finding, regardless of disposition

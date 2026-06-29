@@ -62,6 +62,8 @@ Do not duplicate the design doc in the log. Link it.
 - Link every design, plan, review, screenshot, report, or other workflow
   artifact.
 - Record the exact selected model and effort for each dispatched judge.
+- Use the owning skill's artifact directory for each pass: designs in
+  `docs/designs/`, plans in `docs/plans/`, reviews in `docs/reviews/`.
 - Always pass the same log path to every dispatched judge.
 - Sub-agents must start with fresh context. Never fork parent history. Use a
   self-contained prompt with cwd, log path, source request, relevant artifacts,
@@ -105,9 +107,15 @@ Task input:
 - Keep unresolved design questions out of implementation tasks. Mark blocked
   tasks explicitly.
 
+Artifact destinations:
+- Plan artifact: `docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
+- Workflow log: `<path>`.
+- Record the plan artifact link in `## Artifacts`.
+
 Before returning, you must:
-- Write the plan artifact.
+- Write the plan artifact using the `ts-plan` artifact rules.
 - Write or update the workflow log at `<path>`.
+- Keep the workflow log as coordination state with links to artifacts.
 - Record the dispatched judge model/effort and every worker model/effort in the
   workflow log.
 - Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
@@ -182,9 +190,15 @@ Review scope:
   authority.
 
 Before returning, you must:
-- Write the review artifact unless the prompt explicitly says this is an
-  informal review.
+- Write the review artifact using the `ts-review` artifact rules unless the
+  prompt explicitly says this is an informal review.
 - Write or update the workflow log at `<path>`.
+- Use these artifact destinations:
+  - Review artifact: `docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
+  - Workflow log: `<path>`.
+- Record the review artifact link in `## Artifacts`.
+- Keep the workflow log as coordination state with links, finding dispositions,
+  pass status, worker metadata, and handoff.
 - Record the dispatched judge model/effort and every worker model/effort in the
   workflow log.
 - Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
