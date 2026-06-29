@@ -17,6 +17,7 @@
 - ts-workflow-explore-plan-review: draft
 - ts-workflow-prototype: draft
 - ts-effect-v4: draft
+- ts-create-skill: draft
 
 ## Invocation
 
@@ -32,6 +33,13 @@ Most local workflow skills are explicit-only. Invoke them by name:
 - `$ts-workflow-explore-plan-review`
 - `$ts-workflow-implement-review`
 - `$ts-workflow-prototype`
+
+Skill authoring may trigger by task:
+
+- `ts-create-skill`
+
+Use it to create or update local skills. It may be invoked implicitly when a
+task changes skills.
 
 Reference skills may trigger by topic:
 
