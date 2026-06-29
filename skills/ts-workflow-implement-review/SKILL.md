@@ -83,7 +83,7 @@ STATUS: ESCALATE: <reason>
 
 ### DISPATCH_REVIEW
 
-- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 high`.
+- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 xhigh`.
 - Prompt:
 
 ```text
