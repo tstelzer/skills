@@ -7,7 +7,9 @@ description: Implement or fix code. Only explicitly triggered by user.
 
 ## Required Reading
 
-- skill: ts-principles (read details you deem relevant)
+- skill: ts-principles
+  - Read `ts-principles/SKILL.md`.
+  - Read every linked principle detail document before implementing.
 
 ## Role
 

@@ -8,7 +8,8 @@ description: Explore. Only explicitly triggered by user.
 ## Required Reading
 
 - skill: ts-principles
-- all principle details relevant to the topic
+  - Read `ts-principles/SKILL.md`.
+  - Read every linked principle detail document before exploring.
 
 ## Role
 
@@ -44,7 +45,7 @@ Workers return notes. The judge writes the artifact.
 
 - Read repo files, docs, configs, prior plans, prior designs, `AGENTS.md`, and
   external references when they change the understanding.
-- Read relevant principle detail docs and use them as lenses for the topic.
+- Use principle detail docs as lenses for the topic.
 
 ### MAP_SPACE
 

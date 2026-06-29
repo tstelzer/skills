@@ -13,6 +13,7 @@
 - ts-debug: draft
 - ts-implement: draft
 - ts-log: draft
+- ts-qa: draft
 - ts-workflow-plan-review: draft
 - ts-workflow-explore-plan-review: draft
 - ts-workflow-prototype: draft
@@ -28,6 +29,7 @@ Most local workflow skills are explicit-only. Invoke them by name:
 - `$ts-explore`
 - `$ts-plan`
 - `$ts-implement`
+- `$ts-qa`
 - `$ts-review`
 - `$ts-workflow-plan-review`
 - `$ts-workflow-explore-plan-review`

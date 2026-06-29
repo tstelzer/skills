@@ -7,7 +7,9 @@ description: Debug. Only explicitly triggered by user.
 
 ## Required Reading
 
-- skill: ts-principles (read details relevant to the failure)
+- skill: ts-principles
+  - Read `ts-principles/SKILL.md`.
+  - Read every linked principle detail document before debugging.
 
 ## Role
 
