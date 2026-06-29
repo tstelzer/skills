@@ -2,48 +2,48 @@
 
 ## Maturity
 
-- principles: mature
-- zod-v4: mature
-- effect-v3: mature
-- explore: mature
-- review: mature
-- plan: mature
-- workflow-implement-review: mature
-- chat: draft
-- debug: draft
-- implement: draft
-- log: draft
-- workflow-plan-review: draft
-- workflow-explore-plan-review: draft
-- workflow-prototype: draft
-- effect-v4: draft
+- ts-principles: mature
+- ts-zod-v4: mature
+- ts-effect-v3: mature
+- ts-explore: mature
+- ts-review: mature
+- ts-plan: mature
+- ts-workflow-implement-review: mature
+- ts-chat: draft
+- ts-debug: draft
+- ts-implement: draft
+- ts-log: draft
+- ts-workflow-plan-review: draft
+- ts-workflow-explore-plan-review: draft
+- ts-workflow-prototype: draft
+- ts-effect-v4: draft
 
 ## Invocation
 
 Most local workflow skills are explicit-only. Invoke them by name:
 
-- `$chat`
-- `$debug`
-- `$explore`
-- `$plan`
-- `$implement`
-- `$review`
-- `$workflow-plan-review`
-- `$workflow-explore-plan-review`
-- `$workflow-implement-review`
-- `$workflow-prototype`
+- `$ts-chat`
+- `$ts-debug`
+- `$ts-explore`
+- `$ts-plan`
+- `$ts-implement`
+- `$ts-review`
+- `$ts-workflow-plan-review`
+- `$ts-workflow-explore-plan-review`
+- `$ts-workflow-implement-review`
+- `$ts-workflow-prototype`
 
 Reference skills may trigger by topic:
 
-- `principles`
-- `zod-v4`
-- `effect-v3`
-- `effect-v4`
+- `ts-principles`
+- `ts-zod-v4`
+- `ts-effect-v3`
+- `ts-effect-v4`
 
-Use `chat` to discuss, inspect, run read-only commands, or search without
+Use `ts-chat` to discuss, inspect, run read-only commands, or search without
 changing files.
 
-Use `debug` for a concrete failure. It may edit by default, but only after it
+Use `ts-debug` for a concrete failure. It may edit by default, but only after it
 has reproduced or bounded the symptom, traced the cause, and chosen a remedy
 that fixes the owning boundary.
 
@@ -103,8 +103,8 @@ The router chooses the next judge. It does not synthesize findings.
 
 Examples:
 
-- run `plan`, then `workflow-implement-review`, then `review`
-- run only `review` for a prepared diff
+- run `ts-plan`, then `ts-workflow-implement-review`, then `ts-review`
+- run only `ts-review` for a prepared diff
 - run one formal review now, then stop
 
 A router can be a human, a shell command, a CI step, or an agent. Most repo
@@ -232,9 +232,9 @@ Two loading mechanisms.
 External skills use semantic names:
 
 ```text
-skill: principles
-skill: effect-v3
-skill: zod-v4
+skill: ts-principles
+skill: ts-effect-v3
+skill: ts-zod-v4
 ```
 
 Files inside the active skill use paths relative to that skill directory:
@@ -258,7 +258,7 @@ Use a small root skill plus co-located references.
 Example:
 
 ```text
-skills/review/
+skills/ts-review/
   SKILL.md                  judge workflow
   shared.md                 shared protocol
   review-template.md        output contract
@@ -299,7 +299,7 @@ Example:
 You are the security review worker.
 
 Read:
-- skill: principles
+- skill: ts-principles
 - ./by-type/security.md
 - ./shared.md
 - ./review-template.md
@@ -352,7 +352,7 @@ independence.
 
 ## Review Pattern
 
-The review skill is a judge.
+The `ts-review` skill is a judge.
 
 It selects review types, determines scope, optionally spawns workers,
 aggregates findings, normalizes severity, and writes the review artifact.
