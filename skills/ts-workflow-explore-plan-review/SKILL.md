@@ -32,6 +32,15 @@ Use this when the user wants to explore a problem interactively, agree on a
 design, then produce and review an implementation plan. This skill does not
 implement code. The design and plan are artifacts.
 
+## Artifact Contract
+
+- Exploration has one primary design artifact before the gate.
+- The first gate-ready pass creates the design and returns its path.
+- User feedback before the gate updates that same design file.
+- Do not create `revised`, `v2`, or replacement design files for gate feedback.
+- After the gate, the delegated plan-review workflow owns one primary plan
+  artifact.
+
 ## Workflow
 
 1. DISPATCH_EXPLORE
@@ -58,14 +67,16 @@ Task input:
 - Own context loading, questions, synthesis, decisions, and the design artifact.
 - Write the design artifact when the design is coherent enough for user gate
   review.
-- Use `docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md` for the design artifact.
+- Use `docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md` for the first design
+  artifact.
+- After the first design artifact exists, update that same file.
 
 Interaction contract:
 - Ask only questions whose answers change the design.
 - Return user-facing questions or gate summaries for the router to relay.
 - Do not ask the router to synthesize or decide design content.
-- If the user gives feedback after a gate summary, update the design and return
-  a new gate summary.
+- If the user gives feedback after a gate summary, update the same design file
+  and return a new gate summary.
 
 Return exactly one status line at the end of each response:
 STATUS: NEEDS_USER_INPUT

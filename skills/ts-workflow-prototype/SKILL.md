@@ -51,6 +51,16 @@ Keep both current:
 
 Do not duplicate the design doc in the log. Link it.
 
+## Artifact Contract
+
+- This workflow has one primary artifact: the design doc.
+- Create one design doc, link it in the workflow log, and keep rewriting that
+  same file as understanding changes.
+- Do not create `revised`, `v2`, or replacement design docs for prototype
+  evidence, review findings, or user feedback.
+- Supporting plans and reviews may be created only when their pass needs them.
+- If a supporting plan is revised, overwrite its existing linked plan path.
+
 ## Capabilities
 
 ### ESTABLISH_RECORD
@@ -106,11 +116,14 @@ Task input:
 - Treat the design doc as the source of truth for decisions and open questions.
 - Keep unresolved design questions out of implementation tasks. Mark blocked
   tasks explicitly.
+- If revising an existing linked plan, use findings and handoffs as inputs, then
+  overwrite that plan path.
 
 Artifact destinations:
-- Plan artifact: `docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
+- New plan artifact: `docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
+- Revised plan artifact: the existing `plan` path linked in `## Artifacts`.
 - Workflow log: `<path>`.
-- Record the plan artifact link in `## Artifacts`.
+- Record one canonical `plan` link for this prototype slice in `## Artifacts`.
 
 Before returning, you must:
 - Write the plan artifact using the `ts-plan` artifact rules.

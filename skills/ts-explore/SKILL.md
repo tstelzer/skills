@@ -38,6 +38,8 @@ Workers return notes. The judge writes the artifact.
 - Explore the problem space, solution space, existing system, constraints,
   tradeoffs, decisions, risks, and open questions.
 - Name the subject and boundary of the exploration.
+- If the request revises an existing design artifact, use that existing design
+  path as the artifact path.
 - Default to chat. Write an artifact only when the user asks for one or the
   understanding should outlive the conversation.
 
@@ -137,6 +139,8 @@ For written artifacts, also verify:
   open questions.
 - For written output, create `docs/designs/` if needed, then create or update:
   `<repository-root>/docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md`.
+- When updating an existing design, write back to the existing artifact path.
+  Do not create a revised copy.
 - Rewrite the whole artifact on each update so it reads as the current source
   of truth.
 - When source files or reference docs own a contract, link to the owner with line

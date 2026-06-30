@@ -20,9 +20,21 @@ It runs a fixed sequence:
 
 `(judge-plan -> judge-review){1,n}`
 
-It dispatches judge passes to subagents, reads status and finding dispositions, and routes the next pass. It does not plan or review itself.
+It dispatches judge passes to subagents, reads status and finding dispositions,
+and routes the next pass. It does not plan or review itself.
 
-Use this when the user asks for an implementation plan and wants a review loop. This skill does not implement code; the produced plan is the artifact.
+Use this when the user asks for an implementation plan and wants a review loop.
+This skill does not implement code. The plan is the primary artifact.
+
+## Artifact Contract
+
+- This workflow has one primary artifact: the plan.
+- Pass 1 creates the plan and records one `plan` link in `## Artifacts`.
+- Later planning passes rewrite the same plan file.
+- Do not create `revised`, `v2`, or replacement plan files for review findings.
+- `## Artifacts` must contain exactly one `plan` link. Remove competing plan
+  links before returning.
+- Review artifacts and the workflow log are supporting artifacts.
 
 ## Workflow
 
@@ -65,17 +77,25 @@ Dispatched judge model/effort: <model> <effort>.
 
 Task input:
 - On pass 1: produce the plan for the linked source request from the log.
-- On later passes: revise the plan to resolve every open blocking finding in the log and the latest review handoff.
+- On later passes: read the canonical `plan` artifact linked in `## Artifacts`,
+  use open blocking findings and the latest review handoff as inputs, and
+  rewrite that same file so the affected plan sections are correct.
+- On later passes, return `STATUS: BLOCKED: missing canonical plan artifact` if
+  the log has no valid `plan` link.
 
 Artifact destinations:
-- Plan artifact: `docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
+- Pass 1 plan artifact: `docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
+- Later pass plan artifact: the existing `plan` path linked in `## Artifacts`.
 - Workflow log: `<path>`.
-- Record the plan artifact link in `## Artifacts`.
+- Record exactly one canonical `plan` link in `## Artifacts`.
 
 Before returning, you must:
 - Write the plan artifact using the `ts-plan` artifact rules.
+- For revisions, write back to the canonical `plan` path. Do not add a second
+  plan link.
 - Write or update the workflow log at `<path>`.
-- Keep the workflow log as coordination state with links to artifacts.
+- Keep the workflow log as coordination state with links, finding dispositions,
+  pass status, and handoff.
 - Record the dispatched judge model/effort and every worker model/effort in the
   workflow log.
 - Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
@@ -98,7 +118,7 @@ You are the review judge. Use `skill: ts-review`.
 Workflow log path: <path>.
 Dispatched judge model/effort: <model> <effort>.
 
-Review the latest `docs/plans/...md` plan artifact linked in `## Artifacts`
+Review the canonical `plan` artifact linked in `## Artifacts`
 against the source request. Score the plan only; there is no implementation diff
 in this workflow. Return
 `STATUS: BLOCKED: missing valid plan artifact link` until that target exists.
@@ -152,12 +172,17 @@ STATUS: ESCALATE: <reason>
   - any `fix now` finding
   - any open critical or high finding, regardless of disposition
 - If review has no blocking findings, stop with `STATUS: DONE`.
-- If review has blocking findings and the round limit is not reached, dispatch planning again with the same log path.
-- Default round limit is 5 unless the user sets another. One round is one planning pass followed by one review pass.
-- If the round limit is reached with open blocking findings, stop with `STATUS: BLOCKED: review loop limit reached`.
+- If review has blocking findings and the round limit is not reached, dispatch
+  planning again with the same log path and canonical plan path.
+- Default round limit is 5 unless the user sets another. One round is one
+  planning pass followed by one review pass.
+- If the round limit is reached with open blocking findings, stop with
+  `STATUS: BLOCKED: review loop limit reached`.
 
 ## Stop Conditions
 
 - `STATUS: DONE`: latest review pass completed and `## Open Findings` has no blocking findings.
-- `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is unavailable. Includes `subagents unavailable`, `invalid handoff`, and `review loop limit reached`.
+- `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is
+  unavailable. Includes `subagents unavailable`, `invalid handoff`, and
+  `review loop limit reached`.
 - `STATUS: ESCALATE: <reason>`: a human decision is needed.

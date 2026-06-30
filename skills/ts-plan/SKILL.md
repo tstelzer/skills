@@ -50,6 +50,8 @@ Default to direct execution.
   and any plausible nearby work the plan intentionally rejects or defers.
 - Name the repository root and planned artifact path:
   `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
+- If the request revises an existing plan, use that existing plan path as the
+  artifact path.
 - Create `docs/plans/` if it does not exist.
 
 ### LOAD_CONTEXT
@@ -96,7 +98,9 @@ Default to direct execution.
 
 ### DRAFT_PLAN
 
-- Write for a skilled engineer with no prior chat context.
+- Write implementation instructions for a skilled engineer with no prior chat
+  context. Treat review findings, user feedback, and handoffs as inputs to the
+  plan, not content in the plan.
 - Use exact file paths, line numbers when useful, and dependency-ordered tasks.
 - Make each task leave the repository coherent after its dependencies are
   applied. Do not split a refactor so an earlier task breaks imports, types,
@@ -143,15 +147,16 @@ Before writing the artifact, verify:
 - Every non-trivial behavior change has an automated test signal, an existing
   signal, or an explicit reason no durable signal exists.
 - Task file lists match the snippets or hunks in that task.
-- The plan has no meta notes about this skill or the planning process.
+- The plan has no notes about the planning, review, handoff, or revision process.
 
 ### WRITE_ARTIFACT
 
-- Write the final plan to
-  `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
-- When revising a plan, rewrite the complete final artifact. Do not write a
-  delta from the previous draft.
-- Fold accepted feedback into the relevant sections.
+- Write the final plan to the artifact path chosen in `DETERMINE_SCOPE`.
+- New plans use `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
+- Revisions overwrite the existing plan path. Do not create a revised copy or
+  write a delta.
+- Use accepted feedback to rewrite the affected sections: summary, overview,
+  tasks, test signals, code changes, verification, open questions, or scope.
 - Delete superseded scope instead of describing that it was removed.
 
 ## Artifact Template
@@ -183,7 +188,8 @@ Before writing the artifact, verify:
 - <Intent, invariant, or sequencing note not obvious from the code>
 - <Concrete step only when no code hunk carries it>
 
-**Test Signal:** <For test tasks only: behavior protected, boundary exercised, and regression that should fail; omit otherwise>
+**Test Signal:** <For test tasks only: behavior protected, boundary exercised,
+and regression that should fail; omit otherwise>
 
 **Code Changes:**
 ```ts
