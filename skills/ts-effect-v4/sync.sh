@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
-# Re-sync vendored Effect v4 docs from an effect-smol checkout.
-# Usage: ./sync.sh [path-to-effect-smol]   (default: ../../references/effect-smol)
+# Re-sync vendored Effect v4 docs from an effect-v4 checkout.
+# Usage: ./sync.sh [path-to-effect-v4]   (default: ../../references/effect-v4)
 set -eu
 
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-src=${1:-"$here/../../references/effect-smol"}
+src=${1:-"$here/../../references/effect-v4"}
 
 [ -d "$src/ai-docs/src" ] || { echo "no ai-docs/src under $src" >&2; exit 1; }
 
@@ -21,7 +21,10 @@ mig="$here/migration/MIGRATION.md"
 sed -i 's#](\./migration/#](./#g' "$mig"
 
 # 4. index generators.md (orphaned upstream) unless it's already linked
-grep -q '(\./generators\.md)' "$mig" || \
-  sed -i 's#\(- \[Effect Subtyping → Yieldable\](\./yieldable\.md)\)#\1\n- [Generators: `Effect.gen` Passing `this`](./generators.md)#' "$mig"
+if ! grep -q '(\./generators\.md)' "$mig"; then
+  pattern='\(- \[Effect Subtyping → Yieldable\](\./yieldable\.md)\)'
+  replacement='\1\n- [Generators: `Effect.gen` Passing `this`](./generators.md)'
+  sed -i "s#${pattern}#${replacement}#" "$mig"
+fi
 
 echo "synced from $src"
