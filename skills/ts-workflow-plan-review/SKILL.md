@@ -21,7 +21,11 @@ It runs a fixed sequence:
 `(judge-plan -> judge-review){1,n}`
 
 It dispatches judge passes to subagents, reads status and finding dispositions,
-and routes the next pass. It does not plan or review itself.
+and routes the next pass. It never plans, reviews, edits artifacts, or changes
+the plan content itself.
+
+The router's only write target is the workflow log. Any artifact change belongs
+to a dispatched judge.
 
 Use this when the user asks for an implementation plan and wants a review loop.
 This skill does not implement code. The plan is the primary artifact.
@@ -42,11 +46,13 @@ This skill does not implement code. The plan is the primary artifact.
 2. DISPATCH_PLAN
 3. DISPATCH_REVIEW
 4. ROUTE_NEXT_PASS
+5. HANDLE_DEVELOPER_FEEDBACK
 
 ### CREATE_LOG
 
 - Use the `ts-log` skill to create the shared workflow log.
-- Record the user request as `Source request:`. Link a design artifact when one exists, or copy the request inline.
+- Record the user request as `Source request:`. Link a design artifact when one
+  exists, or copy the request inline.
 - In this workflow, the router owns log creation and routing state. Each
   judge pass owns its own log entry, artifact links, findings, worker dispatch
   count, types, models, efforts, and handoff.
@@ -77,6 +83,8 @@ Dispatched judge model/effort: <model> <effort>.
 
 Task input:
 - On pass 1: produce the plan for the linked source request from the log.
+- If the log contains developer feedback, use it as input to rewrite the affected
+  plan sections.
 - On later passes: read the canonical `plan` artifact linked in `## Artifacts`,
   use open blocking findings and the latest review handoff as inputs, and
   rewrite that same file so the affected plan sections are correct.
@@ -174,10 +182,26 @@ STATUS: ESCALATE: <reason>
 - If review has no blocking findings, stop with `STATUS: DONE`.
 - If review has blocking findings and the round limit is not reached, dispatch
   planning again with the same log path and canonical plan path.
+- If developer feedback arrives after any router report, handle it through
+  `HANDLE_DEVELOPER_FEEDBACK`.
 - Default round limit is 5 unless the user sets another. One round is one
   planning pass followed by one review pass.
 - If the round limit is reached with open blocking findings, stop with
   `STATUS: BLOCKED: review loop limit reached`.
+
+### HANDLE_DEVELOPER_FEEDBACK
+
+- Developer feedback means user change requests after a router report, including
+  after `STATUS: DONE`.
+- Interpret every change request in developer feedback as a planner task. Words
+  such as `change`, `update`, `fix`, `add`, `remove`, `rewrite`, `revise`, and
+  `adjust` always mean dispatch the planner.
+- Reopen the workflow as a new round.
+- Record the feedback in `## Timeline` and `## Current State` as the next
+  handoff.
+- Dispatch planning with the same log path and canonical plan path.
+- Run review after that planning pass.
+- Before dispatch, update only the workflow log. Never edit the plan.
 
 ## Stop Conditions
 

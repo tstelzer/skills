@@ -20,9 +20,16 @@ It runs a fixed sequence:
 
 `(judge-implement -> judge-review){1,n}`
 
-It dispatches judge passes to subagents, reads status and finding dispositions, and routes the next pass. It does not edit, review, or verify code itself.
+It dispatches judge passes to subagents, reads status and finding dispositions,
+and routes the next pass. It never edits, reviews, verifies, or changes code
+itself.
 
-Use this when the user asks to build, implement, fix, or change code and wants a review loop. This skill does not create a plan. The user request can be ad-hoc or linked to a prior plan.
+The router's only write target is the workflow log. Any code change belongs to a
+dispatched judge.
+
+Use this when the user asks to build, implement, fix, or change code and wants a
+review loop. This skill does not create a plan. The user request can be ad-hoc
+or linked to a prior plan.
 
 ## Workflow
 
@@ -30,12 +37,15 @@ Use this when the user asks to build, implement, fix, or change code and wants a
 2. DISPATCH_IMPLEMENT
 3. DISPATCH_REVIEW
 4. ROUTE_NEXT_PASS
+5. HANDLE_DEVELOPER_FEEDBACK
 
 ### CREATE_LOG
 
 - Use the `ts-log` skill to create the shared workflow log.
-- Record the user request as `Source request:`. Link a plan or design artifact when one exists, or copy the request inline.
-- Record the workflow baseline: base ref (current `git HEAD`) and starting dirty files (`git status`).
+- Record the user request as `Source request:`. Link a plan or design artifact
+  when one exists, or copy the request inline.
+- Record the workflow baseline: base ref (current `git HEAD`) and starting dirty
+  files (`git status`).
 - In this workflow, the router owns log creation and routing state. Each
   judge pass owns its own log entry, artifact links, findings, worker dispatch
   count, types, models, efforts, and handoff.
@@ -61,12 +71,16 @@ Use this when the user asks to build, implement, fix, or change code and wants a
 ```text
 You are the implementation judge. Use `skill: ts-implement`.
 
-Workflow log path: <path>. Respect the recorded baseline; do not absorb unrelated pre-existing user changes.
+Workflow log path: <path>. Respect the recorded baseline; do not absorb
+unrelated pre-existing user changes.
 Dispatched judge model/effort: <model> <effort>.
 
 Task input:
 - On pass 1: implement the linked source request from the log.
-- On later passes: resolve every open blocking finding in the log and the latest review handoff.
+- If the log contains developer feedback, use it as input for the implementation
+  pass.
+- On later passes: resolve every open blocking finding in the log and the latest
+  review handoff.
 
 Before returning, you must:
 - Write or update the workflow log at `<path>`.
@@ -92,7 +106,8 @@ You are the review judge. Use `skill: ts-review`.
 Workflow log path: <path>.
 Dispatched judge model/effort: <model> <effort>.
 
-Review the workflow-owned diff against the source request, workflow baseline, and latest implementation handoff in the log.
+Review the workflow-owned diff against the source request, workflow baseline,
+and latest implementation handoff in the log.
 Run the review against all review types from `skill: ts-review`.
 
 This is a formal workflow review, not an informal review. You must write a
@@ -107,7 +122,8 @@ executable follow-up.
 
 Review status semantics:
 - `STATUS: DONE`: review completed with no blocking findings.
-- `STATUS: BLOCKED`: review completed with blocking findings for the next implementation pass.
+- `STATUS: BLOCKED`: review completed with blocking findings for the next
+  implementation pass.
 - `STATUS: ESCALATE`: a human decision or exception is needed.
 
 Before returning, you must:
@@ -143,12 +159,34 @@ STATUS: ESCALATE: <reason>
   - any `fix now` finding
   - any open critical or high finding, regardless of disposition
 - If review has no blocking findings, stop with `STATUS: DONE`.
-- If review has blocking findings and the round limit is not reached, dispatch implementation again with the same log path.
-- Default round limit is 5 unless the user sets another. One round is one implementation pass followed by one review pass.
-- If the round limit is reached with open blocking findings, stop with `STATUS: BLOCKED: review loop limit reached`.
+- If review has blocking findings and the round limit is not reached, dispatch
+  implementation again with the same log path.
+- If developer feedback arrives after any router report, handle it through
+  `HANDLE_DEVELOPER_FEEDBACK`.
+- Default round limit is 5 unless the user sets another. One round is one
+  implementation pass followed by one review pass.
+- If the round limit is reached with open blocking findings, stop with
+  `STATUS: BLOCKED: review loop limit reached`.
+
+### HANDLE_DEVELOPER_FEEDBACK
+
+- Developer feedback means user change requests after a router report, including
+  after `STATUS: DONE`.
+- Interpret every change request in developer feedback as an implementation
+  judge task. Words such as `change`, `update`, `fix`, `add`, `remove`,
+  `rewrite`, `revise`, and `adjust` always mean dispatch the implementer.
+- Reopen the workflow as a new round.
+- Record the feedback in `## Timeline` and `## Current State` as the next
+  handoff.
+- Dispatch implementation with the same log path.
+- Run review after that implementation pass.
+- Before dispatch, update only the workflow log. Never edit code.
 
 ## Stop Conditions
 
-- `STATUS: DONE`: latest review pass completed and `## Open Findings` has no blocking findings.
-- `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is unavailable. Includes `subagents unavailable`, `invalid handoff`, and `review loop limit reached`.
+- `STATUS: DONE`: latest review pass completed and `## Open Findings` has no
+  blocking findings.
+- `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is
+  unavailable. Includes `subagents unavailable`, `invalid handoff`, and
+  `review loop limit reached`.
 - `STATUS: ESCALATE: <reason>`: a human decision is needed.
