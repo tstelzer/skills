@@ -47,6 +47,13 @@ The judge may do the work directly. Delegate only when the work separates cleanl
 
 - Apply the changes per `skill: ts-principles`.
 - Add or update tests when the changed behavior needs proof.
+- Before finishing code, check changed exported contracts, invariants, failure
+  modes, concurrency, performance, security, and domain rules for knowledge the
+  code cannot carry.
+- Add the nearest useful documentation: `/** ... */` for exported contracts,
+  short comments for non-obvious invariants or sharp edges, or source-owned docs
+  for changed behavior.
+- Do not add comments that repeat names, types, schemas, tests, or obvious code.
 
 ### VERIFY
 

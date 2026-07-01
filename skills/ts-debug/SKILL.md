@@ -89,6 +89,11 @@ Treat these as suspect until proven necessary:
 - Prefer deleting wrong code, correcting contracts, or moving logic to the right
   boundary over adding wrappers, flags, or fallbacks.
 - Add or update tests when the changed behavior needs proof.
+- Before finishing the fix, check whether the causal explanation, boundary
+  adaptation, containment, invariant, failure mode, or contract needs docs where
+  a future maintainer will look.
+- Add `/** ... */`, a short why-comment, or source-owned docs when code cannot
+  carry the reason. Do not add comments that restate the code.
 - Preserve unrelated user changes.
 
 ### VERIFY

@@ -122,8 +122,11 @@ Code-in-plan policy:
 - Do not include generated artifacts, lockfiles, snapshots, or build output
   unless they are the subject of the change.
 - Do not hide substantive logic behind `...`.
-- Add comments only for non-obvious invariants, edge cases, error handling,
-  concurrency, performance, security, or domain rules.
+- Plan `/** ... */` or comments for non-obvious exported contracts, invariants,
+  edge cases, error handling, concurrency, performance, security, or domain
+  rules.
+- Do not plan comments that repeat names, types, schemas, tests, or obvious
+  code.
 
 ### CHECK_GATES
 

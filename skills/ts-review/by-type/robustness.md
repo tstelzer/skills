@@ -16,6 +16,7 @@ Read details for:
 - `parse, don't validate`
 - `handle it, or die`
 - `avoid hasty abstractions`
+- `integrated documentation`
 - `states are values`
 - `choose paradigm by fit`
 - `fight entropy`
@@ -29,6 +30,8 @@ Read details for:
 - Failure handling, cleanup, lifecycle, retries, fallbacks, and partial-success behavior.
 - Complexity, coupling, naming, and structure introduced or reinforced by the change.
 - Operational behavior that affects correctness or debuggability but is not primarily performance or security.
+- Missing inline docs for non-obvious invariants, contracts, failure modes,
+  sharp edges, or operational constraints in touched implementation paths.
 
 ## Out Of Scope
 
@@ -36,7 +39,7 @@ Read details for:
 - Exploitability and trust-boundary abuse.
 - Pure performance cost.
 - Test coverage quality.
-- Documentation quality.
+- Broad documentation quality outside touched implementation paths.
 
 ## Workflow
 
@@ -67,5 +70,6 @@ These are anchors. Use judgment when a case sits between levels.
 - `cleanup`
 - `coupling`
 - `complexity`
+- `missing-inline-docs`
 - `ownership`
 - `operability`
