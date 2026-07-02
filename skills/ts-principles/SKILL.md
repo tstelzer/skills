@@ -7,8 +7,7 @@ description: Core engineering principles. Use as a guiding reference for designi
 
 - Always read this file first.
 - Treat the bullets below as the canonical short form.
-- Read deeper principle docs only when the active skill, review type, or task risk calls for them.
-- Do not load every deeper doc by default unless the task is broad architectural work.
+- Always read deeper principle docs by default, unless the prompt says otherwise.
 
 ## Principles
 
