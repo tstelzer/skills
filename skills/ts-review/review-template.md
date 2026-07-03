@@ -4,10 +4,10 @@
 <review type>
 
 ## Reviewer Metadata
-Judge: provider `<provider>`, model `<model>`, reasoning `<level>`
+Judge: provider `<provider>`, model line `<model-line>`, reasoning `<level>`
 Workers:
-- `<review-type>`: provider `<provider>`, model `<model>`, reasoning `<level>`
-- `<review-type>`: provider `<provider>`, model `<model>`, reasoning `<level>`
+- `<review-type>`: provider `<provider>`, model line `<model-line>`, reasoning `<level>`
+- `<review-type>`: provider `<provider>`, model line `<model-line>`, reasoning `<level>`
 
 ## Scope
 <Standalone description of what was reviewed. Include commits, plans, files,

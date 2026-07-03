@@ -33,6 +33,35 @@ This skill fits a three-tier workflow:
 
 Default to direct execution.
 
+## Sub-Agent Selection
+
+Use this section when this skill spawns sub-agent workers.
+
+- Choose the first available entry for the worker role.
+- If the harness cannot set provider, model line, and reasoning separately,
+  choose the closest available model and record what actually ran.
+- Do not spawn extra workers just to use every entry.
+- Spawn workers only when a worker can produce independent evidence that the
+  judge can verify and integrate cheaply.
+- Use Spark first for bounded repo scans.
+
+### Planning Worker
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt-5.3-codex-spark` | `high` |
+| 2 | Cursor | `composer` | `high` |
+| 3 | OpenAI | `gpt` latest | `high` |
+| 4 | Anthropic | `sonnet` latest | `high` |
+
+Good worker tasks:
+
+- test signal inventory
+- affected contract inventory
+- migration and rollout constraints
+- verification command discovery
+- dependency and ownership map
+
 ## Workflow
 
 1. DETERMINE_SCOPE
@@ -68,11 +97,12 @@ Default to direct execution.
 ### DELEGATE_INVESTIGATIONS
 
 - Skip when direct planning is cheaper.
-- Delegate only independent, bounded questions.
+- Delegate only independent, bounded fact-finding questions.
 - Worker prompts must include the question, exact scope, files or skills to
-  read, expected output shape, the rule that workers must not write the plan
-  artifact, and the rule that workers must escalate tooling failures to the
-  judge instead of silently downgrading output.
+  read, assigned provider, model line, reasoning level, expected output shape,
+  the rule that workers must not write the plan artifact, and the rule that
+  workers must escalate tooling failures to the judge instead of silently
+  downgrading output.
 - Treat worker output as evidence. Deduplicate and reconcile it before
   planning.
 

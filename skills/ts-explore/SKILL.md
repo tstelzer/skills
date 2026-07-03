@@ -24,6 +24,37 @@ independently, such as domain modeling, existing behavior, user workflow, API
 contracts, state models, abuse cases, operations, migration risk, or prior art.
 Workers return notes. The judge writes the artifact.
 
+## Sub-Agent Selection
+
+Use this section when this skill spawns sub-agent workers.
+
+- Choose the first available entry for the worker role.
+- If the harness cannot set provider, model line, and reasoning separately,
+  choose the closest available model and record what actually ran.
+- Do not spawn extra workers just to use every entry.
+- Spawn workers only when a worker can produce independent evidence that the
+  judge can verify and integrate cheaply.
+- Use Spark first for repo-local mapping and inventory.
+
+### Exploration Worker
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt-5.3-codex-spark` | `high` |
+| 2 | Cursor | `composer` | `high` |
+| 3 | OpenAI | `gpt` latest | `high` |
+| 4 | Anthropic | `sonnet` latest | `high` |
+
+Good worker lenses:
+
+- current behavior trace
+- API or data contract map
+- state model
+- user workflow map
+- abuse or failure cases
+- operations, performance, or migration risk
+- prior-art scan
+
 ## Workflow
 
 1. SET_SCOPE

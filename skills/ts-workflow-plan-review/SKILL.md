@@ -40,6 +40,31 @@ This skill does not implement code. The plan is the primary artifact.
   links before returning.
 - Review artifacts and the workflow log are supporting artifacts.
 
+## Sub-Agent Selection
+
+Use this section when this skill dispatches sub-agent judges.
+
+- Choose the first available entry for the judge role.
+- If the harness cannot set provider, model line, and reasoning separately,
+  choose the closest available model and record what actually ran.
+- Do not dispatch extra judges just to use every entry.
+
+### Planning Judge
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt` latest | `xhigh` |
+| 2 | Anthropic | `opus` latest | `high` |
+| 3 | Cursor | `composer` | `high` |
+
+### Review Judge
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt` latest | `xhigh` |
+| 2 | Anthropic | `opus` latest | `xhigh` |
+| 3 | Cursor | `composer` | `high` |
+
 ## Workflow
 
 1. CREATE_LOG
@@ -55,11 +80,11 @@ This skill does not implement code. The plan is the primary artifact.
   exists, or copy the request inline.
 - In this workflow, the router owns log creation and routing state. Each
   judge pass owns its own log entry, artifact links, findings, worker dispatch
-  count, types, models, efforts, and handoff.
-- The router must record the exact selected model and effort for each
-  dispatched judge in the workflow log.
-- When composing a judge prompt, replace `<model> <effort>` with the actual
-  selected values.
+  count, types, providers, model lines, reasoning levels, and handoff.
+- The router must record the exact selected provider, model line, and reasoning
+  level for each dispatched judge in the workflow log.
+- When composing a judge prompt, replace `<provider>`, `<model-line>`, and
+  `<reasoning>` with the actual selected values.
 - Always pass the same log path to every judge pass.
 - Use the owning skill's artifact directory for each pass: plans in
   `docs/plans/`, reviews in `docs/reviews/`, workflow logs in `docs/workflows/`.
@@ -72,14 +97,14 @@ This skill does not implement code. The plan is the primary artifact.
 
 ### DISPATCH_PLAN
 
-- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 xhigh`.
+- Dispatch a planning judge from the `Planning Judge` list.
 - Prompt:
 
 ```text
 You are the planning judge. Use `skill: ts-plan`.
 
 Workflow log path: <path>.
-Dispatched judge model/effort: <model> <effort>.
+Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
 Task input:
 - On pass 1: produce the plan for the linked source request from the log.
@@ -104,10 +129,10 @@ Before returning, you must:
 - Write or update the workflow log at `<path>`.
 - Keep the workflow log as coordination state with links, finding dispositions,
   pass status, and handoff.
-- Record the dispatched judge model/effort and every worker model/effort in the
-  workflow log.
-- Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `2 (api-contract: opus high, test-inventory: gpt-5.5 high)`.
+- Record the dispatched judge and every worker as provider, model line, and
+  reasoning level in the workflow log.
+- Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
+  `2 (api-contract: openai/gpt-5.3-codex-spark/high, test-inventory: anthropic/sonnet latest/high)`.
 
 Return exactly one status line:
 STATUS: DONE
@@ -117,14 +142,14 @@ STATUS: ESCALATE: <reason>
 
 ### DISPATCH_REVIEW
 
-- Dispatch a sub-agent with models: `opus high` or `gpt-5.5 high`.
+- Dispatch a review judge from the `Review Judge` list.
 - Prompt:
 
 ```text
 You are the review judge. Use `skill: ts-review`.
 
 Workflow log path: <path>.
-Dispatched judge model/effort: <model> <effort>.
+Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
 Review the canonical `plan` artifact linked in `## Artifacts`
 against the source request. Score the plan only; there is no implementation diff
@@ -156,10 +181,10 @@ Before returning, you must:
 - Record the review artifact link in `## Artifacts`.
 - Keep the workflow log as coordination state with links, finding dispositions,
   pass status, worker metadata, and handoff.
-- Record the dispatched judge model/effort and every worker model/effort in the
-  workflow log.
-- Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `2 (automatic-testing: opus high, robustness: gpt-5.5 high)`.
+- Record the dispatched judge and every worker as provider, model line, and
+  reasoning level in the workflow log.
+- Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
+  `2 (automatic-testing: openrouter/glm latest/xhigh, robustness: anthropic/opus latest/xhigh)`.
 
 Return exactly one status line:
 STATUS: DONE

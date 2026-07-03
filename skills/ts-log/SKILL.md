@@ -52,7 +52,8 @@ Write entries only for workflow coordination:
 - Current workflow status and next pass.
 - Source request and review baseline.
 - Artifact links: plans, reviews, audits, verdicts, screenshots, test reports.
-- Models and efforts used for dispatched judges and their workers.
+- Providers, model lines, and reasoning levels used for dispatched judges and
+  their workers.
 - Deviations from the expected plan, design, task, or prior handoff.
 - Non-obvious findings that future passes must account for.
 - Decisions that affect later phases.
@@ -114,7 +115,8 @@ precondition. Use `ESCALATE` when a human decision is needed.
 ### YYYY-MM-DD HH:MM - <pass-name>
 STATUS: DONE
 **Skill(s):** `<skill-name>`, `<other-skill>`
-**Models:** judge `<model> <effort>`; workers `<count> (<type>: <model> <effort>, ...)` or `0 (judge direct)`
+**Sub-agents:** judge `<provider>/<model-line>/<reasoning>`;
+workers `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)` or `0 (judge direct)`
 **Artifact:** <artifact link, or `None`>
 **Verification:** <command and result, or `Not run: <reason>`>
 **Findings:** <new, updated, or resolved finding IDs, or `None`>

@@ -23,6 +23,27 @@ The judge may edit code. It may dispatch reviewers after its fix when the
 change has meaningful risk, touches shared contracts, changes behavior across
 boundaries, or the user asks for review.
 
+## Sub-Agent Selection
+
+Use this section when this skill spawns sub-agent reviewers.
+
+- Choose the first available entry for the reviewer role.
+- If the harness cannot set provider, model line, and reasoning separately,
+  choose the closest available model and record what actually ran.
+- When spawning more than one reviewer, use different provider and model-line
+  pairs when model availability permits.
+
+### Review Worker
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenRouter | `glm` latest | `xhigh` |
+| 2 | Anthropic | `opus` latest | `xhigh` |
+| 3 | OpenAI | `gpt` latest | `xhigh` |
+| 4 | OpenRouter | `gemini flash` latest | `high` |
+| 5 | OpenRouter | `deepseek v4 pro` latest | `high` |
+| 6 | Cursor | `composer` | `high` |
+
 ## Workflow
 
 1. FRAME_SYMPTOM
@@ -110,12 +131,15 @@ Dispatch reviewers when the fix touches auth, persistence, public APIs,
 migrations, shared tooling, build behavior, dependency resolution, concurrency,
 or cross-module contracts.
 
+Choose reviewers from the `Review Worker` list.
+
 Reviewer prompts must include:
 
 - the original symptom
 - the causal explanation
 - the debug-owned diff
 - verification run
+- assigned provider, model line, and reasoning level
 - suspected risk areas
 
 Reviewers must look for false fixes, hidden workarounds, contract drift,

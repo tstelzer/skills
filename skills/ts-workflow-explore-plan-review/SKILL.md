@@ -41,6 +41,23 @@ implement code. The design and plan are artifacts.
 - After the gate, the delegated plan-review workflow owns one primary plan
   artifact.
 
+## Sub-Agent Selection
+
+Use this section when this skill dispatches the exploration judge.
+
+- Choose the first available entry for the judge role.
+- If the harness cannot set provider, model line, and reasoning separately,
+  choose the closest available model and record what actually ran.
+- Do not dispatch extra judges just to use every entry.
+
+### Exploration Judge
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt` latest | `xhigh` |
+| 2 | Anthropic | `opus` latest | `high` |
+| 3 | Cursor | `composer` | `high` |
+
 ## Workflow
 
 1. DISPATCH_EXPLORE
@@ -50,7 +67,7 @@ implement code. The design and plan are artifacts.
 
 ### DISPATCH_EXPLORE
 
-- Dispatch one exploration judge with model `gpt-5.5 xhigh` or `opus high`.
+- Dispatch one exploration judge from the `Exploration Judge` list.
 - Keep the same exploration judge session alive for the whole exploration
   phase. Do not spawn a fresh judge for each user question.
 - If exploration judge dispatch fails, stop with
@@ -60,7 +77,7 @@ implement code. The design and plan are artifacts.
 ```text
 You are the exploration judge. Use `skill: ts-explore`.
 
-Dispatched judge model/effort: <model> <effort>.
+Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
 Task input:
 - Explore the original user request interactively.

@@ -46,8 +46,8 @@ Keep both current:
 - Design doc: problem framing, decisions, constraints, open questions, risks,
   prototype evidence, and implementation implications.
 - Workflow log: current state, baseline, linked artifacts, dispatched judges,
-  model and effort choices, pass history, findings or risks that affect later
-  passes, and the next handoff.
+  provider, model line, and reasoning choices, pass history, findings or risks
+  that affect later passes, and the next handoff.
 
 Do not duplicate the design doc in the log. Link it.
 
@@ -61,6 +61,39 @@ Do not duplicate the design doc in the log. Link it.
 - Supporting plans and reviews may be created only when their pass needs them.
 - If a supporting plan is revised, overwrite its existing linked plan path.
 
+## Sub-Agent Selection
+
+Use this section when this skill dispatches sub-agent judges.
+
+- Choose the first available entry for the judge role.
+- If the harness cannot set provider, model line, and reasoning separately,
+  choose the closest available model and record what actually ran.
+- Do not dispatch extra judges just to use every entry.
+
+### Planning Judge
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt` latest | `xhigh` |
+| 2 | Anthropic | `opus` latest | `high` |
+| 3 | Cursor | `composer` | `high` |
+
+### Implementation Judge
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt` latest | `medium` |
+| 2 | Anthropic | `sonnet` latest | `high` |
+| 3 | Cursor | `composer` | `high` |
+
+### Review Judge
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt` latest | `xhigh` |
+| 2 | Anthropic | `opus` latest | `xhigh` |
+| 3 | Cursor | `composer` | `high` |
+
 ## Capabilities
 
 ### ESTABLISH_RECORD
@@ -71,7 +104,8 @@ Do not duplicate the design doc in the log. Link it.
   inline.
 - Link every design, plan, review, screenshot, report, or other workflow
   artifact.
-- Record the exact selected model and effort for each dispatched judge.
+- Record the exact selected provider, model line, and reasoning level for each
+  dispatched judge.
 - Use the owning skill's artifact directory for each pass: designs in
   `docs/designs/`, plans in `docs/plans/`, reviews in `docs/reviews/`.
 - Always pass the same log path to every dispatched judge.
@@ -100,7 +134,7 @@ Do not duplicate the design doc in the log. Link it.
 Dispatch a planning judge only when a prototype slice needs sequencing, test
 strategy, migration reasoning, or a concrete implementation plan.
 
-Preferred judge models: `opus high` or `gpt-5.5 xhigh`.
+Choose the judge from the `Planning Judge` list.
 
 Prompt:
 
@@ -108,7 +142,7 @@ Prompt:
 You are the planning judge. Use `skill: ts-plan`.
 
 Workflow log path: <path>.
-Dispatched judge model/effort: <model> <effort>.
+Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
 Task input:
 - Produce or revise a focused implementation plan for the prototype slice
@@ -129,10 +163,10 @@ Before returning, you must:
 - Write the plan artifact using the `ts-plan` artifact rules.
 - Write or update the workflow log at `<path>`.
 - Keep the workflow log as coordination state with links to artifacts.
-- Record the dispatched judge model/effort and every worker model/effort in the
-  workflow log.
-- Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `2 (api-contract: opus high, test-inventory: gpt-5.5 high)`.
+- Record the dispatched judge and every worker as provider, model line, and
+  reasoning level in the workflow log.
+- Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
+  `2 (api-contract: openai/gpt-5.3-codex-spark/high, test-inventory: anthropic/sonnet latest/high)`.
 
 Return exactly one status line:
 STATUS: DONE
@@ -145,7 +179,7 @@ STATUS: ESCALATE: <reason>
 Dispatch an implementation judge when the next prototype move is concrete
 enough to change code.
 
-Preferred judge models: `sonnet high` or `gpt-5.5 medium`.
+Choose the judge from the `Implementation Judge` list.
 
 Prompt:
 
@@ -154,7 +188,7 @@ You are the implementation judge. Use `skill: ts-implement`.
 
 Workflow log path: <path>. Respect the recorded baseline; do not absorb
 unrelated pre-existing user changes.
-Dispatched judge model/effort: <model> <effort>.
+Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
 Task input:
 - Implement the focused prototype slice described in the workflow log and
@@ -166,10 +200,10 @@ Task input:
 
 Before returning, you must:
 - Write or update the workflow log at `<path>`.
-- Record the dispatched judge model/effort and every worker model/effort in the
-  workflow log.
-- Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `2 (frontend: sonnet high, backend: gpt-5.5 medium)`.
+- Record the dispatched judge and every worker as provider, model line, and
+  reasoning level in the workflow log.
+- Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
+  `2 (frontend: openai/gpt-5.3-codex-spark/high, backend: anthropic/sonnet latest/high)`.
 - Report changes made, verification run, open risks, and any design evidence
   the prototype produced.
 
@@ -185,7 +219,7 @@ Dispatch a review judge only when risk warrants it, such as auth, persistence,
 public APIs, migrations, performance-sensitive paths, production readiness, or
 a user request for review.
 
-Preferred judge models: `opus high` or `gpt-5.5 high`.
+Choose the judge from the `Review Judge` list.
 
 Prompt:
 
@@ -193,7 +227,7 @@ Prompt:
 You are the review judge. Use `skill: ts-review`.
 
 Workflow log path: <path>.
-Dispatched judge model/effort: <model> <effort>.
+Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
 Review scope:
 - Review the requested design doc, plan artifact, or workflow-owned diff
@@ -212,10 +246,10 @@ Before returning, you must:
 - Record the review artifact link in `## Artifacts`.
 - Keep the workflow log as coordination state with links, finding dispositions,
   pass status, worker metadata, and handoff.
-- Record the dispatched judge model/effort and every worker model/effort in the
-  workflow log.
-- Record worker dispatches as `<count> (<type>: <model> <effort>, ...)`, e.g.
-  `2 (security: opus high, robustness: gpt-5.5 high)`.
+- Record the dispatched judge and every worker as provider, model line, and
+  reasoning level in the workflow log.
+- Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
+  `2 (security: openrouter/glm latest/xhigh, robustness: anthropic/opus latest/xhigh)`.
 - Record findings, risk disposition, and handoff for the prototype judge.
 
 Return exactly one status line:
