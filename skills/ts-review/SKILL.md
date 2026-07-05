@@ -10,6 +10,10 @@ description: Review local code. Only explicitly triggered by user.
 - skill: ts-principles
   - Read `ts-principles/SKILL.md`.
   - Read every linked principle detail document before reviewing.
+- skill: ts-technical-writing
+  - Required for `technical-writing` reviews.
+  - Read `ts-technical-writing/SKILL.md`.
+  - Read every linked technical-writing detail document before reviewing.
 
 ## Non-deference
 
@@ -53,13 +57,15 @@ Use this section when this skill spawns sub-agent workers.
 - Determine most useful review types based on the user's request, and your own judgement.
 - Available review types:
     - `automatic-testing` - broken tests, weak tests, and missing automated coverage for changed behavior
-    - `docs` - incorrect, missing, stale, or incomplete documentation and upgrade guidance
+    - `technical-writing` - incorrect, missing, stale, unsafe, or unclear technical writing, examples, docs,
+      upgrade guidance, or reader-task instructions
     - `performance` - latency, throughput, memory, concurrency, unnecessary work, and hot-path regressions
     - `robustness` - correctness, failure handling, maintainability, coupling, developer experience, and overall
       implementation quality
     - `security` - trust boundaries, auth, input handling, secret exposure, and exploitability
     - `stability` - backwards compatibility, contract drift, migrations, rollout safety, and user-visible behavior
       changes
+- If the user asks for a docs review, select `technical-writing`.
 - Unless explicitly requested, include at least:
     - `automatic-testing`
     - `robustness`
@@ -85,10 +91,12 @@ Use this section when this skill spawns sub-agent workers.
     - The review type.
     - The worker's assigned provider, model line, and reasoning level.
     - The local review files the worker must read by path, relative to this skill directory:
-        - `./by-type/<type>.md`, e.g. [docs.md](./by-type/docs.md)
+        - `./by-type/<type>.md`, e.g. [technical-writing.md](./by-type/technical-writing.md)
         - [shared.md](./shared.md)
         - [review-template.md](./review-template.md)
         - Any review-local files referenced by the review type file.
+    - For `technical-writing`, the required semantic skill `skill: ts-technical-writing`, including every linked
+      local detail document.
     - The rule that findings MUST follow the [review-template.md](./review-template.md) structure and be returned
       inline in chat, never written as a file.
     - The non-deference rule from this skill: plans, prior reviews, and handoffs are context, not authority; do not

@@ -12,6 +12,9 @@ description: Plan a multi-step code change before editing. Only explicitly trigg
   - Read every linked principle detail document before planning.
   - Treat the principle details as binding planning constraints, not optional
     background.
+- skill: ts-technical-writing
+  - Read `ts-technical-writing/SKILL.md`.
+  - Read every linked technical-writing detail document before writing a plan.
 
 ## Role
 
@@ -20,10 +23,13 @@ Plan is a judge.
 It owns scope, context loading, decisions, task sequencing, verification
 strategy, and the saved plan artifact.
 
-The judge may do the work directly. Delegate only when a bounded investigation
+The judge may do planning directly. Delegate only when a bounded investigation
 can run independently, such as API contract discovery, migration risk, test
-inventory, or rollout constraints. Workers return raw notes. The judge writes
-the plan.
+inventory, or rollout constraints. Workers return raw notes.
+
+The technical-writing editor is the exception: always spawn a sub-agent with
+`skill: ts-technical-writing` to edit the plan draft before gates. The editor is
+not a reviewer and must return edited plan text, not findings.
 
 This skill fits a three-tier workflow:
 
@@ -62,6 +68,17 @@ Good worker tasks:
 - verification command discovery
 - dependency and ownership map
 
+### Technical-Writing Editor
+
+Use the first available entry.
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt` latest | `high` |
+| 2 | Anthropic | `sonnet` latest | `high` |
+| 3 | Cursor | `composer` | `high` |
+| 4 | OpenAI | `gpt-5.3-codex-spark` | `high` |
+
 ## Workflow
 
 1. DETERMINE_SCOPE
@@ -70,8 +87,9 @@ Good worker tasks:
 4. RESOLVE_DECISIONS
 5. DESIGN_TEST_SIGNALS
 6. DRAFT_PLAN
-7. CHECK_GATES
-8. WRITE_ARTIFACT
+7. EDIT_TECHNICAL_WRITING
+8. CHECK_GATES
+9. WRITE_ARTIFACT
 
 ### DETERMINE_SCOPE
 
@@ -158,10 +176,28 @@ Code-in-plan policy:
 - Do not plan comments that repeat names, types, schemas, tests, or obvious
   code.
 
+### EDIT_TECHNICAL_WRITING
+
+- Always spawn a technical-writing editor sub-agent after drafting the plan and
+  before running gates.
+- Include `skill: ts-technical-writing` in the editor prompt.
+- The editor owns plan prose, structure, headings, bullets, examples, and
+  llm-ism removal.
+- The editor edits the plan draft directly. It must return the complete edited
+  plan text, not review findings or suggestions.
+- The editor must preserve scope, task order, file paths, code hunks,
+  verification commands, open questions, blockers, test signals, and technical
+  facts.
+- The judge must not perform the technical-writing edit itself. The judge may
+  make factual corrections after the edit.
+- If factual corrections materially rewrite the plan, run the editor again.
+
 ### CHECK_GATES
 
 Before writing the artifact, verify:
 
+- The technical-writing editor edited the plan after the latest material draft
+  change.
 - The plan stands alone without prior chat.
 - Every non-trivial task lists exact files.
 - Every task is concrete and decision-free.

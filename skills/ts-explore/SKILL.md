@@ -10,6 +10,9 @@ description: Explore. Only explicitly triggered by user.
 - skill: ts-principles
   - Read `ts-principles/SKILL.md`.
   - Read every linked principle detail document before exploring.
+- skill: ts-technical-writing
+  - Read `ts-technical-writing/SKILL.md`.
+  - Read every linked technical-writing detail document before writing an artifact.
 
 ## Role
 
@@ -19,10 +22,14 @@ It owns scope, context loading, questions, synthesis, decisions, and any saved
 design artifact. Use it to build a source of truth about a problem space,
 solution space, domain, workflow, system behavior, or product decision.
 
-The judge may do the work directly. Delegate only when a bounded lens can run
-independently, such as domain modeling, existing behavior, user workflow, API
-contracts, state models, abuse cases, operations, migration risk, or prior art.
-Workers return notes. The judge writes the artifact.
+The judge may do the exploration directly. Delegate only when a bounded lens can
+run independently, such as domain modeling, existing behavior, user workflow,
+API contracts, state models, abuse cases, operations, migration risk, or prior
+art. Workers return notes.
+
+The technical-writing editor is the exception: for written artifacts, always
+spawn a sub-agent with `skill: ts-technical-writing`. The editor edits the
+artifact text directly. It is not a reviewer and must not return findings.
 
 ## Sub-Agent Selection
 
@@ -54,6 +61,17 @@ Good worker lenses:
 - abuse or failure cases
 - operations, performance, or migration risk
 - prior-art scan
+
+### Technical-Writing Editor
+
+Use the first available entry.
+
+| Priority | Provider | Model line | Reasoning |
+| --- | --- | --- | --- |
+| 1 | OpenAI | `gpt` latest | `high` |
+| 2 | Anthropic | `sonnet` latest | `high` |
+| 3 | Cursor | `composer` | `high` |
+| 4 | OpenAI | `gpt-5.3-codex-spark` | `high` |
 
 ## Workflow
 
@@ -107,8 +125,9 @@ scope changes:
 
 1. ASK_QUESTIONS
 2. SYNTHESIZE
-3. CHECK_GATES
-4. WRITE_ARTIFACT
+3. EDIT_TECHNICAL_WRITING
+4. CHECK_GATES
+5. WRITE_ARTIFACT
 
 For written artifacts, write early and keep the design document current after
 each meaningful synthesis. The user should be able to stop and resume from the
@@ -148,6 +167,27 @@ or context that makes it part of the design. Do not leave it as a task command.
 Resolve disagreements and contradictions when possible. Preserve them as open
 questions or risks when they remain unresolved.
 
+### EDIT_TECHNICAL_WRITING
+
+- Skip only for chat-only exploration with no written artifact.
+- Before writing or updating an artifact, spawn a technical-writing editor
+  sub-agent with `skill: ts-technical-writing`.
+- The editor owns prose, structure, headings, bullets, examples, and llm-ism
+  removal.
+- The editor edits the artifact draft directly. It must return the edited
+  artifact text, not review findings or suggestions.
+- The editor must preserve facts, decisions, scope, source links, line
+  references, contracts, assumptions, risks, and open questions.
+- The judge must not perform the technical-writing edit itself. The judge may
+  make factual corrections after the edit.
+- If factual corrections materially rewrite the artifact, run the editor again.
+- The editor prompt must include:
+  - `skill: ts-technical-writing`
+  - the reader and artifact purpose
+  - the full draft or artifact path
+  - the source constraints that must not change
+  - the rule that the editor is not a reviewer and must edit directly
+
 ### CHECK_GATES
 
 At each synthesis point, verify:
@@ -161,6 +201,8 @@ At each synthesis point, verify:
 
 For written artifacts, also verify:
 
+- A technical-writing editor edited the artifact after the latest material
+  synthesis.
 - The artifact stands alone without prior chat.
 - Section choices fit the topic.
 
