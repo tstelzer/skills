@@ -47,6 +47,25 @@ Read details for:
 - Test coverage quality except executable examples or doctest-style checks.
 - Product copy or marketing polish unless it states technical behavior.
 
+## Direct Edits
+
+Edit writing directly when the fix is unambiguous, inside review scope, and cheaper than a handoff finding.
+
+Allowed direct edits:
+
+- documentation, plans, designs, prompts, workflow artifacts, comments, examples, and reader-task instructions
+- prose, headings, lists, stale wording, duplicated text, missing local context, and llm-isms
+- incorrect commands, snippets, or claims when the implementation or source request makes the repair clear
+
+Do not directly edit:
+
+- code behavior, tests, migrations, schemas, generated files, dependency files, or configuration
+- workflow log routing state, finding dispositions, or status lines owned by the router or judge
+- plan or design decisions that require a product, security, implementation, or architecture choice
+
+If a direct edit fully resolves the issue, report it under `## Direct Edits` and do not file an open finding. If risk or
+decision work remains, leave the file unchanged for that point and return a finding.
+
 ## Workflow
 
 1. Build a reader-task map for the reviewed change.
@@ -62,7 +81,8 @@ Read details for:
 8. Check whether structure, headings, bullets, and prose match the reader's job.
 9. Check for llm-isms that hide constraints, overclaim, or add empty ceremony.
 10. Keep only issues that can mislead, block, slow, or harm a real reader.
-11. Return findings in the shared review template.
+11. Apply direct writing edits allowed by this brief.
+12. Return direct edits and remaining findings in the shared review template.
 
 ## Severity Hints
 

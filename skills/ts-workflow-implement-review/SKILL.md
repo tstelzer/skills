@@ -106,6 +106,8 @@ Task input:
   pass.
 - On later passes: resolve every open blocking finding in the log and the latest
   review handoff.
+- Preserve review-owned direct writing edits recorded in the log unless an open
+  finding explicitly requires changing them.
 
 Before returning, you must:
 - Write or update the workflow log at `<path>`.
@@ -134,6 +136,8 @@ Dispatched judge: provider <provider>, model line <model-line>, reasoning <reaso
 Review the workflow-owned diff against the source request, workflow baseline,
 and latest implementation handoff in the log.
 Run the review against all review types from `skill: ts-review`.
+Technical-writing review may make direct writing edits allowed by `ts-review`.
+Treat those edits as review-owned workflow changes, not unrelated user changes.
 
 This is a formal workflow review, not an informal review. You must write a
 separate review artifact, even when there are no findings.
@@ -160,6 +164,8 @@ Before returning, you must:
 - Record the review artifact link in `## Artifacts`.
 - Keep the workflow log as coordination state with links, finding dispositions,
   pass status, worker metadata, and handoff.
+- If direct edits were made, record changed paths and purpose in the review
+  artifact and workflow log handoff.
 - Record the dispatched judge and every worker as provider, model line, and
   reasoning level in the workflow log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.

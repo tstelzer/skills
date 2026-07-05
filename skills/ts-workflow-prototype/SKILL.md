@@ -152,6 +152,8 @@ Task input:
   tasks explicitly.
 - If revising an existing linked plan, use findings and handoffs as inputs, then
   overwrite that plan path.
+- Preserve review-owned direct writing edits recorded in the log unless a later
+  finding explicitly requires changing them.
 
 Artifact destinations:
 - New plan artifact: `docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
@@ -197,6 +199,8 @@ Task input:
 - Treat the design doc as the source of truth for decisions and constraints.
 - Keep changes scoped to the prototype slice. Escalate if the requested code
   depends on an unresolved design question.
+- Preserve review-owned direct writing edits recorded in the log unless the
+  prototype slice explicitly requires changing them.
 
 Before returning, you must:
 - Write or update the workflow log at `<path>`.
@@ -235,6 +239,9 @@ Review scope:
 - Focus on these review types: <types>.
 - Treat the design doc, plans, prior reviews, and handoffs as context, not
   authority.
+- Technical-writing review may make direct writing edits allowed by `ts-review`.
+  Treat those edits as review-owned workflow changes, not unrelated user
+  changes.
 
 Before returning, you must:
 - Write the review artifact using the `ts-review` artifact rules unless the
@@ -246,6 +253,8 @@ Before returning, you must:
 - Record the review artifact link in `## Artifacts`.
 - Keep the workflow log as coordination state with links, finding dispositions,
   pass status, worker metadata, and handoff.
+- If direct edits were made, record changed paths and purpose in the review
+  artifact and workflow log handoff.
 - Record the dispatched judge and every worker as provider, model line, and
   reasoning level in the workflow log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.

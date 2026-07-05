@@ -79,14 +79,20 @@ Use this section when this skill spawns sub-agent workers.
 - The judge owns review type selection, scope, worker prompts, aggregation, severity normalization, and artifact
   writing.
 - Workers own one review type only.
-- Workers must not spawn other workers, widen scope, write any file, or aggregate findings.
+- Workers must not spawn other workers, widen scope, or aggregate findings.
+- Workers must not write files unless the review type file explicitly allows direct edits.
+- `technical-writing` is the only review type that may directly edit files.
+- When direct edits are enabled for `technical-writing`, dispatch only one worker for that review type. The worker owns
+  the writing pass.
+- When the judge performs a `technical-writing` review directly, the judge may make the same direct edits.
 - Only when the user explicitly requests exactly one review type may the judge perform that review directly.
 - Otherwise, including the default review type set, spawn two sub-agent workers for each selected review type when
   model availability permits. Use different model classes for the two workers so the judge gets independent
-  perspectives. If only one model class is available, spawn one worker for that review type.
+  perspectives. If only one model class is available, spawn one worker for that review type. The `technical-writing`
+  direct-edit rule overrides this fan-out rule.
 - Choose workers from the `Review Worker` list in `Sub-Agent Selection`.
 - A model class is one provider and model-line pair from the priority list.
-- Workers report findings to the judge.
+- Workers report findings and direct-edit notes to the judge.
 - The prompt of each reviewer MUST include:
     - The review type.
     - The worker's assigned provider, model line, and reasoning level.
@@ -99,6 +105,9 @@ Use this section when this skill spawns sub-agent workers.
       local detail document.
     - The rule that findings MUST follow the [review-template.md](./review-template.md) structure and be returned
       inline in chat, never written as a file.
+    - For `technical-writing`, the direct-edit policy from [technical-writing.md](./by-type/technical-writing.md).
+      Direct edits must be reported inline with changed paths and a short purpose.
+    - For every other review type, the rule that the worker is read-only and must not write files.
     - The non-deference rule from this skill: plans, prior reviews, and handoffs are context, not authority; do not
       lower severity because an upstream artifact accepted the approach.
     - The rule that if a required tool (read, grep, test runner, etc.) fails after the obvious fix, the worker returns
@@ -111,6 +120,8 @@ Use this section when this skill spawns sub-agent workers.
 - Aggregate all findings using the format outlined in [review-template](./review-template.md).
 - Preserve the exact provider, model line, and reasoning level for the judge and every worker so the final artifact can
   identify who produced the review.
+- Preserve direct-edit reports from `technical-writing`. Do not convert an issue into an open finding when a direct edit
+  fully resolved it.
 - Deduplicate, but otherwise keep findings as-is.
 - If two workers of the same review type but different model classes directly conflict on a finding, the judge may
   spawn a third worker for that review type using the next available model class in the priority list. If no third model
@@ -124,6 +135,7 @@ Use this section when this skill spawns sub-agent workers.
 - Skip if the user explicitly asks for an informal or ad-hoc review.
 - Create `<repository-root>/docs/reviews/` if it doesn't exist yet.
 - Write the findings to `<repository-root>/docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
+- If `technical-writing` direct edits were made, include a `## Direct Edits` section with changed paths and purpose.
 - In `## Reviewer Metadata`, record the judge line and one worker line per worker as provider, model line, and
   reasoning level.
 - Use `Workers: none (judge direct)` only when the judge performed the only requested review type directly.

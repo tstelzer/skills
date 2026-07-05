@@ -115,6 +115,8 @@ Task input:
   rewrite that same file so the affected plan sections are correct.
 - On later passes, return `STATUS: BLOCKED: missing canonical plan artifact` if
   the log has no valid `plan` link.
+- Preserve review-owned direct writing edits recorded in the log unless an open
+  finding explicitly requires changing them.
 
 Artifact destinations:
 - Pass 1 plan artifact: `docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
@@ -156,6 +158,8 @@ against the source request. Score the plan only; there is no implementation diff
 in this workflow. Return
 `STATUS: BLOCKED: missing valid plan artifact link` until that target exists.
 Run the review against all review types from `skill: ts-review`.
+Technical-writing review may edit the canonical plan artifact when `ts-review`
+allows a direct writing edit. Keep the same canonical plan link.
 
 This is a formal workflow review, not an informal review. You must write a
 separate review artifact, even when there are no findings.
@@ -181,6 +185,8 @@ Before returning, you must:
 - Record the review artifact link in `## Artifacts`.
 - Keep the workflow log as coordination state with links, finding dispositions,
   pass status, worker metadata, and handoff.
+- If direct edits were made, record changed paths and purpose in the review
+  artifact and workflow log handoff.
 - Record the dispatched judge and every worker as provider, model line, and
   reasoning level in the workflow log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.

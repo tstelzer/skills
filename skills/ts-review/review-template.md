@@ -15,6 +15,10 @@ commands, constraints, and assumptions when they change the review.
 MUST restate the exact review target and any constraints needed to
   understand the findings.>
 
+## Direct Edits
+<Use `None` when no direct edits were made. For each edit, include the path and
+one-line purpose.>
+
 ## Findings
 <Order these by priority (critical>high>low)>
 ### <critical|high|low>: <short issue title>
