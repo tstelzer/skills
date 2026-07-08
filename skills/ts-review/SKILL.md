@@ -31,7 +31,7 @@ Use this section when this skill spawns sub-agent workers.
 - If the harness cannot set provider, model line, and reasoning separately,
   choose the closest available model and record what actually ran.
 - Do not spawn two workers of the same review type on the same provider and
-  model line.
+  model line. E.g. do not spawn gpt 5.5 and gpt 5.4 together.
 
 ### Review Worker
 
