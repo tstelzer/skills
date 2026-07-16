@@ -49,7 +49,7 @@ Use this section when this skill spawns sub-agent workers.
 | --- | --- | --- | --- |
 | 1 | OpenAI | `gpt-5.3-codex-spark` | `high` |
 | 2 | Cursor | `composer` | `high` |
-| 3 | OpenAI | `gpt` latest | `high` |
+| 3 | OpenAI | `terra` latest | `high` |
 | 4 | Anthropic | `sonnet` latest | `high` |
 
 Good worker lenses:
@@ -68,7 +68,7 @@ Use the first available entry.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `gpt` latest | `high` |
+| 1 | OpenAI | `terra` latest | `high` |
 | 2 | Anthropic | `sonnet` latest | `high` |
 | 3 | Cursor | `composer` | `high` |
 | 4 | OpenAI | `gpt-5.3-codex-spark` | `high` |

@@ -31,15 +31,15 @@ Use this section when this skill spawns sub-agent workers.
 - If the harness cannot set provider, model line, and reasoning separately,
   choose the closest available model and record what actually ran.
 - Do not spawn two workers of the same review type on the same provider and
-  model line. E.g. do not spawn gpt 5.5 and gpt 5.4 together.
+  model line. Two releases of `sol` are one model class, not two.
 
 ### Review Worker
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
 | 1 | OpenRouter | `glm` latest | `xhigh` |
-| 2 | Anthropic | `opus` latest | `xhigh` |
-| 3 | OpenAI | `gpt` latest | `xhigh` |
+| 2 | Anthropic | `fable` latest | `xhigh` |
+| 3 | OpenAI | `sol` latest | `xhigh` |
 | 4 | OpenRouter | `gemini flash` latest | `high` |
 | 5 | OpenRouter | `deepseek v4 pro` latest | `high` |
 | 6 | Cursor | `composer` | `high` |

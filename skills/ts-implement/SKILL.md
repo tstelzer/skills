@@ -64,7 +64,7 @@ Use the first available entry.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `gpt` latest | `high` |
+| 1 | OpenAI | `terra` latest | `high` |
 | 2 | Anthropic | `sonnet` latest | `high` |
 | 3 | Cursor | `composer` | `high` |
 | 4 | OpenAI | `gpt-5.3-codex-spark` | `high` |

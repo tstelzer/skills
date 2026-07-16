@@ -38,8 +38,8 @@ Use this section when this skill spawns sub-agent reviewers.
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
 | 1 | OpenRouter | `glm` latest | `xhigh` |
-| 2 | Anthropic | `opus` latest | `xhigh` |
-| 3 | OpenAI | `gpt` latest | `xhigh` |
+| 2 | Anthropic | `fable` latest | `xhigh` |
+| 3 | OpenAI | `sol` latest | `xhigh` |
 | 4 | OpenRouter | `gemini flash` latest | `high` |
 | 5 | OpenRouter | `deepseek v4 pro` latest | `high` |
 | 6 | Cursor | `composer` | `high` |

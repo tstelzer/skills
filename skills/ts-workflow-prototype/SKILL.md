@@ -74,15 +74,15 @@ Use this section when this skill dispatches sub-agent judges.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `gpt` latest | `xhigh` |
-| 2 | Anthropic | `opus` latest | `high` |
+| 1 | OpenAI | `sol` latest | `xhigh` |
+| 2 | Anthropic | `fable` latest | `high` |
 | 3 | Cursor | `composer` | `high` |
 
 ### Implementation Judge
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `gpt` latest | `medium` |
+| 1 | OpenAI | `luna` latest | `high` |
 | 2 | Anthropic | `sonnet` latest | `high` |
 | 3 | Cursor | `composer` | `high` |
 
@@ -90,8 +90,8 @@ Use this section when this skill dispatches sub-agent judges.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `gpt` latest | `xhigh` |
-| 2 | Anthropic | `opus` latest | `xhigh` |
+| 1 | OpenAI | `sol` latest | `xhigh` |
+| 2 | Anthropic | `fable` latest | `xhigh` |
 | 3 | Cursor | `composer` | `high` |
 
 ## Capabilities
@@ -258,7 +258,7 @@ Before returning, you must:
 - Record the dispatched judge and every worker as provider, model line, and
   reasoning level in the workflow log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
-  `2 (security: openrouter/glm latest/xhigh, robustness: anthropic/opus latest/xhigh)`.
+  `2 (security: openrouter/glm latest/xhigh, robustness: anthropic/fable latest/xhigh)`.
 - Record findings, risk disposition, and handoff for the prototype judge.
 
 Return exactly one status line:
