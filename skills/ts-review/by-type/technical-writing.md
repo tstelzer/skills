@@ -80,9 +80,11 @@ decision work remains, leave the file unchanged for that point and return a find
 7. Check whether duplicated docs drift from the source of truth.
 8. Check whether structure, headings, bullets, and prose match the reader's job.
 9. Check for llm-isms that hide constraints, overclaim, or add empty ceremony.
-10. Keep only issues that can mislead, block, slow, or harm a real reader.
-11. Apply direct writing edits allowed by this brief.
-12. Return direct edits and remaining findings in the shared review template.
+10. Check the action prevented by each negative instruction. Delete the instruction when the code, source requirements,
+    and artifact give the reader no reason to take that action.
+11. Keep only issues that can mislead, block, slow, or harm a real reader.
+12. Apply direct writing edits allowed by this brief.
+13. Return direct edits and remaining findings in the shared review template.
 
 ## Severity Hints
 
@@ -102,6 +104,7 @@ These are anchors. Use judgment when a case sits between levels.
 - `prose`
 - `structure`
 - `llm-isms`
+- `orphaned-exclusion`
 - `api-reference`
 - `example-drift`
 - `command-drift`

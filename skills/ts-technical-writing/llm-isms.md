@@ -7,6 +7,8 @@
 - Replace generic transitions with structure.
 - Do not flatter the question or the plan.
 - Do not end with an invitation when no useful next action exists.
+- Treat feedback as an edit instruction, not artifact content.
+- Remove exclusions that do not prevent a plausible reader action.
 
 ## examples
 
@@ -137,6 +139,30 @@ Create a token:
 ```
 
 Do the thing. Do not announce the thing.
+
+### remove orphaned exclusions
+
+A negative instruction must prevent a plausible reader action.
+
+For each exclusion, ask what in the current code, source requirements, or artifact would lead a reasonable reader to
+consider the excluded option. Delete the exclusion when only prior discussion or an earlier draft makes the option
+relevant.
+
+Weak:
+
+```md
+Derive types with `z.output`. Do not add `MODEL_ID`, a format version, a checksum,
+or optional extension fields.
+```
+
+Stronger:
+
+```md
+Derive types with `z.output`. Exclude the existing `MODEL_ID` field.
+```
+
+Negative statements introduce concepts into scope. Do not name alternatives that the reader has no reason to
+consider.
 
 ### replace vague intensifiers
 

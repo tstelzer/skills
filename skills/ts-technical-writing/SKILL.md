@@ -77,6 +77,8 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 - Do not say a task is simple, easy, seamless, powerful, robust, or crucial unless the claim is concrete and proven.
 - Do not explain that you are explaining.
 - Do not end with boilerplate invitations when the answer is done.
+- Treat feedback as an edit instruction, not artifact content.
+- Remove exclusions that do not prevent a plausible reader action.
 
 [Details](llm-isms.md)
 
