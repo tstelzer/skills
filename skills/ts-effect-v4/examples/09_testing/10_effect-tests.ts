@@ -4,7 +4,7 @@
  * Using `it.effect` for Effect-based tests.
  */
 import { assert, describe, it } from "@effect/vitest"
-import { Effect, Fiber, Schema } from "effect"
+import { Clock, Effect, Fiber, Schema } from "effect"
 import { TestClock } from "effect/testing"
 
 describe("@effect/vitest basics", () => {
@@ -38,11 +38,12 @@ describe("@effect/vitest basics", () => {
       assert.strictEqual(value, "done")
     }))
 
-  it.live("uses real runtime services", () =>
+  it.live("uses a live service only when integration behavior requires it", () =>
     Effect.gen(function*() {
-      const startedAt = Date.now()
+      const startedAt = yield* Clock.currentTimeMillis
       yield* Effect.sleep(1)
-      assert.isTrue(Date.now() >= startedAt)
+      const finishedAt = yield* Clock.currentTimeMillis
+      assert.isTrue(finishedAt >= startedAt)
     }))
 
   // For property-based testing, use `it.effect.prop` with Schema-based

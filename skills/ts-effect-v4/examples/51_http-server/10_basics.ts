@@ -78,7 +78,7 @@ export const AuthorizationClient = HttpApiMiddleware.layerClient(
 // Define the HttpApiClient service, which will be used to make requests to the
 // API.
 export class ApiClient extends Context.Service<ApiClient, HttpApiClient.ForApi<typeof Api>>()("acme/ApiClient") {
-  static readonly layer = Layer.effect(
+  static readonly layerNoDeps = Layer.effect(
     ApiClient,
     HttpApiClient.make(Api, {
       // Use transformClient to apply middleware to the generated client. This
@@ -94,16 +94,15 @@ export class ApiClient extends Context.Service<ApiClient, HttpApiClient.ForApi<t
           })
         )
     })
-  ).pipe(
-    // Provide the client implementation of the Authorization middleware, which
-    // is required.
-    Layer.provide(AuthorizationClient),
-    // Supply a HttpClient implementation to use for making requests. Here we
-    // use the FetchHttpClient, but you could also use the NodeHttpClient or
-    // BunHttpClient.
-    Layer.provide(FetchHttpClient.layer)
   )
 }
+
+// Keep the service requirements visible above. Choose the authorization and
+// platform implementations at the runtime composition edge.
+const ApiClientLive = ApiClient.layerNoDeps.pipe(
+  Layer.provide(AuthorizationClient),
+  Layer.provide(FetchHttpClient.layer)
+)
 
 // The generated client mirrors your API definition, so renames and schema
 // changes are checked end-to-end at compile time.
@@ -112,5 +111,5 @@ export const callApi = Effect.gen(function*() {
 
   yield* client.health()
 }).pipe(
-  Effect.provide(ApiClient.layer)
+  Effect.provide(ApiClientLive)
 )

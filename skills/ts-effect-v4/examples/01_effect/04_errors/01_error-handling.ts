@@ -17,8 +17,13 @@ export class ReservedPortError extends Schema.TaggedErrorClass<ReservedPortError
 
 declare const loadPort: (input: string) => Effect.Effect<number, ParseError | ReservedPortError>
 
+export const observed = loadPort("80").pipe(
+  // Reporting is not recovery. The original error remains in the channel.
+  Effect.tapError((error) => Effect.logError("Could not load port", error))
+)
+
 export const recovered = loadPort("80").pipe(
-  // Catch multiple errors with Effect.catchTag, and return a default port number.
+  // This is recovery because every caught error becomes a valid port.
   Effect.catchTag(["ParseError", "ReservedPortError"], (_) => Effect.succeed(3000))
 )
 

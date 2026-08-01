@@ -119,8 +119,9 @@ app.post("/todos", async (context) => {
 // Use `runtime.runSync` for synchronous edges or `runtime.runCallback` for
 // callback-only APIs.
 
-// When the process receives a shutdown signal, dispose the runtime to clean up
-// any resources used by the TodoRepo service and its dependencies.
+// This is the non-Effect host boundary. Listen to native process signals here
+// so the host can dispose its ManagedRuntime. Keep process state out of the
+// services run by that runtime.
 const shutdown = () => {
   void runtime.dispose()
 }

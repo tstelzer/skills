@@ -14,8 +14,8 @@ export const UsersApiHandlers = HttpApiBuilder.group(
     return handlers
       .handle("list", ({ query }) =>
         users.list(query.search).pipe(
-          // The list endpoint expects no errors, so we convert any potential
-          // errors into a 500 Internal Server Error.
+          // The API contract declares UsersError impossible for this endpoint.
+          // A violation is a defect and becomes a 500 response.
           Effect.orDie
         ))
       .handle(
@@ -49,8 +49,10 @@ export const UsersApiHandlers = HttpApiBuilder.group(
         ))
       .handle("create", ({ payload }) =>
         users.create(payload).pipe(
+          // The API contract declares UsersError impossible for this endpoint.
+          // Do not use orDie when the protocol should expose the failure.
           Effect.orDie
-          // You could alse use Effect.unwrapReason to moves rror reasons up to
+          // You could also use Effect.unwrapReason to move error reasons up to
           // the top level, so you can handle them with Effect.catch or
           // Effect.catchTag etc.
           //

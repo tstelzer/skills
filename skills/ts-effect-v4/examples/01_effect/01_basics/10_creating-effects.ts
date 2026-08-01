@@ -26,8 +26,11 @@ const requestHeaders = new Map<string, string>([
 // `Effect.succeed` wraps values you already have in memory.
 export const fromValue = Effect.succeed({ env: "prod", retries: 3 })
 
-// `Effect.sync` wraps synchronous side effects that should not throw.
-export const fromSyncSideEffect = Effect.sync(() => Date.now())
+// `Effect.sync` defers synchronous work that should not throw. Use Effect
+// capabilities instead when the work reads time, randomness, or platform state.
+export const fromSyncComputation = Effect.sync(
+  () => new Map<string, string>()
+)
 
 // `Effect.try` wraps synchronous code that may throw.
 export const parsePayload = Effect.fn("parsePayload")((input: string) =>

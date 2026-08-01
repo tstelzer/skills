@@ -89,37 +89,24 @@ class TodoService extends Context.Service<TodoService, {
   )
 }
 
-// `layer(...)` creates one shared layer for the block and tears it down in
-// `afterAll`, so all tests inside can access the same service context.
-layer(TodoRepo.layerTest)("TodoRepo", (it) => {
-  it.effect("tests repository behavior", () =>
+describe("TodoRepo", () => {
+  it.effect.each([
+    { title: "Write docs" },
+    { title: "Review examples" }
+  ])("creates one todo for %#", ({ title }) =>
     Effect.gen(function*() {
       const repo = yield* TodoRepo
-      const before = (yield* repo.list).length
-      assert.strictEqual(before, 0)
+      const created = yield* repo.create(title)
+      const todos = yield* repo.list
 
-      yield* repo.create("Write docs")
-
-      const after = (yield* repo.list).length
-      assert.strictEqual(after, 1)
-    }))
-
-  it.effect("layer is shared", () =>
-    Effect.gen(function*() {
-      const repo = yield* TodoRepo
-      const before = (yield* repo.list).length
-      assert.strictEqual(before, 1)
-
-      yield* repo.create("Write docs again")
-
-      // because the layer is shared between tests, the todo created in the
-      // previous test is still present, so the count should be 2, not 1
-      const after = (yield* repo.list).length
-      assert.strictEqual(after, 2)
-    }))
+      assert.deepStrictEqual(created, { id: 1, title })
+      assert.deepStrictEqual(todos, [{ id: 1, title }])
+    }).pipe(Effect.provide(TodoRepo.layerTest)))
 })
 
-describe("TodoService", () => {
+// `layer(...)` creates one shared, scoped layer for the block and tears it down
+// after the block. Do not make tests depend on mutations from earlier tests.
+layer(TodoService.layerTest)("TodoService", (it) => {
   it.effect("tests higher-level service logic", () =>
     Effect.gen(function*() {
       const ref = yield* TodoRepoTestRef
@@ -127,12 +114,10 @@ describe("TodoService", () => {
       const count = yield* service.addAndCount("Review docs")
       const titles = yield* service.titles
 
-      assert.isTrue(count >= 1)
-      assert.isTrue(titles.some((title) => title.includes("Review docs")))
+      assert.strictEqual(count, 1)
+      assert.deepStrictEqual(titles, ["Review docs"])
 
-      // You can also access the test ref directly to make assertions about the
-      // underlying data.
       const todos = yield* Ref.get(ref)
-      assert.isTrue(todos.length >= 1)
-    }).pipe(Effect.provide(TodoService.layerTest)))
+      assert.deepStrictEqual(todos, [{ id: 1, title: "Review docs" }])
+    }))
 })

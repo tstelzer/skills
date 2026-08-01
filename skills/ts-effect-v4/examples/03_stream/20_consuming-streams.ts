@@ -57,8 +57,10 @@ export const allOrders = Stream.make("US", "CA", "NZ").pipe(
           id: `ord_${country}_${i}`,
           customerId: `cus_${i}`,
           status: i % 10 === 0 ? "refunded" : "paid",
-          subtotalCents: Math.round(Math.random() * 100_000),
-          shippingCents: Math.round(Math.random() * 10_000),
+          // Keep sample construction deterministic. Use Effect Random when
+          // randomness is part of production behavior.
+          subtotalCents: i * 1_000,
+          shippingCents: i * 100,
           country
         }))
       ),

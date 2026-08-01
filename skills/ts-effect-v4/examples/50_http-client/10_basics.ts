@@ -4,7 +4,13 @@
  * Define a service that uses the HttpClient module to fetch data from an external API
  */
 import { Context, Effect, flow, Layer, Schedule, Schema } from "effect"
-import { FetchHttpClient, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http"
+import {
+  FetchHttpClient,
+  HttpBody,
+  HttpClient,
+  HttpClientError,
+  HttpClientRequest
+} from "effect/unstable/http"
 
 class Todo extends Schema.Class<Todo>("Todo")({
   userId: Schema.Number,
@@ -13,12 +19,63 @@ class Todo extends Schema.Class<Todo>("Todo")({
   completed: Schema.Boolean
 }) {}
 
+const NewTodo = Schema.Struct({
+  userId: Schema.Number,
+  title: Schema.String,
+  completed: Schema.Boolean
+})
+
+export class JsonPlaceholderHttpError extends Schema.TaggedErrorClass<JsonPlaceholderHttpError>()(
+  "JsonPlaceholderHttpError",
+  {
+    operation: Schema.String,
+    reason: HttpClientError.HttpClientErrorSchema
+  }
+) {}
+
+export class JsonPlaceholderBodyError extends Schema.TaggedErrorClass<JsonPlaceholderBodyError>()(
+  "JsonPlaceholderBodyError",
+  {
+    reason: Schema.instanceOf(HttpBody.HttpBodyError)
+  }
+) {}
+
+export class InvalidJsonPlaceholderResponse
+  extends Schema.TaggedErrorClass<InvalidJsonPlaceholderResponse>()(
+    "InvalidJsonPlaceholderResponse",
+    {
+      endpoint: Schema.String,
+      reason: Schema.instanceOf(Schema.SchemaError)
+    }
+  ) {}
+
+export type JsonPlaceholderError =
+  | JsonPlaceholderHttpError
+  | JsonPlaceholderBodyError
+  | InvalidJsonPlaceholderResponse
+
+const mapHttpError = (operation: string) =>
+  Effect.mapError((reason: HttpClientError.HttpClientError) =>
+    new JsonPlaceholderHttpError({
+      operation,
+      reason: HttpClientError.HttpClientErrorSchema.fromHttpClientError(reason)
+    })
+  )
+
+const mapResponseError = (endpoint: string) =>
+  Effect.mapError((reason: Schema.SchemaError) =>
+    new InvalidJsonPlaceholderResponse({ endpoint, reason })
+  )
+
+const decodeTodo = Schema.decodeEffect(Schema.toCodecJson(Todo))
+const decodeTodos = Schema.decodeEffect(Schema.toCodecJson(Schema.Array(Todo)))
+
 export class JsonPlaceholder extends Context.Service<JsonPlaceholder, {
   readonly allTodos: Effect.Effect<ReadonlyArray<Todo>, JsonPlaceholderError>
   getTodo(id: number): Effect.Effect<Todo, JsonPlaceholderError>
-  createTodo(todo: Omit<Todo, "id">): Effect.Effect<Todo, JsonPlaceholderError>
+  createTodo(todo: typeof NewTodo.Type): Effect.Effect<Todo, JsonPlaceholderError>
 }>()("app/JsonPlaceholder") {
-  static readonly layer = Layer.effect(
+  static readonly layerNoDeps = Layer.effect(
     JsonPlaceholder,
     Effect.gen(function*() {
       // Access the HttpClient service, and apply some common middleware to all
@@ -42,11 +99,17 @@ export class JsonPlaceholder extends Context.Service<JsonPlaceholder, {
         })
       )
 
-      const allTodos = client.get("/todos").pipe(
-        Effect.flatMap(HttpClientResponse.schemaBodyJson(Schema.Array(Todo))),
-        Effect.mapError((cause) => new JsonPlaceholderError({ cause })),
-        Effect.withSpan("JsonPlaceholder.allTodos")
-      )
+      const allTodos = Effect.gen(function*() {
+        const response = yield* client.get("/todos").pipe(
+          mapHttpError("GET /todos")
+        )
+        const json = yield* response.json.pipe(
+          mapHttpError("read GET /todos response")
+        )
+        return yield* decodeTodos(json).pipe(
+          mapResponseError("GET /todos")
+        )
+      }).pipe(Effect.withSpan("JsonPlaceholder.allTodos"))
 
       // Use the HttpClient to fetch a todo item by id, and decode the response
       // using the Todo schema.
@@ -55,34 +118,46 @@ export class JsonPlaceholder extends Context.Service<JsonPlaceholder, {
         // that it shows up in telemetry for this request.
         yield* Effect.annotateCurrentSpan({ id })
 
-        const todo = yield* client.get(`/todos/${id}`, {
+        const endpoint = `/todos/${id}`
+        const response = yield* client.get(endpoint, {
           // You can pass additional options to individual requests.
           // There are options for query parameters, request body, headers, and
           // more.
           urlParams: { format: "json" }
         }).pipe(
-          Effect.flatMap(HttpClientResponse.schemaBodyJson(Todo)),
-          Effect.mapError((cause) => new JsonPlaceholderError({ cause }))
+          mapHttpError(`GET ${endpoint}`)
         )
 
-        return todo
+        const json = yield* response.json.pipe(
+          mapHttpError(`read GET ${endpoint} response`)
+        )
+
+        return yield* decodeTodo(json).pipe(
+          mapResponseError(`GET ${endpoint}`)
+        )
       })
 
       // You can use the HttpClientRequest module to build up more complex
       // requests:
-      const createTodo = Effect.fn("JsonPlaceholder.createTodo")(function*(todo: Omit<Todo, "id">) {
+      const createTodo = Effect.fn("JsonPlaceholder.createTodo")(function*(todo: typeof NewTodo.Type) {
         yield* Effect.annotateCurrentSpan({ title: todo.title })
 
-        const createdTodo = yield* HttpClientRequest.post("/todos").pipe(
-          // The HttpClientRequest module has many helper functions for building requests.
+        const request = yield* HttpClientRequest.post("/todos").pipe(
           HttpClientRequest.setUrlParams({ format: "json" }),
-          HttpClientRequest.bodyJsonUnsafe(todo),
-          client.execute,
-          Effect.flatMap(HttpClientResponse.schemaBodyJson(Todo)),
-          Effect.mapError((cause) => new JsonPlaceholderError({ cause }))
+          HttpClientRequest.schemaBodyJson(NewTodo)(todo),
+          Effect.mapError((reason) => new JsonPlaceholderBodyError({ reason }))
         )
 
-        return createdTodo
+        const response = yield* client.execute(request).pipe(
+          mapHttpError("POST /todos")
+        )
+        const json = yield* response.json.pipe(
+          mapHttpError("read POST /todos response")
+        )
+
+        return yield* decodeTodo(json).pipe(
+          mapResponseError("POST /todos")
+        )
       })
 
       return JsonPlaceholder.of({
@@ -91,12 +166,10 @@ export class JsonPlaceholder extends Context.Service<JsonPlaceholder, {
         createTodo
       })
     })
-  ).pipe(
-    // Provide the fetch-based HttpClient implementation
-    Layer.provide(FetchHttpClient.layer)
   )
 }
 
-export class JsonPlaceholderError extends Schema.TaggedErrorClass<JsonPlaceholderError>()("JsonPlaceholderError", {
-  cause: Schema.Defect()
-}) {}
+// Select the platform HttpClient at the runtime composition edge.
+export const JsonPlaceholderLive = JsonPlaceholder.layerNoDeps.pipe(
+  Layer.provide(FetchHttpClient.layer)
+)
