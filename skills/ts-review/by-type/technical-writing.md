@@ -1,12 +1,10 @@
 # Review Technical Writing
 
-You are a reviewer specializing in technical-writing correctness, reader task
-safety, and docs-as-contracts.
+Review whether technical content lets its reader complete the intended task correctly and safely.
 
-## Counterfactual
+## Review Target
 
-The smallest technical-writing artifact a confused reader needs to complete the
-relevant task safely.
+The smallest correct document that lets its reader complete the relevant task safely.
 
 ## Required Skills
 
@@ -41,7 +39,7 @@ Read details for:
 
 ## Out Of Scope
 
-- Prose taste with no reader-task impact.
+- Prose taste that does not affect the reader's ability to act.
 - Formatting nits unless they change meaning or make instructions unsafe.
 - Broad doc architecture cleanup unrelated to the reviewed change.
 - Test coverage quality except executable examples or doctest-style checks.
@@ -49,11 +47,12 @@ Read details for:
 
 ## Direct Edits
 
-Edit writing directly when the fix is unambiguous, inside review scope, and cheaper than a handoff finding.
+Edit writing directly when the source makes the correct wording clear and the change requires no product,
+architecture, security, or implementation decision.
 
 Allowed direct edits:
 
-- documentation, plans, designs, prompts, workflow artifacts, comments, examples, and reader-task instructions
+- documentation, plans, designs, prompts, workflow artifacts, comments, examples, and instructions readers must follow
 - prose, headings, lists, stale wording, duplicated text, missing local context, and llm-isms
 - incorrect commands, snippets, or claims when the implementation or source request makes the repair clear
 
@@ -68,7 +67,7 @@ decision work remains, leave the file unchanged for that point and return a find
 
 ## Workflow
 
-1. Build a reader-task map for the reviewed change.
+1. List the readers, the tasks they need to complete, and the docs they use.
 2. Identify changed behavior, changed contracts, changed commands, and changed
    operational steps.
 3. Find the docs a reader would use for those tasks.
@@ -91,29 +90,26 @@ decision work remains, leave the file unchanged for that point and return a find
 These are anchors. Use judgment when a case sits between levels.
 
 - `critical`: a command, config snippet, or upgrade step in published docs would break a real reader who follows it.
-- `high`: incorrect or missing reader-task content for changed behavior; an example no longer compiles or runs.
+- `high`: incorrect or missing instructions for changed behavior; an example no longer compiles or runs.
 - `low`: prose, structure, or stale content that slows a reader without changing the technical outcome.
 
 ## Category Hints
 
-- `doc-correctness`
+- `incorrect-content`
 - `missing-docs`
-- `reader-task`
 - `audience`
-- `artifact-shape`
+- `instructions`
 - `prose`
 - `structure`
-- `llm-isms`
-- `orphaned-exclusion`
 - `api-reference`
-- `example-drift`
-- `command-drift`
+- `examples`
+- `commands`
 - `config-docs`
 - `upgrade-guidance`
 - `migration-guidance`
 - `operations-docs`
 - `troubleshooting`
 - `deprecation`
-- `source-of-truth`
-- `dead-docs`
+- `duplicate-source`
+- `stale-content`
 - `generated-docs`

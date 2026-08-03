@@ -10,13 +10,16 @@ description: Prepare changelog and manual QA artifacts from implemented changes.
 - skill: ts-principles
   - Read `ts-principles/SKILL.md`.
   - Read every linked principle detail document before preparing QA.
+- skill: ts-technical-writing
+  - Read `ts-technical-writing/SKILL.md`, `ts-technical-writing/audience.md`, `ts-technical-writing/prose.md`,
+    `ts-technical-writing/structure.md`, and `ts-technical-writing/examples.md` before writing the artifacts.
 
 ## Role
 
 QA is a judge.
 
-It owns scope, context loading, surface selection, changelog writing, QA design,
-and artifact writing. It turns an implementation into two compact artifacts:
+It owns scope, context loading, product-area selection, changelog writing, QA design, and artifact writing. It turns an
+implementation into two brief, easy-to-scan artifacts:
 
 - `docs/changelog/`: the user-facing changeset
 - `docs/qa/`: the manual QA walkthrough for that changeset
@@ -32,7 +35,7 @@ read-only repo inspection to understand the implementation.
 
 1. DETERMINE_SCOPE
 2. LOAD_IMPLEMENTATION
-3. FIND_USER_SURFACES
+3. FIND_USER_ENTRY_POINTS
 4. DRAFT_CHANGELOG
 5. DESIGN_MANUAL_QA
 6. CHECK_GATES
@@ -67,35 +70,31 @@ read-only repo inspection to understand the implementation.
 - Record unknowns only after repo context cannot answer them. Do not invent
   routes, roles, flags, account states, or expected copy.
 
-### FIND_USER_SURFACES
+### FIND_USER_ENTRY_POINTS
 
 - Describe the changeset from the user's perspective, not from the file list.
 - Assign stable change IDs: `C1`, `C2`, `C3`.
 - Prefer concrete product language:
   - Good: `Checkout shows tax before payment confirmation.`
   - Bad: `Refactored checkout total calculation.`
-- Map each change to the surface a human can use:
+- Map each change to an entry point a human can use:
   - screen, route, modal, form, notification, email, report, API, CLI command,
     import/export, admin task, scheduled outcome, or documented workflow
-- For internal-only changes, name the nearest user-observable behavior and the
-  reason it is the right test surface.
-- Separate direct changes from nearby regression surfaces. Do not turn every
-  touched file into a test area.
+- For internal-only changes, name the nearest user-observable behavior and explain why it is the right place to test.
+- Separate direct changes from nearby behavior likely to break. Do not turn every touched file into a test area.
 
 ### DRAFT_CHANGELOG
 
-- Write a compact changelog artifact for a human who needs to understand what
-  changed.
+- Write a brief changelog for a human who needs to understand what changed.
 - Include only user-facing behavior, operator-visible behavior, API behavior,
   CLI behavior, documentation changes, or workflow outcomes.
-- Put implementation notes only when they explain a visible behavior boundary
-  or a manual QA prerequisite.
+- Put implementation notes only when they explain a visible limit or a manual QA prerequisite.
 - Link to the companion QA artifact by relative path.
 - Do not claim the change shipped, passed QA, or reached production.
 
 ### DESIGN_MANUAL_QA
 
-- Write a compact walkthrough for a skilled engineer.
+- Write a brief walkthrough for a skilled engineer.
 - Link to the companion changelog artifact by relative path.
 - Order tests by user workflow, then by risk.
 - Cover the changed behavior first, then one or two high-risk regressions.
@@ -104,11 +103,11 @@ read-only repo inspection to understand the implementation.
 - Each test case must include:
   - priority: `P0` for must-run changed behavior, `P1` for likely regression,
     `P2` for optional edge coverage
-  - surface: the screen, route, command, API, or workflow under test
+  - where: the screen, route, command, API, or workflow under test
   - setup: account state, data, flags, permissions, environment, or `None`
   - steps: exact manual actions
   - expected result: observable result a human can confirm
-  - covers: the changeset item or risk the test proves
+  - checks: the changeset item or risk the test proves
 - Avoid broad smoke tests, full regression suites, and implementation details.
 - Do not claim anything passed. The artifact is a plan for manual QA, not a test
   report.
@@ -122,11 +121,12 @@ Before writing the artifacts, verify:
 - The changelog links to the QA artifact, and the QA artifact links to the
   changelog artifact.
 - Every direct user-facing change has at least one `P0` test.
-- Every test has surface, setup, steps, expected result, and covers.
-- Every `Covers` value references a changelog item ID or named regression risk.
+- Every test says where to run it and includes setup, steps, expected result, and checks.
+- Every `Checks` value references a changelog item ID or named regression risk.
 - Unknown prerequisites are explicit.
 - No test result, pass/fail claim, or executed command output appears.
 - The test list is compact and scoped to the implementation.
+- Exact UI labels, routes, commands, API names, and domain terms are preserved. Other prose uses the reader's words.
 - The artifacts have no meta notes about this skill or the authoring process.
 
 ### WRITE_ARTIFACTS
@@ -154,7 +154,7 @@ Before writing the artifacts, verify:
 - C2: <user-facing change>
 
 ## Notes
-- <Visible boundary, prerequisite, or limitation; skip section if none>
+- <Visible limit, prerequisite, or limitation; skip section if none>
 ```
 
 ## QA Artifact Template
@@ -175,9 +175,9 @@ Before writing the artifacts, verify:
 
 ### QA-1: <scenario>
 Priority: P0
-Surface: <screen, route, command, API, or workflow>
+Where: <screen, route, command, API, or workflow>
 Setup: <specific data, account, flag, permission, or None>
-Covers: C1
+Checks: C1
 
 Steps:
 1. <manual action>

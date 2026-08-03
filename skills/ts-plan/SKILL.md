@@ -12,6 +12,7 @@ description: Plan a multi-step code change before editing. Only explicitly trigg
   - Read every linked principle detail document before planning.
   - Treat the principle details as binding planning constraints, not optional
     background.
+  - Apply the principles without copying their names or slogans into the plan unless the reader needs the reference.
 - skill: ts-technical-writing
   - Read `ts-technical-writing/SKILL.md`.
   - Read every linked technical-writing detail document before writing a plan.
@@ -62,7 +63,7 @@ Use this section when this skill spawns sub-agent workers.
 
 Good worker tasks:
 
-- test signal inventory
+- automated test inventory
 - affected contract inventory
 - migration and rollout constraints
 - verification command discovery
@@ -85,7 +86,7 @@ Use the first available entry.
 2. LOAD_CONTEXT
 3. DELEGATE_INVESTIGATIONS
 4. RESOLVE_DECISIONS
-5. DESIGN_TEST_SIGNALS
+5. PLAN_TESTS
 6. DRAFT_PLAN
 7. EDIT_TECHNICAL_WRITING
 8. CHECK_GATES
@@ -132,17 +133,15 @@ Use the first available entry.
 - If a task depends on an unresolved question, mark that task blocked and name
   the dependency.
 
-### DESIGN_TEST_SIGNALS
+### PLAN_TESTS
 
 - Re-read the `tests are code` principle detail before planning test changes.
-- For each non-trivial behavior change, decide the automated regression signal
-  before drafting tasks.
+- For each non-trivial behavior change, decide how automated tests will prove it before drafting tasks.
 - Each planned test change must name:
-  - the behavior, invariant, or contract protected
-  - the public boundary exercised
-  - the regression that should fail
-- If no tests are added, name the existing automated signal or explain why no
-  durable signal exists.
+  - the behavior or rule it proves
+  - the interface or user action it exercises
+  - the bug it would catch
+- If no tests are added, name the existing automated check or explain why no lasting automated check is practical.
 
 ### DRAFT_PLAN
 
@@ -155,9 +154,10 @@ Use the first available entry.
   tests, or runtime behavior that a later task repairs.
 - If a task cannot be verified honestly before a dependent task, merge the tasks.
 - Put tests in the same task as the behavior change or in a dependent test
-  task. For each test task, include the test signal from DESIGN_TEST_SIGNALS.
-- Use `Details` for intent, invariants, and sequencing. Put exact mechanics in
-  `Code Changes`; do not repeat hunks in prose.
+  task. For each test task, include the test description from PLAN_TESTS.
+- Use exact paths, symbols, commands, and contract names. Explain intent and reasoning in ordinary prose.
+- Use `Details` for intent, rules that must remain true, and sequencing. Put exact mechanics in `Code Changes`; do not
+  repeat hunks in prose.
 
 Code-in-plan policy:
 
@@ -185,9 +185,11 @@ Code-in-plan policy:
   llm-ism removal.
 - The editor edits the plan draft directly. It must return the complete edited
   plan text, not review findings or suggestions.
-- The editor must preserve scope, task order, file paths, code hunks,
-  verification commands, open questions, blockers, test signals, and technical
-  facts.
+- The editor must preserve meaning, exact technical names, scope, task order, file paths, code hunks, verification
+  commands, open questions, blockers, planned tests, and technical facts. It may rewrite abstract labels and workflow
+  terms.
+- The editor prompt must name the reader as a skilled engineer with no prior chat context and state that the plan should
+  make implementation and verification unambiguous.
 - The judge must not perform the technical-writing edit itself. The judge may
   make factual corrections after the edit.
 - If factual corrections materially rewrite the plan, run the editor again.
@@ -200,7 +202,7 @@ Before writing the artifact, verify:
   change.
 - The plan stands alone without prior chat.
 - Every non-trivial task lists exact files.
-- Every task is concrete and decision-free.
+- No task asks the implementer to choose between alternatives.
 - Every task's `Verify` section is valid immediately after that task and its
   dependencies are applied.
 - `Open Questions` contains only unresolved decisions.
@@ -213,8 +215,8 @@ Before writing the artifact, verify:
   invocation) to confirm availability. For commands that exercise
   yet-to-be-implemented code, confirming the tool itself is sufficient. If a
   tool cannot run after the obvious fix, escalate.
-- Every non-trivial behavior change has an automated test signal, an existing
-  signal, or an explicit reason no durable signal exists.
+- Every non-trivial behavior change has a planned automated test, an existing automated check, or an explicit reason no
+  lasting automated check is practical.
 - Task file lists match the snippets or hunks in that task.
 - The plan has no notes about the planning, review, handoff, or revision process.
 
@@ -225,7 +227,7 @@ Before writing the artifact, verify:
 - Revisions overwrite the existing plan path. Do not create a revised copy or
   write a delta.
 - Use accepted feedback to rewrite the affected sections: summary, overview,
-  tasks, test signals, code changes, verification, open questions, or scope.
+  tasks, planned tests, code changes, verification, open questions, or scope.
 - Delete superseded scope instead of describing that it was removed.
 
 ## Artifact Template
@@ -250,15 +252,14 @@ Before writing the artifact, verify:
 
 ## Task <n>: <name>
 **Files:** `path/to/file.ts:42`, `path/to/test.ts`
-**Depends on:** Task <m> or `None`
+**Depends on:** Task <m>; omit when the task has no dependency
 **Blocked by:** <open question or external dependency; omit if unblocked>
 
 **Details:**
-- <Intent, invariant, or sequencing note not obvious from the code>
+- <Intent, rule that must remain true, or sequencing note not obvious from the code>
 - <Concrete step only when no code hunk carries it>
 
-**Test Signal:** <For test tasks only: behavior protected, boundary exercised,
-and regression that should fail; omit otherwise>
+**Tests:** <For test tasks only: behavior proved, interface or user action exercised, and bug caught; omit otherwise>
 
 **Code Changes:**
 ```ts

@@ -157,6 +157,9 @@ Give each material item a disposition:
 - risk
 - follow-up exploration target
 
+Use these categories while reasoning. Do not copy their names into the artifact unless a label helps the reader find or
+compare information.
+
 Before writing, classify each concrete implementation statement as a decision,
 constraint, example, implementation implication, or planning note. Exclude
 planning notes from durable artifacts.
@@ -176,8 +179,8 @@ questions or risks when they remain unresolved.
   removal.
 - The editor edits the artifact draft directly. It must return the edited
   artifact text, not review findings or suggestions.
-- The editor must preserve facts, decisions, scope, source links, line
-  references, contracts, assumptions, risks, and open questions.
+- The editor must preserve meaning, exact technical names, facts, decisions, scope, source links, line references,
+  contracts, assumptions, risks, and open questions. It may rewrite abstract labels and workflow terms.
 - The judge must not perform the technical-writing edit itself. The judge may
   make factual corrections after the edit.
 - If factual corrections materially rewrite the artifact, run the editor again.
@@ -216,14 +219,11 @@ For written artifacts, also verify:
   Do not create a revised copy.
 - Rewrite the whole artifact on each update so it reads as the current source
   of truth.
-- When source files or reference docs own a contract, link to the owner with line
-  numbers and summarize only the semantic facts needed for the exploration. Do
-  not inline copied source contracts, generated output, schemas, or command
-  definitions unless the source is unavailable or the snippet is explicitly
-  illustrative.
-- Use durable design language. Prefer terms like `initial scope`, `accepted
-  constraint`, `deferred capability`, `required behavior`, and `known
-  implementation implication`.
+- When source files or reference docs own a contract, link to the owner with line numbers and summarize only the facts
+  the reader needs. Do not inline copied source contracts, generated output, schemas, or command definitions unless the
+  source is unavailable or the snippet is explicitly illustrative.
+- State decisions in the system's own words. Explain the reason in the next sentence or bullet. Use labels such as
+  `Constraint` or `Risk` only when they help the reader scan the document.
 - Avoid roadmap and task-order language such as `next`, `before`, `for v1`,
   `V1 should`, and step sequencing unless sequencing itself is a design
   constraint.
@@ -232,25 +232,22 @@ For written artifacts, also verify:
 
 Do not force a standard section list.
 
-Use domain- or problem-specific sections. Headings should name real concepts,
-workflows, states, decisions, contracts, risks, or boundaries in the explored
-space.
+Use domain- or problem-specific sections. Headings should use names from the domain or system. Name the topic or
+decision, not a workflow category from this skill.
 
-Each section should explain the relevant context, current understanding,
-constraints, decisions, rationale, risks, assumptions, and open questions for
-that part of the domain. Include only the parts that carry knowledge.
+Each section should state what the reader needs to know about its topic. Include decisions, reasons, risks,
+assumptions, and open questions when they apply. Do not repeat the whole checklist in every section.
 
-Write short, dense prose. Use plain words and active voice. Prefer concrete
-examples over abstract framing. Cut filler, transition phrases, roadmap language,
-and empty setup.
+Write short paragraphs and direct sentences. Do not pack context, a decision, its reason, and its risks into one
+sentence. Prefer concrete examples over abstract framing. Cut filler, transition phrases, roadmap language, and empty
+setup.
 
-The first section after the title should summarize the problem being explored,
-the current understanding, and the decision space. Do not write a task list or
-roadmap.
+The first section after the title should state the problem, what is known, and which choices remain open. Do not write a
+task list or roadmap.
 
 Preserve:
 
-- source-owned contracts, linked rather than copied;
+- contracts owned by source files or reference docs, linked rather than copied;
 - decisions and their reasons;
 - rejected or deferred options when they clarify the decision space;
 - risks, edge cases, assumptions, and open questions.

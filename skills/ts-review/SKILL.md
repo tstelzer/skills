@@ -11,9 +11,10 @@ description: Review local code. Only explicitly triggered by user.
   - Read `ts-principles/SKILL.md`.
   - Read every linked principle detail document before reviewing.
 - skill: ts-technical-writing
-  - Required for `technical-writing` reviews.
-  - Read `ts-technical-writing/SKILL.md`.
-  - Read every linked technical-writing detail document before reviewing.
+  - Required when the judge writes any review artifact.
+  - Before aggregation, read `ts-technical-writing/SKILL.md`, `ts-technical-writing/audience.md`,
+    `ts-technical-writing/prose.md`, and `ts-technical-writing/structure.md`.
+  - For `technical-writing` reviews, read every linked technical-writing detail document before reviewing.
 
 ## Non-deference
 
@@ -58,7 +59,7 @@ Use this section when this skill spawns sub-agent workers.
 - Available review types:
     - `automatic-testing` - broken tests, weak tests, and missing automated coverage for changed behavior
     - `technical-writing` - incorrect, missing, stale, unsafe, or unclear technical writing, examples, docs,
-      upgrade guidance, or reader-task instructions
+      upgrade guidance, or instructions readers must follow
     - `performance` - latency, throughput, memory, concurrency, unnecessary work, and hot-path regressions
     - `robustness` - correctness, failure handling, maintainability, coupling, developer experience, and overall
       implementation quality
@@ -122,7 +123,13 @@ Use this section when this skill spawns sub-agent workers.
   identify who produced the review.
 - Preserve direct-edit reports from `technical-writing`. Do not convert an issue into an open finding when a direct edit
   fully resolved it.
-- Deduplicate, but otherwise keep findings as-is.
+- Deduplicate findings. Rewrite titles, impact, evidence, and suggested fixes for clarity without changing severity,
+  technical meaning, locations, or conclusions.
+- Write titles that name the defect and affected behavior, not the review category.
+- State the concrete consequence in `Impact`.
+- Start each `Suggested Fix` with an action and name the target file, symbol, command, or document when known.
+- Keep exact code symbols, API names, commands, protocol terms, and established domain terms. Replace review workflow
+  vocabulary with words the reader uses.
 - If two workers of the same review type but different model classes directly conflict on a finding, the judge may
   spawn a third worker for that review type using the next available model class in the priority list. If no third model
   class is available, the judge resolves the conflict directly and records the evidence used.
@@ -136,6 +143,7 @@ Use this section when this skill spawns sub-agent workers.
 - Create `<repository-root>/docs/reviews/` if it doesn't exist yet.
 - Write the findings to `<repository-root>/docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
 - If `technical-writing` direct edits were made, include a `## Direct Edits` section with changed paths and purpose.
+- Put the result and findings before scope and reviewer metadata.
 - In `## Reviewer Metadata`, record the judge line and one worker line per worker as provider, model line, and
   reasoning level.
 - Use `Workers: none (judge direct)` only when the judge performed the only requested review type directly.

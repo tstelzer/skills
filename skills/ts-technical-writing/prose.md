@@ -2,10 +2,14 @@
 
 ## rules
 
-- Use the shortest word that preserves meaning.
+- Use common words when an exact technical term is not required.
+- Keep exact code symbols, API names, protocol terms, and established domain terms.
 - Prefer active voice.
 - Name the actor when responsibility matters.
 - Replace hidden verbs with verbs.
+- Split sentences that carry several decisions, causes, or conditions.
+- Replace internal workflow terms with words the reader uses.
+- Define unfamiliar terms when code or context does not make them clear.
 - Replace vague claims with concrete facts.
 - Cut setup phrases.
 
@@ -26,6 +30,39 @@ Use the settings page to rotate credentials.
 ```
 
 Do not use bigger words to sound technical.
+
+### unpack dense technical prose
+
+Weak:
+
+```md
+Add a boundary-level regression signal for contract drift.
+```
+
+Stronger:
+
+```md
+Add an API test that fails when the response shape changes.
+```
+
+The stronger sentence names the test, the behavior it checks, and the failure it catches.
+
+### keep exact technical terms
+
+Weak:
+
+```md
+The payment request is safe to repeat.
+```
+
+Stronger:
+
+```md
+`POST /payments` is idempotent when requests use the same `Idempotency-Key`.
+Repeated requests return the first payment.
+```
+
+Keep a precise term when the reader needs it. Explain its concrete behavior instead of replacing it with vague prose.
 
 ### use active voice
 

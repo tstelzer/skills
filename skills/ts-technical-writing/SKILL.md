@@ -42,11 +42,16 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 
 [Details](structure.md)
 
-### write plain, compact prose
+### write plain prose at a useful density
 
 - Use common words when they carry the same meaning.
 - Prefer active voice.
 - Prefer strong verbs over noun phrases.
+- Optimize for reading time before word count.
+- Split a sentence when it carries several decisions, causes, or conditions.
+- Keep exact code symbols, API names, protocol terms, and established domain terms.
+- Replace workflow vocabulary with words the reader uses.
+- Define an unfamiliar term on first use when code or context does not make it clear.
 - Cut filler, hedges, throat-clearing, and repeated setup.
 - Keep one idea per paragraph.
 
