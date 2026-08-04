@@ -128,7 +128,7 @@ claim_reconciliation_path() {
     return 0
   fi
 
-  for existing in "${reconciled_paths[@]}"; do
+  for existing in "${reconciled_paths[@]+"${reconciled_paths[@]}"}"; do
     [[ $existing == "$path" ]] && return 1
   done
 
@@ -234,7 +234,7 @@ add_npx_lock() {
 
   [[ -f $candidate ]] || return 0
 
-  for existing in "${npx_locks[@]}"; do
+  for existing in "${npx_locks[@]+"${npx_locks[@]}"}"; do
     [[ $existing == "$candidate" ]] && return 0
   done
 
@@ -257,7 +257,7 @@ read_npx_state() {
   add_npx_lock "$HOME/.agents/.skill-lock.json"
   add_npx_lock "$HOME/.local/state/skills/.skill-lock.json"
 
-  if (( ${#npx_locks[@]} == 0 )); then
+  if [[ -z ${npx_locks[*]-} ]]; then
     return 0
   fi
 
@@ -273,7 +273,7 @@ read_npx_state() {
 
   npx_locks_with_matches=()
 
-  for lock in "${npx_locks[@]}"; do
+  for lock in "${npx_locks[@]+"${npx_locks[@]}"}"; do
     lock_names="$work_dir/npx-lock-$lock_index"
     node "$npx_lock_helper" list "$lock" >"$lock_names"
 
@@ -285,7 +285,9 @@ read_npx_state() {
     (( lock_index += 1 ))
   done
 
-  npx_locks=("${npx_locks_with_matches[@]}")
+  npx_locks=(
+    "${npx_locks_with_matches[@]+"${npx_locks_with_matches[@]}"}"
+  )
   sort -u -o "$npx_names_file" "$npx_names_file"
 
   while IFS= read -r skill_name; do
@@ -304,7 +306,7 @@ remove_npx_tracking() {
   local lock_backup
   local removed
 
-  for lock in "${npx_locks[@]}"; do
+  for lock in "${npx_locks[@]+"${npx_locks[@]}"}"; do
     if (( dry_run )); then
       removed="$(node "$npx_lock_helper" list "$lock" | awk 'END { print NR }')"
       echo "would remove npx tracking: $removed skill(s) from $lock"
@@ -334,7 +336,7 @@ done
 if (( remote )); then
   all_known_targets=("${targets[@]}" "${compatibility_targets[@]}")
 
-  for skill_name in "${retired_skills[@]}"; do
+  for skill_name in "${retired_skills[@]+"${retired_skills[@]}"}"; do
     for target in "${all_known_targets[@]}"; do
       reconcile_obsolete_path "$target/$skill_name"
     done
