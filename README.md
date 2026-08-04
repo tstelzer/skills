@@ -1,5 +1,35 @@
 # Skills
 
+## Sync
+
+Sync from a local clone:
+
+```sh
+./bin/sync
+```
+
+Sync the latest pushed skills without cloning the repository:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/tstelzer/skills/master/bin/sync-remote | sh
+```
+
+Preview remote changes without modifying persistent files:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/tstelzer/skills/master/bin/sync-remote |
+  sh -s -- --dry-run
+```
+
+The remote sync installs skills for Codex and Cursor under `~/.agents/skills`,
+and for Claude Code under `~/.claude/skills`. It replaces installations of
+these skills made by `npx skills` and removes retired skills. Existing files
+that it does not manage are moved to a timestamped backup before replacement.
+
+Remote sync requires `curl`, `tar`, `bash`, and `rsync`. If it finds an
+`npx skills` lock file, it also requires `node` to remove this repository's
+entries while preserving entries from other sources.
+
 ## Maturity
 
 - ts-principles: mature

@@ -1,0 +1,54 @@
+#!/bin/sh
+
+set -eu
+
+if [ "$#" -gt 1 ] || { [ "$#" -eq 1 ] && [ "$1" != "--dry-run" ]; }; then
+  echo "usage: sync-remote [--dry-run]" >&2
+  exit 2
+fi
+
+dry_run=0
+
+if [ "$#" -eq 1 ]; then
+  dry_run=1
+fi
+
+repo_url="https://github.com/tstelzer/skills"
+archive_url="https://codeload.github.com/tstelzer/skills"
+archive_url="$archive_url/tar.gz/refs/heads/master"
+
+for command_name in curl tar bash; do
+  if ! command -v "$command_name" >/dev/null 2>&1; then
+    echo "missing required command: $command_name" >&2
+    exit 1
+  fi
+done
+
+tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/tstelzer-skills.XXXXXX")"
+
+cleanup() {
+  rm -rf -- "$tmp_dir"
+}
+
+trap cleanup 0 HUP INT TERM
+
+archive="$tmp_dir/repository.tar.gz"
+extract_dir="$tmp_dir/repository"
+mkdir -p "$extract_dir"
+
+curl -fsSL "$archive_url" -o "$archive"
+tar -xzf "$archive" -C "$extract_dir"
+
+set -- "$extract_dir"/*
+
+if [ "$#" -ne 1 ] || [ ! -d "$1/skills" ] || [ ! -f "$1/bin/sync" ]; then
+  echo "invalid repository archive" >&2
+  exit 1
+fi
+
+if [ "$dry_run" -eq 1 ]; then
+  TSTELZER_SKILLS_SOURCE="$repo_url" \
+    bash "$1/bin/sync" --remote --dry-run
+else
+  TSTELZER_SKILLS_SOURCE="$repo_url" bash "$1/bin/sync" --remote
+fi

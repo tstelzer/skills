@@ -4,14 +4,42 @@ set -euo pipefail
 
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 skills_dir="$repo_root/skills"
+retired_skills_file="$repo_root/bin/retired-skills"
+npx_lock_helper="$repo_root/bin/sync-npx-lock.mjs"
 marker_name=".managed-by-tstelzer-skills"
+source_name="${TSTELZER_SKILLS_SOURCE:-$skills_dir}"
 
 targets=(
   "$HOME/.agents/skills"
   "$HOME/.claude/skills"
 )
 
-if [[ ! -d "$skills_dir" ]]; then
+compatibility_targets=(
+  "$HOME/.codex/skills"
+  "$HOME/.cursor/skills"
+)
+
+remote=0
+dry_run=0
+
+while (( $# > 0 )); do
+  case "$1" in
+    --remote)
+      remote=1
+      ;;
+    --dry-run)
+      dry_run=1
+      ;;
+    *)
+      echo "usage: $0 [--remote] [--dry-run]" >&2
+      exit 2
+      ;;
+  esac
+
+  shift
+done
+
+if [[ ! -d $skills_dir ]]; then
   echo "missing skills directory: $skills_dir" >&2
   exit 1
 fi
@@ -21,39 +49,401 @@ if ! command -v rsync >/dev/null 2>&1; then
   exit 1
 fi
 
-for target in "${targets[@]}"; do
-  mkdir -p -- "$target"
+current_skills=()
+
+for skill_dir in "$skills_dir"/*; do
+  [[ -d $skill_dir ]] || continue
+  [[ -f $skill_dir/SKILL.md ]] || continue
+
+  skill_name="$(basename -- "$skill_dir")"
+
+  if [[ ! $skill_name =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+    echo "invalid skill directory name: $skill_name" >&2
+    exit 1
+  fi
+
+  current_skills+=("$skill_name")
 done
+
+if (( ${#current_skills[@]} == 0 )); then
+  echo "no skills found in: $skills_dir" >&2
+  exit 1
+fi
+
+retired_skills=()
+
+if [[ -f $retired_skills_file ]]; then
+  while IFS= read -r skill_name || [[ -n $skill_name ]]; do
+    [[ -n $skill_name ]] || continue
+    [[ $skill_name == \#* ]] && continue
+
+    if [[ ! $skill_name =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+      echo "invalid retired skill name: $skill_name" >&2
+      exit 1
+    fi
+
+    if [[ -f $skills_dir/$skill_name/SKILL.md ]]; then
+      echo "skill is both current and retired: $skill_name" >&2
+      exit 1
+    fi
+
+    retired_skills+=("$skill_name")
+  done <"$retired_skills_file"
+fi
+
+if (( ! dry_run )); then
+  for target in "${targets[@]}"; do
+    mkdir -p -- "$target"
+  done
+fi
+
+backup_root=""
+reconciled_paths=()
+
+ensure_backup_root() {
+  local state_home
+
+  state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+
+  if [[ $state_home != /* ]]; then
+    state_home="$HOME/.local/state"
+  fi
+
+  if [[ -z $backup_root ]]; then
+    backup_root="$state_home/tstelzer-skills/backups"
+    backup_root="$backup_root/$(date -u +%Y%m%dT%H%M%SZ)-$$"
+    mkdir -p -- "$backup_root"
+  fi
+}
+
+path_exists() {
+  [[ -e $1 || -L $1 ]]
+}
+
+claim_reconciliation_path() {
+  local path=$1
+  local existing
+
+  if (( ! dry_run )); then
+    return 0
+  fi
+
+  for existing in "${reconciled_paths[@]}"; do
+    [[ $existing == "$path" ]] && return 1
+  done
+
+  reconciled_paths+=("$path")
+}
+
+backup_path() {
+  local path=$1
+  local relative
+  local backup_path
+
+  path_exists "$path" || return 0
+
+  if (( dry_run )); then
+    echo "would back up: $path"
+    return 0
+  fi
+
+  case "$path" in
+    "$HOME"/*)
+      relative="${path#"$HOME"/}"
+      ;;
+    *)
+      echo "refusing to back up path outside HOME: $path" >&2
+      return 1
+      ;;
+  esac
+
+  ensure_backup_root
+  backup_path="$backup_root/$relative"
+  mkdir -p -- "$(dirname -- "$backup_path")"
+
+  if path_exists "$backup_path"; then
+    echo "backup destination already exists: $backup_path" >&2
+    return 1
+  fi
+
+  mv -- "$path" "$backup_path"
+  echo "backed up: $path"
+}
+
+is_current_skill() {
+  [[ -f $skills_dir/$1/SKILL.md ]]
+}
+
+remove_stale_managed_skills() {
+  local target=$1
+  local dest
+  local skill_name
+
+  for dest in "$target"/*; do
+    path_exists "$dest" || continue
+    [[ -f $dest/$marker_name ]] || continue
+
+    skill_name="$(basename -- "$dest")"
+    is_current_skill "$skill_name" && continue
+    claim_reconciliation_path "$dest" || continue
+
+    if (( dry_run )); then
+      echo "would remove stale: $dest"
+    else
+      rm -rf -- "$dest"
+      echo "removed stale: $dest"
+    fi
+  done
+}
+
+reconcile_obsolete_path() {
+  local path=$1
+
+  path_exists "$path" || return 0
+  claim_reconciliation_path "$path" || return 0
+
+  if [[ -f $path/$marker_name ]]; then
+    if (( dry_run )); then
+      echo "would remove stale: $path"
+    else
+      rm -rf -- "$path"
+      echo "removed stale: $path"
+    fi
+  else
+    backup_path "$path"
+  fi
+}
+
+work_dir=""
+npx_names_file=""
+npx_locks=()
+
+# Invoked by the EXIT trap.
+# shellcheck disable=SC2329
+cleanup_work_dir() {
+  if [[ -n $work_dir && -d $work_dir ]]; then
+    rm -rf -- "$work_dir"
+  fi
+}
+
+trap cleanup_work_dir EXIT
+
+add_npx_lock() {
+  local candidate=$1
+  local existing
+
+  [[ -f $candidate ]] || return 0
+
+  for existing in "${npx_locks[@]}"; do
+    [[ $existing == "$candidate" ]] && return 0
+  done
+
+  npx_locks+=("$candidate")
+}
+
+read_npx_state() {
+  local lock
+  local lock_names
+  local lock_index=0
+
+  work_dir="$(mktemp -d "${TMPDIR:-/tmp}/tstelzer-skills-sync.XXXXXX")"
+  npx_names_file="$work_dir/npx-names"
+  : >"$npx_names_file"
+
+  if [[ -n ${XDG_STATE_HOME:-} ]]; then
+    add_npx_lock "$XDG_STATE_HOME/skills/.skill-lock.json"
+  fi
+
+  add_npx_lock "$HOME/.agents/.skill-lock.json"
+  add_npx_lock "$HOME/.local/state/skills/.skill-lock.json"
+
+  if (( ${#npx_locks[@]} == 0 )); then
+    return 0
+  fi
+
+  if ! command -v node >/dev/null 2>&1; then
+    echo "found npx skills state but missing required command: node" >&2
+    return 1
+  fi
+
+  if [[ ! -f $npx_lock_helper ]]; then
+    echo "missing npx lock helper: $npx_lock_helper" >&2
+    return 1
+  fi
+
+  npx_locks_with_matches=()
+
+  for lock in "${npx_locks[@]}"; do
+    lock_names="$work_dir/npx-lock-$lock_index"
+    node "$npx_lock_helper" list "$lock" >"$lock_names"
+
+    if [[ -s $lock_names ]]; then
+      cat "$lock_names" >>"$npx_names_file"
+      npx_locks_with_matches+=("$lock")
+    fi
+
+    (( lock_index += 1 ))
+  done
+
+  npx_locks=("${npx_locks_with_matches[@]}")
+  sort -u -o "$npx_names_file" "$npx_names_file"
+
+  while IFS= read -r skill_name; do
+    [[ -n $skill_name ]] || continue
+
+    if [[ ! $skill_name =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+      echo "invalid skill name in npx lock: $skill_name" >&2
+      return 1
+    fi
+  done <"$npx_names_file"
+}
+
+remove_npx_tracking() {
+  local lock
+  local lock_index=0
+  local lock_backup
+  local removed
+
+  for lock in "${npx_locks[@]}"; do
+    if (( dry_run )); then
+      removed="$(node "$npx_lock_helper" list "$lock" | awk 'END { print NR }')"
+      echo "would remove npx tracking: $removed skill(s) from $lock"
+      (( lock_index += 1 ))
+      continue
+    fi
+
+    ensure_backup_root
+    lock_backup="$backup_root/npx-locks/$lock_index.skill-lock.json"
+    mkdir -p -- "$(dirname -- "$lock_backup")"
+    cp -p -- "$lock" "$lock_backup"
+
+    removed="$(node "$npx_lock_helper" remove "$lock")"
+    echo "removed npx tracking: $removed skill(s) from $lock"
+    (( lock_index += 1 ))
+  done
+}
+
+if (( remote )); then
+  read_npx_state
+fi
+
+for target in "${targets[@]}"; do
+  remove_stale_managed_skills "$target"
+done
+
+if (( remote )); then
+  all_known_targets=("${targets[@]}" "${compatibility_targets[@]}")
+
+  for skill_name in "${retired_skills[@]}"; do
+    for target in "${all_known_targets[@]}"; do
+      reconcile_obsolete_path "$target/$skill_name"
+    done
+  done
+
+  while IFS= read -r skill_name; do
+    [[ -n $skill_name ]] || continue
+
+    if is_current_skill "$skill_name"; then
+      for target in "${compatibility_targets[@]}"; do
+        reconcile_obsolete_path "$target/$skill_name"
+      done
+    else
+      for target in "${all_known_targets[@]}"; do
+        reconcile_obsolete_path "$target/$skill_name"
+      done
+    fi
+  done <"$npx_names_file"
+
+  for skill_name in "${current_skills[@]}"; do
+    for target in "${compatibility_targets[@]}"; do
+      reconcile_obsolete_path "$target/$skill_name"
+    done
+  done
+fi
 
 status=0
 
-for skill_dir in "$skills_dir"/*; do
-  [[ -d "$skill_dir" ]] || continue
-  [[ -f "$skill_dir/SKILL.md" ]] || continue
-
-  skill_name="$(basename -- "$skill_dir")"
+for skill_name in "${current_skills[@]}"; do
+  skill_dir="$skills_dir/$skill_name"
 
   for target in "${targets[@]}"; do
     dest="$target/$skill_name"
     marker="$dest/$marker_name"
+    replace=0
 
-    if [[ -L "$dest" ]]; then
-      rm -- "$dest"
-    elif [[ -e "$dest" && ! -d "$dest" ]]; then
-      echo "conflict: $dest exists and is not a directory" >&2
-      status=1
-      continue
-    elif [[ -d "$dest" && ! -f "$marker" ]]; then
-      echo "conflict: $dest exists and is not managed by this repo" >&2
-      status=1
+    if [[ -L $dest ]]; then
+      if (( remote )); then
+        backup_path "$dest"
+      elif (( dry_run )); then
+        echo "would replace symlink: $dest"
+      else
+        rm -- "$dest"
+      fi
+      replace=1
+    elif [[ -e $dest && ! -d $dest ]]; then
+      if (( remote )); then
+        backup_path "$dest"
+      else
+        echo "conflict: $dest exists and is not a directory" >&2
+        status=1
+        continue
+      fi
+      replace=1
+    elif [[ -d $dest && ! -f $marker ]]; then
+      if (( remote )); then
+        backup_path "$dest"
+      else
+        echo "conflict: $dest exists and is not managed by this repo" >&2
+        status=1
+        continue
+      fi
+      replace=1
+    elif [[ ! -d $dest ]]; then
+      replace=1
+    fi
+
+    if (( dry_run )); then
+      if (( replace )); then
+        echo "would install: $dest"
+        continue
+      fi
+
+      changes="$(
+        rsync -ani --delete --omit-dir-times \
+          --exclude "$marker_name" -- "$skill_dir/" "$dest/"
+      )"
+      marker_contents="$(<"$marker")"
+
+      if [[ -n $changes || $marker_contents != "source=$source_name" ]]; then
+        echo "would update: $dest"
+
+        if [[ -n $changes ]]; then
+          while IFS= read -r change; do
+            echo "  $change"
+          done <<<"$changes"
+        fi
+      fi
+
       continue
     fi
 
     mkdir -p -- "$dest"
     rsync -a --delete --exclude "$marker_name" -- "$skill_dir/" "$dest/"
-    printf 'source=%s\n' "$skill_dir" >"$marker"
+    printf 'source=%s\n' "$source_name" >"$marker"
     echo "synced: $dest"
   done
 done
+
+if (( remote )); then
+  remove_npx_tracking
+
+  if (( dry_run )); then
+    echo "dry run: no persistent changes made"
+  elif [[ -n $backup_root ]]; then
+    echo "backup: $backup_root"
+  fi
+elif (( dry_run )); then
+  echo "dry run: no persistent changes made"
+fi
 
 exit "$status"
