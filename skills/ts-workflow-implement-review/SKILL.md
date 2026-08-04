@@ -104,8 +104,10 @@ Task input:
 - On pass 1: implement the linked source request from the log.
 - If the log contains developer feedback, use it as input for the implementation
   pass.
-- On later passes: resolve every open blocking finding in the log and the latest
-  review handoff.
+- On later passes, resolve every blocker with the smallest in-scope change.
+  Treat suggested fixes as advice.
+- Escalate before expanding a public contract, architecture, deployment
+  surface, or product scope without recorded user authority.
 - Preserve review-owned direct writing edits recorded in the log unless an open
   finding explicitly requires changing them.
 
@@ -135,19 +137,38 @@ Dispatched judge: provider <provider>, model line <model-line>, reasoning <reaso
 
 Review the workflow-owned diff against the source request, workflow baseline,
 and latest implementation handoff in the log.
+The source request, named plan or design, and recorded user decisions define
+the review contract. Principles do not expand it. The first formal review is
+`initial`; later reviews are `follow-up`.
+
 Run the review against all review types from `skill: ts-review`.
+Workers do not know the mode. Classify their findings after they return:
+- `regular`: found initially or introduced by an identified later change
+- `out-of-scope`: no basis in the review contract or remediation
+- `carried`: the same open finding remains unresolved
+- `regression`: the same resolved finding has recurred
+- `late`: first reported in a follow-up without a later change that caused it
+
+`carried` and `regression` require the prior ID and the same contract and
+impact. A broader defect gets its own class. New follow-up findings default to
+`late`; use `regular` only when evidence names the later change that caused it.
+Record `**Admission:**` and `**Scope Basis:**` with the requirement, decision,
+finding ID, or remediation change.
 Technical-writing review may make direct writing edits allowed by `ts-review`.
 Treat those edits as review-owned workflow changes, not unrelated user changes.
+In a follow-up review, limit technical-writing direct edits to writing changed
+by the latest implementation pass or required by an open finding.
+
+Apply these dispositions:
+- Critical and high `regular`, `carried`, and `regression`: `fix now`.
+- Critical and high `late`: record it and return `STATUS: ESCALATE`.
+- Low or `out-of-scope`: executable `follow-up`.
+- Work outside the review contract: `STATUS: ESCALATE`.
 
 This is a formal workflow review, not an informal review. You must write a
 separate review artifact, even when there are no findings.
-When updating `## Open Findings`, preserve each finding severity in the
-finding text, e.g. `critical: missing authorization check`. Critical and high
-findings must be recorded as `fix now`; do not downgrade them to `follow-up` or
-`waiver`. If a critical or high finding needs a human exception, return
-`STATUS: ESCALATE`. Low findings inside the workflow scope should be `fix now`;
-use `follow-up` only for work outside the current scope and record the
-executable follow-up.
+Preserve severity, admission, scope basis, disposition, and next action in
+`## Open Findings`.
 
 Review status semantics:
 - `STATUS: DONE`: review completed with no blocking findings.
@@ -186,9 +207,8 @@ STATUS: ESCALATE: <reason>
 - If implementation returns `BLOCKED` or `ESCALATE`, stop and report.
 - If review returns `ESCALATE`, stop and report.
 - If review returns `BLOCKED`, route from `## Open Findings`.
-- Treat these as blocking findings:
-  - any `fix now` finding
-  - any open critical or high finding, regardless of disposition
+- Treat any `fix now` finding as blocking. Use the review judge's disposition;
+  do not reclassify findings in the router.
 - If review has no blocking findings, stop with `STATUS: DONE`.
 - If review has blocking findings and the round limit is not reached, dispatch
   implementation again with the same log path.

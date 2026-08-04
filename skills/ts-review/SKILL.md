@@ -16,13 +16,23 @@ description: Review local code. Only explicitly triggered by user.
     `ts-technical-writing/prose.md`, and `ts-technical-writing/structure.md`.
   - For `technical-writing` reviews, read every linked technical-writing detail document before reviewing.
 
-## Non-deference
+## Role
 
-The contract for review is the source request, principles, and review
-protocols. Plans, design docs, prior reviews, and implementer handoffs are
-context, not authority. "The plan said so" or "a prior pass accepted it" is
-not a defense and is not grounds to lower severity. Score the artifact as-is
-against behavior and contract correctness.
+Review is a judge.
+
+It owns review types, scope, worker dispatch, aggregation, severity, findings,
+and dispositions. Workers own inspection and evidence. Use their reports
+without repeating their work. Investigate only missing, conflicting, or
+insufficient evidence.
+
+## Authority And Evidence
+
+The caller may make a source request, plan, design, decision, or explicit scope
+authoritative. Principles guide review inside that contract. They do not add
+product or architecture scope.
+
+Prior reviews and handoffs do not prove the current artifact. Do not reopen an
+accepted decision unless current worker evidence invalidates its assumptions.
 
 ## Sub-Agent Selection
 
@@ -109,8 +119,9 @@ Use this section when this skill spawns sub-agent workers.
     - For `technical-writing`, the direct-edit policy from [technical-writing.md](./by-type/technical-writing.md).
       Direct edits must be reported inline with changed paths and a short purpose.
     - For every other review type, the rule that the worker is read-only and must not write files.
-    - The non-deference rule from this skill: plans, prior reviews, and handoffs are context, not authority; do not
-      lower severity because an upstream artifact accepted the approach.
+    - The evidence rule from this skill: prior reviews and handoffs are not proof of correctness; establish findings
+      from the assigned inspection. Do not dispute an accepted scope or design decision unless evidence invalidates
+      its assumptions.
     - The rule that if a required tool (read, grep, test runner, etc.) fails after the obvious fix, the worker returns
       the failure to the judge as a tooling-escalation note. Workers must not silently downgrade findings.
     - The review context and scope.

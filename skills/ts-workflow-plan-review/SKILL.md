@@ -113,6 +113,10 @@ Task input:
 - On later passes: read the canonical `plan` artifact linked in `## Artifacts`,
   use open blocking findings and the latest review handoff as inputs, and
   rewrite that same file so the affected plan sections are correct.
+- On later passes, make the smallest revision that resolves each blocker.
+  Treat suggested fixes as advice.
+- Escalate before adding a product goal or making a decision reserved for the
+  user.
 - On later passes, return `STATUS: BLOCKED: missing canonical plan artifact` if
   the log has no valid `plan` link.
 - Preserve review-owned direct writing edits recorded in the log unless an open
@@ -157,19 +161,37 @@ Review the canonical `plan` artifact linked in `## Artifacts`
 against the source request. Score the plan only; there is no implementation diff
 in this workflow. Return
 `STATUS: BLOCKED: missing valid plan artifact link` until that target exists.
+The source request, named design, and recorded user decisions define the review
+contract. Principles do not add product goals. The first formal review is
+`initial`; later reviews are `follow-up`.
+
 Run the review against all review types from `skill: ts-review`.
+Workers do not know the mode. Classify their findings after they return:
+- `regular`: found initially or introduced by an identified later revision
+- `out-of-scope`: no basis in the review contract or plan revision
+- `carried`: the same open finding remains unresolved
+- `regression`: the same resolved finding has recurred
+- `late`: first reported in a follow-up without a later revision that caused it
+
+`carried` and `regression` require the prior ID and the same requirement and
+impact. A broader defect gets its own class. New follow-up findings default to
+`late`; use `regular` only when evidence names the later revision that caused
+it. Record `**Admission:**` and `**Scope Basis:**` with the requirement,
+decision, finding ID, or plan revision.
 Technical-writing review may edit the canonical plan artifact when `ts-review`
 allows a direct writing edit. Keep the same canonical plan link.
 
+Apply these dispositions:
+- Critical and high `regular`, `carried`, and `regression`: `fix now`.
+- Critical and high `late`: `fix now` only when the plan would otherwise
+  violate the request, contradict itself, or leave required work undecided.
+- Other `late`, low, or `out-of-scope`: executable `follow-up`.
+- A new product goal or user decision: `STATUS: ESCALATE`.
+
 This is a formal workflow review, not an informal review. You must write a
 separate review artifact, even when there are no findings.
-When updating `## Open Findings`, preserve each finding severity in the
-finding text, e.g. `critical: missing rollback step`. Critical and high
-findings must be recorded as `fix now`; do not downgrade them to `follow-up` or
-`waiver`. If a critical or high finding needs a human exception, return
-`STATUS: ESCALATE`. Low findings inside the workflow scope should be `fix now`;
-use `follow-up` only for work outside the current scope and record the
-executable follow-up.
+Preserve severity, admission, scope basis, disposition, and next action in
+`## Open Findings`.
 
 Review status semantics:
 - `STATUS: DONE`: review completed with no blocking findings.
@@ -207,9 +229,8 @@ STATUS: ESCALATE: <reason>
 - If planning returns `BLOCKED` or `ESCALATE`, stop and report.
 - If review returns `ESCALATE`, stop and report.
 - If review returns `BLOCKED`, route from `## Open Findings`.
-- Treat these as blocking findings:
-  - any `fix now` finding
-  - any open critical or high finding, regardless of disposition
+- Treat any `fix now` finding as blocking. Use the review judge's disposition;
+  do not reclassify findings in the router.
 - If review has no blocking findings, stop with `STATUS: DONE`.
 - If review has blocking findings and the round limit is not reached, dispatch
   planning again with the same log path and canonical plan path.
