@@ -1,6 +1,6 @@
 ---
 name: ts-effect-v4
-description: Effect v4 handbook: effect@4 and effect/unstable/*; use ts-effect-v3 for v3.
+description: Effect v4 handbook for effect@4 and effect/unstable/*. Use ts-effect-v3 for v3.
 ---
 
 # Effect v4
