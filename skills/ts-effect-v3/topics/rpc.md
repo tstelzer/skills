@@ -1,7 +1,8 @@
 # RPC
 
 ## What it is
-`@effect/rpc` provides typed RPC groups, client/server layers, protocol adapters, serialization, and middleware. It is the right tool when you want end-to-end typed request/response APIs that look more like procedure calls than REST resources.
+`@effect/rpc` provides typed groups, client and server layers, protocol
+adapters, serialization, and middleware for procedure-shaped APIs.
 
 ## When to use
 - Internal service-to-service APIs

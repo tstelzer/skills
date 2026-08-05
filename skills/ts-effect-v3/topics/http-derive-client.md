@@ -1,7 +1,8 @@
 # HTTP Derive Client
 
 ## What it is
-`HttpApiClient.make` derives a typed client from an `HttpApi` definition. `makeWith` lets you supply a custom `HttpClient` when you need extra requirements or request transforms.
+`HttpApiClient.make` derives a typed client from an `HttpApi`. `makeWith`
+accepts a custom client for extra requirements or request transforms.
 
 ## When to use
 - Share schema contracts between server and client

@@ -1,7 +1,9 @@
 # HttpRouter / HttpServer
 
 ## What it is
-`HttpRouter`, `HttpServer`, `HttpServerRequest`, and `HttpServerResponse` are the route-first HTTP server APIs in `@effect/platform`. Use them when you want direct control over routes, upgrades, middleware, and raw request/response handling without a shared `HttpApi` contract.
+`HttpRouter`, `HttpServer`, `HttpServerRequest`, and `HttpServerResponse` are
+route-first server APIs. They give direct control over routes, upgrades,
+middleware, and raw requests without a shared `HttpApi` contract.
 
 ## When to use
 - Route-first servers, webhooks, internal tools, and lower-level HTTP apps

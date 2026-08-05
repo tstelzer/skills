@@ -1,10 +1,13 @@
 # Platform Services
 
 ## What it is
-`@effect/platform` modules outside schema-first `HttpApi`: `HttpClient`, `HttpRouter`, `FileSystem`, `Path`, `Url`, `Terminal`, `CommandExecutor`, `KeyValueStore`, `Ndjson`, `Worker`, and related Node layers.
+`@effect/platform` modules outside schema-first `HttpApi`: `HttpClient`,
+`HttpRouter`, `FileSystem`, `Path`, `Url`, `Terminal`, `CommandExecutor`,
+`KeyValueStore`, `Ndjson`, `Worker`, and related Node layers.
 
 ## When to use
-- Cross-platform runtime services for IO, outgoing HTTP, route-first servers, terminal/process work, and worker/file workflows
+- Cross-platform runtime services for IO, outgoing HTTP, route-first servers,
+  terminal work, processes, workers, and files
 
 ## When not to use
 - Schema-first `HttpApi` contracts and generated clients (see `30-http-server.md`)
@@ -28,6 +31,19 @@ Add targeted layers when needed:
 - `NodeTerminal.layer` for terminal-only programs
 - `NodeCommandExecutor.layer` for subprocess APIs
 - `NodeKeyValueStore.layerFileSystem("./kv")` for persistent key-value storage
+
+## Child process environment
+
+`Command.env` extends the parent environment by default. Set `extendEnv` to
+`false` when the child must receive only explicit variables.
+
+```ts
+import { Command } from "@effect/platform"
+
+const isolated = Command.make("worker").pipe(
+  Command.env({ APP_MODE: "batch" }, { extendEnv: false })
+)
+```
 
 ## FileSystem
 
@@ -84,6 +100,8 @@ const buildPath = Effect.gen(function* () {
 - Forgetting to provide `NodeHttpClient.layer` / `FetchHttpClient.layer` for outgoing HTTP
 - Treating `HttpRouter` and `HttpApi` as interchangeable; choose contract-first vs route-first explicitly
 - Doing protocol transforms in sinks instead of stream/channel stages
+- Assuming `Command.env` replaces the inherited environment without setting
+  `extendEnv: false`
 
 ## See also
 - `30-http-server.md`

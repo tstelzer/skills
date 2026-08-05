@@ -11,13 +11,13 @@ Effect-aware vitest integration via `@effect/vitest`.
 
 ## Minimal examples
 ```ts
-import { it, expect } from "@effect/vitest"
+import { assert, it } from "@effect/vitest"
 import { Effect } from "effect"
 
 it.effect("test success", () =>
   Effect.gen(function* () {
     const result = yield* Effect.succeed(42)
-    expect(result).toBe(42)
+    assert.strictEqual(result, 42)
   })
 )
 ```
@@ -34,7 +34,19 @@ it.effect("test success", () =>
 
 ## Useful helpers
 
-`@effect/vitest/utils` provides focused helpers like `assertRight`, `assertLeft`, `assertSome`, `assertNone`, and `assertInclude` for Effect-style assertions.
+`@effect/vitest/utils` provides `assertRight`, `assertLeft`, `assertSome`,
+`assertNone`, and `assertInclude`.
+
+Use `it.effect.each` for repeated cases:
+
+```ts
+it.effect.each([
+  { input: "a", expected: 1 },
+  { input: "abcd", expected: 4 }
+])("length of $input", ({ expected, input }) =>
+  Effect.sync(() => assert.strictEqual(input.length, expected))
+)
+```
 
 ## Time and resource patterns
 
@@ -53,6 +65,8 @@ it.effect("with simulated time", () =>
 - Expecting real-time behavior under `it.effect` instead of `it.live`
 - Forgetting `it.scoped` for acquire/release resources
 - Treating `it.flakyTest` like `it.effect`; it is an Effect wrapper used inside the test body
+- Repeating cases as separate tests instead of using `it.effect.each`
+- Asserting messages or mock calls when tags and complete data values are available
 
 ## See also
 - `../sections/50-testing.md`

@@ -5,7 +5,8 @@
 
 ## When to use
 - Inspecting or transforming failures
-- Handling fiber results (`Fiber.join` yields `Exit`)
+- Handling fiber results (`Fiber.await` yields `Exit`; `Fiber.join` re-enters
+  the fiber's success and error channels)
 
 ## When not to use
 - Simple error handling (use `Effect.catchTag`, `Effect.catchAll`)

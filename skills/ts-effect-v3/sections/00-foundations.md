@@ -31,10 +31,14 @@ Effect<Success, Error, Requirements>
 ```ts
 import { Effect } from "effect"
 
+declare const input: string
+declare const legacySdk: { readonly flush: () => void }
+declare const url: string
+
 const ok = Effect.succeed(42)
 const err = Effect.fail(new Error("oops"))
-const sync = Effect.sync(() => console.log("hi"))
-const trySync = Effect.try(() => JSON.parse(str))
+const sync = Effect.sync(() => legacySdk.flush())
+const trySync = Effect.try(() => JSON.parse(input))
 const tryAsync = Effect.tryPromise(() => fetch(url))
 ```
 
@@ -115,18 +119,35 @@ Use `gen` for control flow; use `pipe` for linear transforms.
 ```ts
 import { Data, Effect } from "effect"
 
-class NotFound extends Data.TaggedError("NotFound")<{ id: string }>() {}
-class Unauthorized extends Data.TaggedError("Unauthorized")<{}>() {}
+class NotFound extends Data.TaggedError("NotFound")<{ id: string }> {}
+class Unauthorized extends Data.TaggedError("Unauthorized")<{}> {}
 
-const program: Effect.Effect<User, NotFound | Unauthorized> = Effect.gen(function* () {
-  yield* Effect.fail(new NotFound({ id }))
-})
+const program = (
+  id: string
+): Effect.Effect<User, NotFound | Unauthorized> =>
+  Effect.fail(new NotFound({ id }))
 ```
+
+## Observe errors without recovering
+
+Use `tapError` to log, render, or record a failure while preserving the error
+channel. Use `catchTag` or `catchTags` only when the handler returns a valid
+recovery value or a deliberate replacement failure.
+
+```ts
+const observed = program.pipe(
+  Effect.tapError((error) => Effect.logError(error))
+)
+```
+
+Map external errors at the operation that produces them. Do not wrap a large
+workflow in `mapError` and rediscover a broad union with `instanceof`.
 
 ## Common pitfalls
 - Running effects in middle layers instead of boundaries
 - Mixing `pipe` and `gen` without a reason
 - Leaving tagged errors unhandled
+- Catching an error only to log it and return `void`
 
 ## See also
 - `10-core-patterns.md`

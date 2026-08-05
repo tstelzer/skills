@@ -1,7 +1,8 @@
 # Option / Either
 
 ## What it is
-`Option<A>` models absence without an error channel. `Either<A, E>` models pure success/failure without running effects. They are the default sum types for local branching and parsing before you need `Effect`.
+`Option<A>` models absence. `Either<A, E>` models pure success or failure.
+Use them for local branching and parsing before `Effect` is needed.
 
 ## When to use
 - Missing optional values (`Option`)
@@ -16,27 +17,32 @@
 ```ts
 import { Either, Option, pipe } from "effect"
 
-const color = pipe(
-  Option.fromNullable(process.env.COLOR),
-  Option.match({
-    onNone: () => "default",
-    onSome: (value) => value
-  })
-)
+const readSettings = (colorInput: string | undefined, depthInput: string | undefined) => {
+  const color = pipe(
+    Option.fromNullable(colorInput),
+    Option.match({
+      onNone: () => "default",
+      onSome: (value) => value
+    })
+  )
 
-const depth = Either.liftPredicate(
-  Number(process.env.DEPTH ?? "0"),
-  Number.isInteger,
-  () => "DEPTH must be an integer"
-)
+  const depth = Either.liftPredicate(
+    Number(depthInput ?? "0"),
+    Number.isInteger,
+    () => "DEPTH must be an integer"
+  )
 
-const message = pipe(
-  depth,
-  Either.match({
-    onLeft: (error) => `invalid: ${error}`,
-    onRight: (value) => `depth=${value}`
-  })
-)
+  return {
+    color,
+    message: pipe(
+      depth,
+      Either.match({
+        onLeft: (error) => `invalid: ${error}`,
+        onRight: (value) => `depth=${value}`
+      })
+    )
+  }
+}
 ```
 
 ## Common patterns
@@ -48,6 +54,8 @@ const message = pipe(
 - Wrapping effectful work in `Either` instead of `Effect`
 - Encoding absence as magic values instead of `Option.none()`
 - Returning nested `Option<Either<...>>` when a single abstraction is enough
+- Reading ambient environment state inside pure parsing functions; pass input
+  explicitly or use `Config` at the boundary
 
 ## See also
 - `../sections/00-foundations.md`

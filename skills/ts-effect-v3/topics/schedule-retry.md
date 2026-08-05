@@ -1,7 +1,8 @@
 # Schedule / Retry
 
 ## What it is
-`Schedule<Out, In, R>`: recurring patterns for repetition and retry. Built-in: `exponential`, `fibonacci`, `spaced`, `recurs`, `jittered`.
+`Schedule<Out, In, R>` describes repetition and retry patterns such as
+`exponential`, `fibonacci`, `spaced`, `recurs`, and `jittered`.
 
 ## When to use
 - Retry policies with backoff

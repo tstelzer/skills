@@ -1,7 +1,9 @@
 # OpenTelemetry
 
 ## What it is
-`@effect/opentelemetry` bridges Effect logging, metrics, and tracing into OpenTelemetry SDKs and OTLP exporters. Use `NodeSdk.layer(...)` for custom SDK wiring or `Otlp.layerJson(...)` for a quick OTLP setup.
+`@effect/opentelemetry` exports Effect logs, metrics, and traces through
+OpenTelemetry. Use `NodeSdk.layer(...)` for custom SDK wiring or
+`Otlp.layerJson(...)` for direct OTLP setup.
 
 ## When to use
 - Export spans, metrics, and logs to OTEL collectors

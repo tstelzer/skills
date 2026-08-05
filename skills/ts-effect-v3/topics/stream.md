@@ -1,7 +1,8 @@
 # Stream
 
 ## What it is
-`Stream<A, E, R>`: lazy, immutable, pull-based emitter of zero or more values. Like `Effect` but for async iterables, node streams, paginated APIs.
+`Stream<A, E, R>` is a lazy, pull-based emitter of zero or more values. Use it
+for async iterables, Node streams, and paginated APIs.
 
 ## When to use
 - Async iterables, pagination, file processing, observables

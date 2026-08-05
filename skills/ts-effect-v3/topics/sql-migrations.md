@@ -1,7 +1,9 @@
 # SQL Migrations
 
 ## What it is
-Effect SQL migrators run forward-only TypeScript migrations whose default export is an `Effect` requiring `SqlClient.SqlClient`. Driver packages expose migrator modules such as `PgMigrator`, `MysqlMigrator`, `MssqlMigrator`, `SqliteMigrator`, and related target-specific variants.
+Effect SQL migrators run forward-only TypeScript migrations. Each migration
+exports an `Effect` requiring `SqlClient.SqlClient`. Driver packages expose
+their own migrator modules.
 
 ## When to use
 - Applying database schema changes at application startup or from a CLI

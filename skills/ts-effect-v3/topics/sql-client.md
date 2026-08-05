@@ -1,7 +1,9 @@
 # SQL Client
 
 ## What it is
-`@effect/sql` provides the shared `SqlClient.SqlClient` service, SQL statement model, safe tagged-template interpolation, transactions, streams, and query helpers. Driver packages such as `@effect/sql-pg` and `@effect/sql-sqlite-node` provide layers for the concrete database.
+`@effect/sql` provides the shared `SqlClient.SqlClient` service, safe
+tagged-template interpolation, transactions, streams, and query helpers.
+Driver packages provide the concrete database layer.
 
 ## When to use
 - Running SQL from Effect programs
@@ -65,8 +67,11 @@ const search = (ids: ReadonlyArray<number>, order: "ASC" | "DESC") =>
 - Provide a driver layer; it usually installs both the driver tag and `SqlClient.SqlClient`.
 - Interpolate values directly: `` sql`id = ${id}` `` becomes a bound parameter.
 - Use `sql("table_or_column")` for identifiers.
-- Use `sql.in("column", values)`, `sql.insert(rows)`, `sql.update(row)`, `sql.updateValues(rows, alias)`, `sql.and(...)`, `sql.or(...)`, `sql.csv(...)`, and `sql.join(...)` for fragments.
-- Use `.stream` for row streams, `.raw` for driver raw results, `.values` for array rows, `.withoutTransform` to skip configured name transforms, and `.compile()` for inspection.
+- Use `sql.in`, `sql.insert`, `sql.update`, `sql.updateValues`, `sql.and`,
+  `sql.or`, `sql.csv`, and `sql.join` for fragments.
+- Use `.stream` for row streams, `.raw` for driver results, `.values` for
+  array rows, `.withoutTransform` to skip name transforms, and `.compile()`
+  for inspection.
 - Wrap transactional effects with `sql.withTransaction(effect)`.
 - Use `sql.onDialect(...)` or `sql.onDialectOrElse(...)` when a query must branch by database dialect.
 

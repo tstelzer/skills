@@ -24,6 +24,21 @@ const program = Effect.scoped(
 
 ## Common pitfalls
 - Forgetting `Effect.scoped` when using scoped resources (e.g. `Stream.broadcast`)
+- Writing catch-cleanup-rethrow pipelines instead of using scoped combinators
+- Applying `orDie` to expected cleanup failures
+- Suppressing cleanup failures without naming the path as best effort
+
+## Cleanup policy
+
+- Use `acquireRelease`, `acquireUseRelease`, `Scope`, and scoped platform
+  helpers for resource lifetime.
+- Preserve cleanup errors when cleanup is part of the operation's contract.
+- Ignore cleanup errors only on a named best-effort path where the original
+  result must win.
+- Use `onError` for failure-only cleanup instead of catching and re-emitting
+  the original failure.
+- Catch only the expected condition when probing for `NotFound`,
+  `AlreadyExists`, or similar states.
 
 ## See also
 - `../sections/10-core-patterns.md`

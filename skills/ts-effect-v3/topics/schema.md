@@ -1,51 +1,56 @@
 # Schema
 
 ## What it is
-`Schema<A, I, R>` is Effect's runtime schema system for validation, decoding, encoding, transformations, metadata, and generated models. `A` is the domain type, `I` is the encoded/input type, and `R` is additional Effect context needed during parsing.
 
-## When to use
-- External boundaries: HTTP payloads, RPC messages, config, persistence, queues
-- Shared domain models that need both static types and runtime validation
-- Tagged domain errors or requests via `Schema.TaggedError` / `Schema.TaggedRequest`
+`Schema<A, I, R>` describes a decoded domain type `A`, an encoded boundary type
+`I`, and the Effect requirements `R` needed to parse it.
 
-## When not to use
-- Internal-only shapes that never cross a runtime boundary and do not need decoding or encoding
+Use Schema for untrusted boundaries and domain values that need decoding,
+encoding, validation, or generated tooling. Keep trusted internal-only shapes
+as plain TypeScript types.
 
-## Minimal examples
-```ts
-import { Either, Schema } from "effect"
+## Route by task
 
-class User extends Schema.Class<User>("User")({
-  id: Schema.Number,
-  name: Schema.String
-}) {}
+- `schema-basics.md`: decoded and encoded types, decoding, and encoding
+- `schema-primitives.md`: primitives, structs, tuples, records, and templates
+- `schema-deriving.md`: derive related schemas without copying fields
+- `schema-optional-defaults.md`: absence, `undefined`, `null`, `Option`, defaults
+- `schema-unions-recursion.md`: unions, discriminators, matching, recursion
+- `schema-validation.md`: filters, brands, effectful checks, constructors
+- `schema-transformations.md`: transformations, composition, key remapping
+- `schema-context.md`: service-backed parsing and visible requirements
+- `schema-classes-errors.md`: classes, tagged models, errors, requests
+- `schema-serialization.md`: JSON, binary encodings, redacted values
+- `schema-tooling-errors.md`: error formatting, metadata, generated tooling
 
-class NotFound extends Schema.TaggedError<NotFound>()("NotFound", {
-  id: Schema.Number
-}) {}
+## Boundary rules
 
-const decodeUser = Schema.decodeUnknownEither(User)
-const encodedUser = Schema.encodeSync(User)(new User({ id: 1, name: "Ada" }))
+- Keep `Schema.Schema.Type<S>` and `Schema.Schema.Encoded<S>` distinct.
+- Use `decodeUnknown*` for untrusted input. Use `decode*` only for input already
+  typed as the encoded representation.
+- Use Effect-returning parsers inside Effect workflows. Use throwing parsers
+  only where throwing is the boundary contract.
+- Build parser functions once and reuse them.
+- Decide excess-key behavior. Struct decoders discard unexpected keys by
+  default. Set `onExcessProperty` when the contract requires rejection or
+  preservation.
+- Preserve missing, empty, malformed, and partial states when callers respond
+  differently.
+- Do not normalize secrets, tokens, signatures, or arbitrary output without an
+  explicit contract. `Redacted` prevents disclosure. It does not authorize
+  changing the value.
+- Keep parsing requirements in the schema type until the application boundary
+  provides them.
 
-const user = decodeUser({ id: 1, name: "Ada" }).pipe(
-  Either.getOrThrow
-)
-```
+## Coverage boundary
 
-## High-value builders
-- `Schema.Struct`, `Schema.Array`, `Schema.Union`, `Schema.Literal`
-- `Schema.Class` for nominal models with generated constructors
-- `Schema.TaggedError` / `Schema.TaggedRequest` for domain errors and request models
-- `Schema.transform` / `Schema.transformOrFail` when encoded and domain forms differ
-- `Schema.annotations(...)` to improve parse errors, docs, and generated OpenAPI / JSON Schema
-
-## Common pitfalls
-- Forgetting that encoded type `I` can differ from runtime type `A`
-- Using plain TypeScript interfaces at boundaries and losing runtime validation
-- Skipping identifiers / annotations, which makes errors and generated docs worse
+These files cover application-facing Schema APIs. For Schema AST extensions,
+custom declarations, or package-specific integrations, inspect the reference
+repository only when the task requires that extension point.
 
 ## See also
+
 - `../sections/00-foundations.md`
 - `../sections/30-http-server.md`
 - `request-resolver.md`
-- `http-swagger.md`
+- `sql-resolver-schema.md`

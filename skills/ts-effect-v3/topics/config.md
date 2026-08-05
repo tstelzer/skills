@@ -1,7 +1,8 @@
 # Config
 
 ## What it is
-`Config` from `effect`: typed configuration from env, files, CLI. `Config.string`, `Config.integer`, `Config.nested`, `Config.map`.
+`Config` provides typed configuration from environment variables, files, and
+CLI input.
 
 ## When to use
 - Env vars, config files, CLI fallbacks

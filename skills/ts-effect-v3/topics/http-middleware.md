@@ -1,7 +1,8 @@
 # HttpApiMiddleware
 
 ## What it is
-`HttpApiMiddleware.Tag` defines reusable middleware for auth/logging/rate-limiting and optional context provisioning to handlers.
+`HttpApiMiddleware.Tag` defines reusable middleware and optional context
+provided to handlers.
 
 ## When to use
 - Cross-cutting concerns across endpoint groups

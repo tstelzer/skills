@@ -1,7 +1,8 @@
 # HTTP Server
 
 ## What it is
-`HttpApi` + `HttpApiBuilder` for schema-first endpoint design, typed handlers, generated clients, and middleware composition.
+`HttpApi` and `HttpApiBuilder` provide schema-first endpoints, typed handlers,
+generated clients, and middleware.
 
 ## Structure
 
@@ -39,13 +40,17 @@ const createUser = HttpApiEndpoint.post("createUser", "/users")
 
 ```ts
 import { HttpApi, HttpApiBuilder, HttpApiGroup } from "@effect/platform"
-import { Effect, Layer } from "effect"
+import { DateTime, Effect, Layer } from "effect"
 
 const usersGroup = HttpApiGroup.make("users").add(getUser).add(createUser)
 const api = HttpApi.make("myApi").add(usersGroup).prefix("/api/v1")
 
 const usersGroupLive = HttpApiBuilder.group(api, "users", (handlers) =>
-  handlers.handle("getUser", ({ path: { id } }) => Effect.succeed({ id, name: "john", createdAt: new Date() }))
+  handlers.handle("getUser", ({ path: { id } }) =>
+    DateTime.now.pipe(
+      Effect.map((createdAt) => ({ id, name: "john", createdAt }))
+    )
+  )
 )
 
 const MyApiLive = HttpApiBuilder.api(api).pipe(Layer.provide(usersGroupLive))

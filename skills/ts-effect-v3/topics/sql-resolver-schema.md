@@ -1,7 +1,9 @@
 # SQL Resolver And Schema
 
 ## What it is
-`SqlResolver` builds request resolvers backed by SQL queries. `SqlSchema` builds schema-validated query functions without request batching. Both encode request schemas, decode result schemas, and keep SQL boundaries typed with `Schema`.
+`SqlResolver` builds request resolvers backed by SQL. `SqlSchema` builds
+schema-validated query functions without request batching. Both keep query
+boundaries typed with `Schema`.
 
 ## When to use
 - Batching repeated SQL lookups through Effect requests

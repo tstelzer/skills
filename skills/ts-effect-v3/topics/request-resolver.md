@@ -1,7 +1,8 @@
 # Request / RequestResolver
 
 ## What it is
-`Request`, `RequestResolver`, and `Effect.request` provide batched and cached data fetching. They are the right abstraction for N+1-heavy lookups, deduping identical requests, and plugging custom caches or persistence into fetch paths.
+`Request`, `RequestResolver`, and `Effect.request` provide batched and cached
+data fetching for repeated lookups and stable request identities.
 
 ## When to use
 - Data loading where batching materially reduces IO

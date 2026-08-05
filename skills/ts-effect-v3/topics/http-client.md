@@ -1,7 +1,9 @@
 # HttpClient
 
 ## What it is
-`HttpClient`, `HttpClientRequest`, and `HttpClientResponse` are the outgoing HTTP client APIs in `@effect/platform`. They support request middleware, schema-backed request/response bodies, cookies, and pluggable client layers.
+`HttpClient`, `HttpClientRequest`, and `HttpClientResponse` are the outgoing
+HTTP APIs. They support middleware, schema-backed bodies, cookies, and
+pluggable client layers.
 
 ## When to use
 - Calling external HTTP APIs from Effect programs

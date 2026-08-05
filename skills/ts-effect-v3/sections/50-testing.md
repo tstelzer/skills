@@ -11,10 +11,15 @@ Effect test patterns using `@effect/vitest`.
 
 ## Minimal examples
 ```ts
-import { it, expect } from "@effect/vitest"
+import { assert, it } from "@effect/vitest"
 import { Effect } from "effect"
 
-it.effect("works", () => Effect.succeed(expect(1).toBe(1)))
+it.effect("works", () =>
+  Effect.gen(function* () {
+    const result = yield* Effect.succeed(1)
+    assert.strictEqual(result, 1)
+  })
+)
 ```
 
 ## Test modes
@@ -30,6 +35,7 @@ it.effect("works", () => Effect.succeed(expect(1).toBe(1)))
 ## Common pitfalls
 - Expecting live clock behavior under `it.effect` without `it.live`
 - Treating `it.flakyTest` like a collector instead of piping an Effect through it
+- Using raw promises, global state, or manual `try` / `finally` for fixtures
 
 ## See also
 - `10-core-patterns.md`

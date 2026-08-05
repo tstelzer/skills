@@ -1,7 +1,8 @@
 # Core Patterns
 
 ## What it is
-Reference section for layers/context, scope/resource safety, retries/schedules, refs, cause/exit, stm, streams, and concurrency primitives.
+Reference for layers, resource safety, schedules, refs, cause/exit, STM,
+streams, and concurrency primitives.
 
 ## When to use
 - Building production-grade Effect applications with typed dependencies and safe concurrency

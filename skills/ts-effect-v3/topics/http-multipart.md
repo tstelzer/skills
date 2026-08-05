@@ -1,7 +1,8 @@
 # HTTP Multipart
 
 ## What it is
-`HttpApiSchema.Multipart(...)` defines multipart/form-data payload schemas for uploads. `HttpApiSchema.MultipartStream(...)` keeps multipart bodies streaming for large uploads.
+`HttpApiSchema.Multipart(...)` defines upload payloads.
+`HttpApiSchema.MultipartStream(...)` keeps large bodies streaming.
 
 ## When to use
 - File upload endpoints

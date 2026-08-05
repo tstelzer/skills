@@ -1,7 +1,8 @@
 # Layer / Context
 
 ## What it is
-`Context.Tag` for services; `Layer` for building dependency graphs. `Context` = runtime map; `Layer` = provider of `Context`.
+Use `Context.Tag` for services and `Layer` for dependency graphs. A `Context`
+is a runtime service map. A `Layer` builds services.
 
 ## When to use
 - Typed dependency injection, testable services
@@ -22,6 +23,7 @@ const MyServiceLive = Layer.succeed(MyService, { get: () => Effect.succeed("ok")
 ## Common pitfalls
 - Providing services in handlers instead of at layer composition
 - Circular layer dependencies
+- Calling `Context.GenericTag` without a stable key
 
 ## See also
 - `../sections/00-foundations.md`
