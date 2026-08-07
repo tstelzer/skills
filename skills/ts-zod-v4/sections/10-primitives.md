@@ -13,7 +13,7 @@ Primitive and scalar schemas: strings, numbers, booleans, bigints, dates, enums,
 - Use dedicated top-level string format helpers like `z.email()` and `z.uuid()` for standard formats.
 - Use `z.enum([...])` for closed sets of string values.
 - Use `optional`, `nullable`, and `nullish` deliberately; they mean different wire contracts.
-- Use `z.coerce.*` only when accepting loosely typed input at a boundary.
+- Narrow the accepted wire type before coercing it.
 
 ## Minimal examples
 ```ts
@@ -26,7 +26,10 @@ const CreatedAt = z.date()
 const Status = z.enum(["draft", "published", "archived"])
 const Mode = z.literal("admin")
 
-const LooseAge = z.coerce.number().int().min(0)
+const AgeFromString = z.string()
+  .trim()
+  .regex(z.regexes.integer)
+  .pipe(z.coerce.number().int().min(0))
 ```
 
 ```ts
@@ -36,7 +39,7 @@ const NullishName = z.string().nullish()
 ```
 
 ## Common pitfalls
-- Using `z.coerce.*` deep inside business logic instead of at the input boundary
+- Coercing `unknown` directly; JavaScript coercion accepts values such as `""`, `null`, and `false` as zero
 - Modeling enums with broad strings when the value set is known
 - Forgetting that `z.date()` expects a `Date` instance, not an ISO string
 - Choosing `optional()` when the contract actually allows explicit `null`

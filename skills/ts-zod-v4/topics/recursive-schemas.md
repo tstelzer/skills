@@ -8,34 +8,34 @@ Schemas that refer to themselves, usually for trees, nested comments, menus, or 
 - You need nested data with repeating structure
 
 ## Quick rules
-- Use getter-based self-reference inside `z.object(...)` for recursive object schemas.
+- Bound depth and collection size when recursive input is untrusted.
+- Use getter-based self-reference only when another boundary already enforces those bounds.
 - Keep recursion focused on structure; put business rules in refinements or separate code.
-- Consider depth limits outside Zod if inputs may be adversarially deep.
+- Make the terminal depth reject further children instead of traversing without a bound.
 
 ## Minimal examples
 ```ts
 import * as z from "zod"
 
-const Category = z.object({
-  name: z.string(),
-  get children() {
-    return z.array(Category)
-  },
-})
-```
+type Category = {
+  name: string
+  children: Category[]
+}
 
-```ts
-const Comment = z.object({
-  id: z.uuid(),
-  body: z.string(),
-  get replies() {
-    return z.array(Comment)
-  },
-})
+const categorySchema = (remainingDepth: number): z.ZodType<Category> =>
+  z.object({
+    name: z.string().min(1),
+    children: remainingDepth === 0
+      ? z.array(z.never()).max(0)
+      : z.array(categorySchema(remainingDepth - 1)).max(100),
+  })
+
+const Category = categorySchema(20)
 ```
 
 ## Common pitfalls
 - Trying to inline a self-reference without a lazy getter
+- Parsing untrusted recursive data without hard depth and collection bounds
 - Mixing recursive structure and heavy transform logic in one schema
 - Assuming recursive schemas protect against cyclic runtime objects automatically
 

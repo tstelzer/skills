@@ -26,7 +26,9 @@ const schema = z.toJSONSchema(User)
 ```
 
 ```ts
-const Port = z.coerce.number().int()
+const Port = z.string()
+  .regex(z.regexes.integer)
+  .pipe(z.coerce.number().int())
 
 const inputSchema = z.toJSONSchema(Port, { io: "input" })
 const outputSchema = z.toJSONSchema(Port, { io: "output" })

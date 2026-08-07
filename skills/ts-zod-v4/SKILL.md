@@ -76,7 +76,7 @@ Use this as the single source of truth for Zod 4 usage in this repository. Keep 
 - `topics/object-shape-control.md` - object derivation and unknown-key handling
 - `topics/collection-types.md` - arrays, tuples, records, maps, sets
 - `topics/unions-and-optionality.md` - optional, nullable, nullish, unions, discriminated unions, intersections
-- `topics/recursive-schemas.md` - self-referential schemas and getter-based recursion
+- `topics/recursive-schemas.md` - bounded recursive schemas and getter-based recursion
 - `topics/refinements.md` - custom validation logic and issue reporting
 - `topics/fallbacks.md` - defaults, prefaults, and catch fallbacks
 - `topics/codecs.md` - bidirectional decode/encode flows

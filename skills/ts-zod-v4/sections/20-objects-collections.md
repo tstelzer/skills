@@ -5,7 +5,7 @@ Schemas for structured data: objects, arrays, tuples, records, maps, and sets, i
 
 ## When to use
 - You are validating JSON-like payloads or nested app state
-- You need schema reuse with `pick`, `omit`, `partial`, or `required`
+- You need a same-contract variant with `pick`, `omit`, `partial`, or `required`
 - You need container validation beyond plain objects
 
 ## Quick rules
@@ -13,7 +13,7 @@ Schemas for structured data: objects, arrays, tuples, records, maps, and sets, i
 - Use `z.strictObject()` when unknown keys should fail.
 - Use `z.looseObject()` when unknown keys should be preserved.
 - Use `catchall()` when extra keys are allowed but must match a schema.
-- Prefer object composition helpers over duplicating shapes by hand.
+- Use object composition helpers when both schemas represent the same contract.
 
 ## Minimal examples
 ```ts
@@ -40,7 +40,7 @@ const Cache = z.map(z.string(), z.number())
 - Assuming plain `z.object()` rejects unknown keys; by default it strips them
 - Using intersections to merge object shapes when object helpers are clearer
 - Forgetting that enum-keyed records can be exhaustive and may need `z.partialRecord(...)`
-- Repeating the same shape in separate request, patch, and response schemas instead of deriving variants
+- Deriving request, patch, domain, and response schemas from one base even though they are independent contracts
 
 ## See also
 - `../topics/object-shape-control.md`
