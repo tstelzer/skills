@@ -28,6 +28,7 @@ Use this as the single source of truth for Zod 4 usage in this repository. Keep 
 - Transform input, preprocess, or pipe schemas -> `sections/40-transforms-codecs.md`
 - Use defaults, prefaults, or catch fallbacks -> `topics/fallbacks.md`
 - Decode and encode between types -> `topics/codecs.md`
+- Parse or encode JSON, epoch seconds, UTF-8 bytes, or other wire formats -> `topics/codecs.md`
 - Customize error messages -> `topics/error-customization.md`
 - Convert errors into UI-friendly structures -> `topics/error-formatting.md`
 - Emit or ingest JSON Schema -> `topics/json-schema.md`
