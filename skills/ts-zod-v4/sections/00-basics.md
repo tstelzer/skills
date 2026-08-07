@@ -11,6 +11,7 @@ Core Zod workflow: define a schema, parse untrusted input, and derive static typ
 ## Quick rules
 - Prefer one schema as the source of truth for both validation and typing.
 - Compose the complete boundary schema before parsing. Parse once per boundary by default.
+- Put missing-field defaults in that schema. Do not supply them at the parse call.
 - Treat each real boundary as a new parse site. Do not reparse intermediate values inside one boundary.
 - Use `parse()` when failure should throw.
 - Use `safeParse()` when failure is part of normal control flow.

@@ -9,10 +9,15 @@ Fallback-producing helpers for missing or invalid input: `.default()`, `.prefaul
 - You need fallback behavior that still passes through transforms or coercion
 
 ## Quick rules
+- Put a field's fallback on its schema. The schema owns the parsed contract.
 - `.default(value)` returns the fallback immediately for `undefined` input.
 - `.prefault(value)` feeds the fallback into the schema as input.
 - `.catch(value)` returns the fallback after any validation failure. Use it only when all failures may degrade.
 - Choose the helper based on when the fallback should apply: before parse, during parse, or after failure.
+- Do not use `||`, `??`, or a transform callback to create a field default. They hide the input contract and can give
+  different meaning to `""`, `0`, `false`, and `null`.
+- If the fallback applies only to `undefined`, use `.default()` or `.prefault()`. Model any broader rule explicitly
+  before choosing a fallback helper.
 
 ## Minimal examples
 ```ts
@@ -34,9 +39,22 @@ const SavedColorScheme = z.enum(["light", "dark", "system"]).catch("system")
 const Slug = z.string().trim().toLowerCase().prefault("Untitled Post")
 ```
 
+```ts
+const Request = z.object({
+  foo: z.string().default(""),
+})
+
+Request.parse({ foo: input.foo })
+
+// Do not do either of these.
+// Request.parse({ foo: input.foo || "" })
+// z.object({ foo: z.string().optional() }).transform(({ foo }) => ({ foo: foo || "" }))
+```
+
 ## Common pitfalls
 - Expecting `.default()` to run transforms on the fallback
 - Using `.default()` with a value that has not independently satisfied the output contract
+- Adding a fallback with `||`, `??`, or `.transform()` instead of declaring it on the field schema
 - Using `.catch()` where invalid input should actually surface an error
 - Hiding bad upstream data with aggressive fallbacks in places that need observability
 - Confusing absent input handling with optional or nullable contract design

@@ -16,6 +16,8 @@ APIs that change values during parsing or bridge between input and output repres
 - Use `.default()` for an `undefined` shortcut at the input boundary.
 - Use `.prefault()` when the fallback itself should still flow through the schema pipeline.
 - Use `.catch()` only when every parse failure may deliberately degrade to one fallback value.
+- Do not create field defaults with `||`, `??`, or `.transform()`. Declare them on the field schema with `.default()`
+  or `.prefault()`.
 - Use `z.codec()` when you need both decode and encode, not just one-way parsing.
 
 ## Minimal examples
@@ -45,6 +47,7 @@ const SavedColorScheme = z.enum(["light", "dark", "system"]).catch("system")
 
 ## Common pitfalls
 - Using `.default()` when you actually need the fallback to be transformed or validated
+- Defaulting a field at the parse call or in `.transform()` instead of its schema
 - Calling `parse`, `safeParse`, or another fallible operation inside preprocess or transform code
 - Parsing a transformed value again instead of piping the output schema into the boundary pipeline
 - Returning invalid output from `.transform()` and assuming later code will catch it

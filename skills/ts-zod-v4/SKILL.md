@@ -18,6 +18,7 @@ Use this as the single source of truth for Zod 4 usage in this repository. Keep 
 
 ## Quick Picks (Task -> File)
 - Define a first schema, parse data, infer types -> `sections/00-basics.md`
+- Give a missing field a value -> `topics/fallbacks.md`
 - Choose a primitive or literal schema -> `sections/10-primitives.md`
 - Validate string formats like email, UUID, URL, ISO datetime -> `topics/string-formats.md`
 - Build or reshape object schemas -> `topics/object-shape-control.md`
@@ -46,6 +47,7 @@ Use this as the single source of truth for Zod 4 usage in this repository. Keep 
 
 ## By Feature
 - `parse` / `safeParse` / async parsing -> `sections/00-basics.md`
+- Missing-field defaults -> `topics/fallbacks.md`
 - `z.input` / `z.output` / `z.infer` -> `sections/00-basics.md`
 - String formats -> `topics/string-formats.md`
 - `z.object` / `z.strictObject` / `z.looseObject` / `catchall` -> `topics/object-shape-control.md`
