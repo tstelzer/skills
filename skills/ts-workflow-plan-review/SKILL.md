@@ -24,7 +24,7 @@ It dispatches judge passes to subagents, reads status and finding dispositions,
 and routes the next pass. It never plans, reviews, edits artifacts, or changes
 the plan content itself.
 
-The router's only write target is the workflow log. Any artifact change belongs
+The router's only write target is the work log. Any artifact change belongs
 to a dispatched judge.
 
 Use this when the user asks for an implementation plan and wants a review loop.
@@ -38,7 +38,7 @@ This skill does not implement code. The plan is the primary artifact.
 - Do not create `revised`, `v2`, or replacement plan files for review findings.
 - `## Artifacts` must contain exactly one `plan` link. Remove competing plan
   links before returning.
-- Review artifacts and the workflow log are supporting artifacts.
+- Review artifacts and the work log are supporting artifacts.
 
 ## Sub-Agent Selection
 
@@ -75,19 +75,19 @@ Use this section when this skill dispatches sub-agent judges.
 
 ### CREATE_LOG
 
-- Use the `ts-log` skill to create the shared workflow log.
+- Use the `ts-log` skill to create the shared work log.
 - Record the user request as `Source request:`. Link a design artifact when one
   exists, or copy the request inline.
 - In this workflow, the router owns log creation and routing state. Each
   judge pass owns its own log entry, artifact links, findings, worker dispatch
   count, types, providers, model lines, reasoning levels, and handoff.
 - The router must record the exact selected provider, model line, and reasoning
-  level for each dispatched judge in the workflow log.
+  level for each dispatched judge in the work log.
 - When composing a judge prompt, replace `<provider>`, `<model-line>`, and
   `<reasoning>` with the actual selected values.
 - Always pass the same log path to every judge pass.
 - Use the owning skill's artifact directory for each pass: plans in
-  `docs/plans/`, reviews in `docs/reviews/`, workflow logs in `docs/workflows/`.
+  `docs/plans/`, reviews in `docs/reviews/`, work logs in `docs/work-logs/`.
 - Sub-agents must start with fresh context. Never fork parent history. Use a
   self-contained prompt: cwd, log path, source request, relevant artifacts, and
   output contract.
@@ -103,7 +103,7 @@ Use this section when this skill dispatches sub-agent judges.
 ```text
 You are the planning judge. Use `skill: ts-plan`.
 
-Workflow log path: <path>.
+Work log path: <path>.
 Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
 Task input:
@@ -125,18 +125,18 @@ Task input:
 Artifact destinations:
 - Pass 1 plan artifact: `docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
 - Later pass plan artifact: the existing `plan` path linked in `## Artifacts`.
-- Workflow log: `<path>`.
+- Work log: `<path>`.
 - Record exactly one canonical `plan` link in `## Artifacts`.
 
 Before returning, you must:
 - Write the plan artifact using the `ts-plan` artifact rules.
 - For revisions, write back to the canonical `plan` path. Do not add a second
   plan link.
-- Write or update the workflow log at `<path>`.
-- Keep the workflow log as coordination state with links, finding dispositions,
+- Write or update the work log at `<path>`.
+- Keep the work log as coordination state with links, finding dispositions,
   pass status, and handoff.
 - Record the dispatched judge and every worker as provider, model line, and
-  reasoning level in the workflow log.
+  reasoning level in the work log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
   `2 (api-contract: openai/gpt-5.3-codex-spark/high, test-inventory: anthropic/sonnet latest/high)`.
 
@@ -154,7 +154,7 @@ STATUS: ESCALATE: <reason>
 ```text
 You are the review judge. Use `skill: ts-review`.
 
-Workflow log path: <path>.
+Work log path: <path>.
 Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
 Review the canonical `plan` artifact linked in `## Artifacts`
@@ -200,17 +200,17 @@ Review status semantics:
 
 Before returning, you must:
 - Write the review artifact using the `ts-review` artifact rules.
-- Write or update the workflow log at `<path>`.
+- Write or update the work log at `<path>`.
 - Use these artifact destinations:
   - Review artifact: `docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
-  - Workflow log: `<path>`.
+  - Work log: `<path>`.
 - Record the review artifact link in `## Artifacts`.
-- Keep the workflow log as coordination state with links, finding dispositions,
+- Keep the work log as coordination state with links, finding dispositions,
   pass status, worker metadata, and handoff.
 - If direct edits were made, record changed paths and purpose in the review
-  artifact and workflow log handoff.
+  artifact and work log handoff.
 - Record the dispatched judge and every worker as provider, model line, and
-  reasoning level in the workflow log.
+  reasoning level in the work log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
   `2 (automatic-testing: openrouter/glm latest/xhigh, robustness: anthropic/fable latest/xhigh)`.
 
@@ -253,7 +253,7 @@ STATUS: ESCALATE: <reason>
   handoff.
 - Dispatch planning with the same log path and canonical plan path.
 - Run review after that planning pass.
-- Before dispatch, update only the workflow log. Never edit the plan.
+- Before dispatch, update only the work log. Never edit the plan.
 
 ## Stop Conditions
 

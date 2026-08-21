@@ -24,7 +24,7 @@ It dispatches judge passes to subagents, reads status and finding dispositions,
 and routes the next pass. It never edits, reviews, verifies, or changes code
 itself.
 
-The router's only write target is the workflow log. Any code change belongs to a
+The router's only write target is the work log. Any code change belongs to a
 dispatched judge.
 
 Use this when the user asks to build, implement, fix, or change code and wants a
@@ -66,7 +66,7 @@ Use this section when this skill dispatches sub-agent judges.
 
 ### CREATE_LOG
 
-- Use the `ts-log` skill to create the shared workflow log.
+- Use the `ts-log` skill to create the shared work log.
 - Record the user request as `Source request:`. Link a plan or design artifact
   when one exists, or copy the request inline.
 - Record the workflow baseline: base ref (current `git HEAD`) and starting dirty
@@ -75,12 +75,12 @@ Use this section when this skill dispatches sub-agent judges.
   judge pass owns its own log entry, artifact links, findings, worker dispatch
   count, types, providers, model lines, reasoning levels, and handoff.
 - The router must record the exact selected provider, model line, and reasoning
-  level for each dispatched judge in the workflow log.
+  level for each dispatched judge in the work log.
 - When composing a judge prompt, replace `<provider>`, `<model-line>`, and
   `<reasoning>` with the actual selected values.
 - Always pass the same log path to every judge pass.
 - Use the owning skill's artifact directory for each pass: reviews in
-  `docs/reviews/`, workflow logs in `docs/workflows/`.
+  `docs/reviews/`, work logs in `docs/work-logs/`.
 - Sub-agents must start with fresh context. Never fork parent history. Use a
   self-contained prompt: cwd, log path, source request, baseline, relevant
   artifacts, and output contract.
@@ -96,7 +96,7 @@ Use this section when this skill dispatches sub-agent judges.
 ```text
 You are the implementation judge. Use `skill: ts-implement`.
 
-Workflow log path: <path>. Respect the recorded baseline; do not absorb
+Work log path: <path>. Respect the recorded baseline; do not absorb
 unrelated pre-existing user changes.
 Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
@@ -112,9 +112,9 @@ Task input:
   finding explicitly requires changing them.
 
 Before returning, you must:
-- Write or update the workflow log at `<path>`.
+- Write or update the work log at `<path>`.
 - Record the dispatched judge and every worker as provider, model line, and
-  reasoning level in the workflow log.
+  reasoning level in the work log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
   `2 (frontend: openai/gpt-5.3-codex-spark/high, backend: anthropic/sonnet latest/high)`.
 
@@ -132,7 +132,7 @@ STATUS: ESCALATE: <reason>
 ```text
 You are the review judge. Use `skill: ts-review`.
 
-Workflow log path: <path>.
+Work log path: <path>.
 Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
 Review the workflow-owned diff against the source request, workflow baseline,
@@ -178,17 +178,17 @@ Review status semantics:
 
 Before returning, you must:
 - Write the review artifact using the `ts-review` artifact rules.
-- Write or update the workflow log at `<path>`.
+- Write or update the work log at `<path>`.
 - Use these artifact destinations:
   - Review artifact: `docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
   - Workflow log: `<path>`.
 - Record the review artifact link in `## Artifacts`.
-- Keep the workflow log as coordination state with links, finding dispositions,
+- Keep the work log as coordination state with links, finding dispositions,
   pass status, worker metadata, and handoff.
 - If direct edits were made, record changed paths and purpose in the review
-  artifact and workflow log handoff.
+  artifact and work log handoff.
 - Record the dispatched judge and every worker as provider, model line, and
-  reasoning level in the workflow log.
+  reasoning level in the work log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
   `2 (automatic-testing: openrouter/glm latest/xhigh, robustness: anthropic/fable latest/xhigh)`.
 
@@ -231,7 +231,7 @@ STATUS: ESCALATE: <reason>
   handoff.
 - Dispatch implementation with the same log path.
 - Run review after that implementation pass.
-- Before dispatch, update only the workflow log. Never edit code.
+- Before dispatch, update only the work log. Never edit code.
 
 ## Stop Conditions
 

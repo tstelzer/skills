@@ -24,9 +24,9 @@ synthesis. Workers do not spawn sub-agents or widen their assigned scope.
 ## Restart Contract
 
 Treat every session as disposable. A fresh judge with only the repository and
-workflow log path must be able to continue without chat history.
+work log path must be able to continue without chat history.
 
-The workflow log is the restart seed and the only automatic write. Create or
+The work log is the restart seed and the only automatic write. Create or
 update it before and after each substantive action, and before every pause,
 question, handoff, or return to the user.
 
@@ -55,7 +55,7 @@ Workers inherit this boundary.
 
 ## Workflow
 
-1. Create the workflow log with `ts-log`, or read the existing log and relevant
+1. Create the work log with `ts-log`, or read the existing log and relevant
    linked context. Reconcile it with the repository state.
 2. Choose the smallest action that reduces the most important uncertainty or
    advances the prototype. Record its expected evidence and write scope first.

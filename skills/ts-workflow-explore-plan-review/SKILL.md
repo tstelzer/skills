@@ -11,7 +11,7 @@ description: Run an interactive explore phase followed by a plan-review loop. On
 
 Do not read `ts-explore`, `ts-plan`, `ts-review`, or `ts-log` in this router. Pass
 `ts-explore` verbatim to the dispatched exploration judge. The delegated
-`ts-workflow-plan-review` skill owns log creation, planning, review, routing,
+`ts-workflow-plan-review` skill owns work-log creation, planning, review, routing,
 round limits, finding dispositions, and stop conditions.
 
 ## Role

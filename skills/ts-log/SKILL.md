@@ -1,148 +1,73 @@
 ---
 name: ts-log
-description: Keep a shared workflow log. Only explicitly triggered by user.
+description: Keep a shared work log. Only explicitly triggered by user.
 ---
 
 # Log
 
 ## Purpose
 
-Maintain a shared workflow log. Use it only when another skill or workflow
-provides a log path or asks for one.
+Maintain a shared work log that lets another agent continue without reading chat history.
 
-Use the log so the next pass can continue without reading chat. Record only
-workflow state that is not already obvious from linked artifacts or the current
-diff.
+Use it when the user, another skill, or a workflow asks for a log or provides a log path. The log records major
+developments and links to durable work artifacts. It does not contain those artifacts.
 
 ## Location
 
 Create logs under:
 
 ```text
-docs/workflows/YYYY-MM-DD_HH:MM_<workflow-name>_<short-name>.md
+docs/work-logs/YYYY-MM-DD_HH:MM_<short-name>.md
 ```
 
-Create `docs/workflows/` if it does not exist.
+Create `docs/work-logs/` if it does not exist.
 
 ## Rules
 
-- Read the current log before acting.
-- Keep `## Timeline` append-only.
-- `## Current State`, `## Scope`, `## Artifacts`, and `## Open Findings` are mutable.
-- Link the source request: plan/design artifact when one exists, or the copied
-  user request when no durable artifact exists.
+- Read an existing log before contributing to it.
+- Keep chronological entries append-only. Use `## Log` unless the caller defines another section.
 - Keep `## Artifacts` to artifact links only.
-- Record the workflow baseline before changes start: base ref, starting dirty
-  files, or another explicit scope boundary the workflow can review against.
-- Link every artifact created or consumed by the workflow.
-- Do not list implementation files as artifacts. Code files, README changes,
-  configs, and tests belong in pass artifacts, diffs, or phase scope.
-- Record deviations from the expected plan, task, design, or prior handoff.
-- Record findings that could cause repeated mistakes in later passes.
-- Record finding dispositions explicitly.
-- Do not copy content that already lives in a linked artifact.
-- Do not paste command output. Record the command, result, and artifact link
-  when the output matters.
-- Do not rely on chat history.
+- Link every durable work artifact created or used.
+- Record major developments that affect later work. This includes completed work, decisions, discoveries, changed
+  assumptions, blockers, and handoffs.
+- State the consequence of a linked artifact when it affects later work. Do not summarize or copy its contents.
+- Do not paste command output. Record a command and its result only when they affect later work.
+- Do not repeat information that is already clear from a linked artifact or the repository.
+- Write for an agent that has the repository and log, but no chat history.
+- Let calling skills and workflows add arbitrary sections and entry fields.
+- Follow rules defined by the calling skill or workflow for the sections it owns.
+- Preserve sections and conventions you do not own.
+- Do not impose a single current state, next action, work type, or thread of execution.
 
 ## What Belongs Here
 
-Write entries only for workflow coordination:
+Add a log entry when work changes what another agent needs to know. Keep it brief and link the supporting artifact when
+one exists.
 
-- Current workflow status and next pass.
-- Source request and review baseline.
-- Artifact links: plans, reviews, audits, verdicts, screenshots, test reports.
-- Providers, model lines, and reasoning levels used for dispatched judges and
-  their workers.
-- Deviations from the expected plan, design, task, or prior handoff.
-- Non-obvious findings that future passes must account for.
-- Decisions that affect later phases.
-- Open findings and their dispositions.
-- Verification commands and results when they affect the next step.
-- Blockers, escalations, and unresolved handoff notes.
+Do not add:
 
-Do not write entries for:
-
-- File lists that the diff already shows.
-- Routine command output.
-- Generic summaries of work already captured in an artifact.
-- Style notes with no effect on the next step, handoff, or future mistakes.
-- Implementation artifacts such as source files, tests, docs, configs, or
-  generated output.
-
-## Status Lines
-
-Each timeline entry must include exactly one status line:
-
-```text
-STATUS: DONE
-STATUS: BLOCKED: <reason>
-STATUS: ESCALATE: <reason>
-```
-
-Use `BLOCKED` when work cannot continue without missing input or a failed
-precondition. Use `ESCALATE` when a human decision is needed.
+- Routine progress with no effect on later work.
+- File lists that the repository already shows.
+- Generic summaries of linked artifacts.
+- Raw command output.
 
 ## Structure
 
 ```markdown
-# Workflow Log: <Name>
-
-## Current State
-- Workflow: `<workflow-name>`
-- Status: `<active | blocked | done | escalated>`
-- Round: `<n>/<max>`
-- Next pass: `<ts-implement | ts-review | other>`
-- Next handoff: <one concrete instruction>
-
-## Scope
-- Source request: <link to plan/design, or copied user request>
-- Baseline: <base ref, starting dirty files, or explicit review boundary>
-- Review scope: <what later review should include and exclude>
+# Work Log: <Name>
 
 ## Artifacts
-- `<artifact-type>`: [docs/path/to/artifact.md](../path/to/artifact.md)
+- `<artifact-name>`: [Artifact title](../path/to/artifact.md)
 
-## Open Findings
-| ID | Source | Finding | Disposition | Owner / next action |
-| --- | --- | --- | --- | --- |
-| F-001 | `<pass/artifact>` | <non-obvious issue> | `<fix now | follow-up | waiver>` | <owner/action> |
-
-## Decisions and Deviations
-- <decision or deviation that changes later work>
-
-## Timeline
-### YYYY-MM-DD HH:MM - <pass-name>
-STATUS: DONE
-**Skill(s):** `<skill-name>`, `<other-skill>`
-**Sub-agents:** judge `<provider>/<model-line>/<reasoning>`;
-workers `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)` or `0 (judge direct)`
-**Artifact:** <artifact link, or `None`>
-**Verification:** <command and result, or `Not run: <reason>`>
-**Findings:** <new, updated, or resolved finding IDs, or `None`>
-**Handoff:** <what the next pass needs to know>
+## Log
+### YYYY-MM-DD HH:MM - <short description>
+<concise record of the development and its implications>
 ```
 
-## Finding Dispositions
-
-Use one workflow disposition for every accepted finding:
-
-- `fix now`: must be addressed before the workflow can finish.
-- `follow-up`: valid issue, outside the current workflow scope. Record the
-  executable follow-up.
-- `waiver`: accepted risk. Record the reason and evidence.
-
-During judge synthesis, findings may also be recorded as `duplicate`, `out of
-scope`, `rejected with evidence`, or `blocked`. These do not remain in
-`## Open Findings` unless later workflow passes must account for them.
-
-No material finding may disappear silently.
-
-When a finding is fully fixed, leave it in `## Open Findings` only if it still
-matters for future passes. Otherwise record the resolution in `## Timeline` and
-remove it from `## Open Findings`.
+Calling skills and workflows may add arbitrary sections and may define a different chronological section or entry
+shape.
 
 ## Examples
 
-- "Create a workflow log for this build."
-- "Use this workflow log while reviewing: `docs/workflows/...md`."
+- "Create a work log for this effort."
+- "Use this work log while continuing: `docs/work-logs/...md`."
