@@ -3,13 +3,9 @@ name: ts-principles
 description: Core engineering principles. Use as a guiding reference for designing, planning and reviewing.
 ---
 
-## How to use
-
-- Always read this file first.
-- Treat the bullets below as the canonical short form.
-- Always read deeper principle docs by default, unless the prompt says otherwise.
-
 ## Principles
+
+Read each short form first. Follow every detail-reading requirement whose trigger applies.
 
 ### shape code by domain
 
@@ -24,7 +20,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Use abbreviations when they improve local readability.
 - Avoid kitchen-sink `utils`. Put extractable library-esque code in `lib`. Co-locate everything else with its domain.
 
-[Details](shape-code-by-domain.md)
+You must read [details](shape-code-by-domain.md) when the work designs, changes, or reviews naming, file placement,
+module structure, or feature structure.
 
 ### keep boundaries sharp
 
@@ -35,7 +32,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - If two modules change together often, reconsider the boundary.
 - Cross data and protocol boundaries with data, not behavior.
 
-[Details](keep-boundaries-sharp.md)
+You must read [details](keep-boundaries-sharp.md) when the work designs, changes, or reviews dependencies, interfaces,
+adapters, integrations, or module boundaries.
 
 ### parse, don’t validate
 
@@ -49,7 +47,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Parsing should produce a smaller, trusted type.
 - Prefer discriminated unions over optional-property variants.
 
-[Details](parse-dont-validate.md)
+You must read [details](parse-dont-validate.md) when the work designs, changes, or reviews a boundary that accepts
+unknown input.
 
 ### privilege is earned
 
@@ -63,7 +62,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Constrain filesystem, network, browser, and third-party capabilities.
 - Treat attacker-triggered resource exhaustion as a security bug.
 
-[Details](privilege-is-earned.md)
+You must read [details](privilege-is-earned.md) when the work designs, changes, or reviews authentication,
+authorization, secrets, sensitive data, or dangerous capabilities.
 
 ### handle it, or die
 
@@ -77,7 +77,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Do not continue after corrupted invariants.
 - Do not encode programmer bugs as recoverable business errors.
 
-[Details](handle-it-or-die.md)
+You must read [details](handle-it-or-die.md) when the work designs, changes, or reviews error types, error mapping,
+recovery, catching, or logging.
 
 ### avoid hasty abstractions
 
@@ -89,7 +90,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Keep one-use code inline unless extraction improves the caller and the body.
 - Do not extract tiny object builders or pass-through wrappers just to name them.
 
-[Details](avoid-hasty-abstractions.md)
+You must read [details](avoid-hasty-abstractions.md) when the work designs, changes, or reviews abstractions,
+extraction, duplication, shared code, helpers, or configuration.
 
 ### performance is not optional
 
@@ -104,7 +106,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Make cache size, freshness, invalidation, and failure mode explicit.
 - Avoid accidental quadratic work, chatty IO, unbounded memory, queue growth, and allocation churn.
 
-[Details](performance-is-not-optional.md)
+You must read [details](performance-is-not-optional.md) when the work designs, changes, or reviews scale, latency, IO,
+batching, concurrency, caching, or memory use.
 
 ### tests are code
 
@@ -123,7 +126,7 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Test counterfactuals.
 - Use property-based tests only for durable invariants.
 
-[Details](tests-are-code.md)
+You must read [details](tests-are-code.md) when adding, changing, or reviewing tests.
 
 ### integrated documentation
 
@@ -137,7 +140,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Update docs in the same diff as behavior.
 - Delete stale docs.
 
-[Details](integrated-documentation.md)
+You must read [details](integrated-documentation.md) when adding, changing, or reviewing documentation, comments,
+examples, or public contracts.
 
 ### fight entropy
 
@@ -146,7 +150,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Leave code cleaner than you found it, but keep changes scoped. Bad or outdated tests in the touched area can be purged.
 - Refactor opportunistically when the change already touches the code.
 
-[Details](fight-entropy.md)
+You must read [details](fight-entropy.md) when the work considers cleanup or weak patterns in code already being
+changed.
 
 ### states are values
 
@@ -154,7 +159,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Name in-flight states (`Pending`, `Settling`, `Retrying`), not only terminal ones.
 - Do not store state you can cheaply derive.
 
-[Details](states-are-values.md)
+You must read [details](states-are-values.md) when the work designs, changes, or reviews state models, variants, flags,
+transitions, or derived state.
 
 ### choose paradigm by fit
 
@@ -168,7 +174,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Avoid inheritance; prefer composition and small explicit interfaces.
 - Do not standardize on one paradigm for all problems.
 
-[Details](choose-paradigm-by-fit.md)
+You must read [details](choose-paradigm-by-fit.md) when the work chooses or reviews functions, classes, mutable state,
+FP, OO, or imperative code.
 
 ### evolve contracts deliberately
 
@@ -180,7 +187,8 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Keep old readers/writers in mind during rolling deploys.
 - Delete compatibility code once it is no longer needed.
 
-[Details](evolve-contracts-deliberately.md)
+You must read [details](evolve-contracts-deliberately.md) when the work changes or reviews persistent or external
+contracts, migrations, or compatibility.
 
 ### design for operation
 
@@ -189,4 +197,10 @@ description: Core engineering principles. Use as a guiding reference for designi
 - Emit enough observability to debug failures without reproducing them.
 - Prefer actionable logs over noisy logs.
 
-[Details](design-for-operation.md)
+You must read [details](design-for-operation.md) when the work designs, changes, or reviews cancellation, timeouts,
+retries, backpressure, or observability.
+
+## Architecture
+
+You must read [TypeScript architecture](architecture/typescript.md) before scaffolding a TypeScript application or
+package, adding a domain or feature, changing module boundaries, or adding infrastructure.
