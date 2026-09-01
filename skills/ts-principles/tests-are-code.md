@@ -39,6 +39,11 @@ behavior.
 The best tests read like small, executable examples of the system. The worst
 tests read like debug traces.
 
+Keep tests with the code or boundary they protect. Put `foo.test.ts` or
+`foo.spec.ts` beside `foo.ts`. Keep feature-specific fixtures and test helpers
+in the same subtree. Put package-wide integration and end-to-end tests at the
+package or executable boundary.
+
 ## examples
 
 ### low-value tests
