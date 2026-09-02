@@ -7,7 +7,7 @@ import { NodeServices } from "@effect/platform-node"
 import { Console, Context, Effect, Layer, PlatformError, Schema, Stream, String } from "effect"
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process"
 
-export class DevToolsPlatformError extends Schema.TaggedErrorClass<DevToolsPlatformError>()(
+export class DevToolsPlatformError extends Schema.TaggedError<DevToolsPlatformError>()(
   "DevToolsPlatformError",
   {
     operation: Schema.Literals([
@@ -22,9 +22,9 @@ export class DevToolsPlatformError extends Schema.TaggedErrorClass<DevToolsPlatf
   }
 ) {}
 
-export class CommandFailed extends Schema.TaggedErrorClass<CommandFailed>()("CommandFailed", {
+export class CommandFailed extends Schema.TaggedError<CommandFailed>()("CommandFailed", {
   command: Schema.String,
-  exitCode: Schema.Number
+  exitCode: Schema.Int
 }) {}
 
 export type DevToolsError = DevToolsPlatformError | CommandFailed

@@ -5,6 +5,14 @@ description: Effect v4 handbook for effect@4 and effect/unstable/*. Use ts-effec
 
 # Effect v4
 
+## Reference snapshot
+
+- Repository: `Effect-TS/effect`
+- Commit: `2600f62f4532026928454dcea8d1c48557b3f942`
+- Package: `effect@4.0.0-rc.112`
+
+Treat the commit, not a moving branch name, as the source for this handbook version.
+
 ## Routing
 
 - Do not read this file linearly. Pick one target.
@@ -19,10 +27,12 @@ description: Effect v4 handbook for effect@4 and effect/unstable/*. Use ts-effec
 ## Identify the version
 
 Use this skill when the code targets Effect v4:
-- `effect@4` (or `4.0.0-beta.*`) in `package.json`, with `@effect/*` packages on the same version.
+- `effect@4` (including `4.0.0-beta.*` and `4.0.0-rc.*`) in `package.json`, with `@effect/*` packages on the same
+  version.
 - Imports from `effect/unstable/*`
   (`http`, `httpapi`, `cli`, `sql`, `rpc`, `cluster`, `ai`, `observability`, `process`, ...).
-- `Context.Service` for services, `Effect.fn(...)` for effectful functions, `Schema.TaggedErrorClass` for errors.
+- `Context.Service` for services, `Effect.fn(...)` or `Effect.fnUntraced(...)` for effectful functions, and
+  `Schema.TaggedError` for errors.
 
 If it's `effect@3` / `@effect/platform@0.x` style, use `ts-effect-v3`.
 
@@ -34,7 +44,7 @@ Paths are relative to this file.
   errors, resources, running, and pubsub.
   - `01_basics/`: writing Effect code.
     - `01_effect-gen.ts`: using `Effect.gen`.
-    - `02_effect-fn.ts`: using `Effect.fn`.
+    - `02_effect-fn.ts`: using `Effect.fn` and `Effect.fnUntraced`.
     - `10_creating-effects.ts`: creating effects from values, sync, Promises, nullables, callbacks.
   - `02_schema/`: runtime schemas and domain models.
     - `10_schema-basics.ts`: decoded and encoded types, decoding, encoding, and boundary errors.
@@ -47,7 +57,8 @@ Paths are relative to this file.
     - `65_context-middleware.ts`: decode and encode requirements, middleware, and deliberate fallbacks.
     - `70_classes-errors.ts`: opaque types, classes, tagged models, and schema-backed errors.
     - `80_serialization-sensitive.ts`: serialization, external formats, and redacted values.
-    - `90_tooling-errors.ts`: error formatting, JSON Schema, generators, equivalence, optics, and patches.
+    - `90_tooling-errors.ts`: error formatting, JSON Schema, native arbitrary generation, equivalence, optics, and
+      patches.
   - `03_services/`: writing Effect services.
     - `01_service.ts`: `Context.Service`.
     - `10_reference.ts`: `Context.Reference` for config / defaults.
@@ -88,10 +99,13 @@ Paths are relative to this file.
   - `20_layer-tests.ts`: testing services with shared layers.
 - **`examples/10_predicate/`**: runtime type guards.
   - `01_basics.ts`: use and compose built-in `Predicate` guards.
+- **`examples/40_sql/`**: SQL models, repositories, migrations, and driver layers.
+  - `10_basics.ts`: build a schema-backed SQLite repository with `Model`, `SqlModel`, and `SqlSchema`.
 - **`examples/50_http-client/`**: outgoing HTTP.
-  - `10_basics.ts`: fetch external APIs with `HttpClient`.
+  - `10_basics.ts`: fetch external APIs with `HttpClient` and preserve HTTP, missing, body, and schema failures.
 - **`examples/51_http-server/`**: schema-first HTTP APIs.
   - `10_basics.ts`: define `HttpApi`, implement handlers, secure with middleware, serve, derive a typed client.
+  - `20_testing.ts`: test handlers through an in-memory typed client with `HttpApiTest`.
   - `fixtures/`: api / domain / server modules backing the example.
 - **`examples/60_child-process/`**: child processes.
   - `10_working-with-child-processes.ts`: collect output, compose pipelines, stream long-running commands.

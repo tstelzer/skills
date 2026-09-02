@@ -5,69 +5,66 @@ import { CurrentUser } from "../../api/Authorization.ts"
 import { AuthorizationLayer } from "../Authorization.ts"
 import { Users } from "../Users.ts"
 
-export const UsersApiHandlers = HttpApiBuilder.group(
+// Keep dependencies open so tests can provide an in-memory Users layer.
+export const UsersApiHandlersNoDeps = HttpApiBuilder.group(
   Api,
   "users",
   Effect.fn(function*(handlers) {
     const users = yield* Users
 
-    return handlers
-      .handle("list", ({ query }) =>
+    return handlers.handleAll({
+      list: ({ query }) =>
         users.list(query.search).pipe(
-          // The API contract declares UsersError impossible for this endpoint.
-          // A violation is a defect and becomes a 500 response.
-          Effect.orDie
-        ))
-      .handle(
-        "search",
-        Effect.fn(function*({ payload }) {
-          if (payload.search === "bad-request") {
-            // You can use the built in error types like any other
-            // Schema.TaggedErrorClass
-            return yield* new HttpApiError.RequestTimeout()
-          }
-          return yield* users.list(payload.search).pipe(
-            Effect.catchReason(
-              "UsersError",
-              "SearchQueryTooShort",
-              // Re-fail the "SearchQueryTooShort" reason
-              Effect.fail,
-              // All other reasons are unexpected, so we convert them into a 500
-              // Internal Server Error.
-              Effect.die
-            )
+          Effect.catchReason(
+            "UsersError",
+            "SearchQueryTooShort",
+            Effect.fail,
+            // No other UsersError reason belongs to the list contract.
+            Effect.die
           )
-        })
-      )
-      .handle("getById", ({ params }) =>
+        ),
+      search: Effect.fn(function*({ payload }) {
+        if (payload.search === "bad-request") {
+          return yield* new HttpApiError.RequestTimeout()
+        }
+        return yield* users.list(payload.search).pipe(
+          Effect.catchReason(
+            "UsersError",
+            "SearchQueryTooShort",
+            // Re-fail the reason declared by the protocol.
+            Effect.fail,
+            // Undeclared reasons violate the protocol contract.
+            Effect.die
+          )
+        )
+      }),
+      getById: ({ params }) =>
         users.getById(params.id).pipe(
-          // You can also use Effect.catchReasons to handle multiple error
-          // reasons at once
           Effect.catchReasons("UsersError", {
             UserNotFound: (e) => Effect.fail(e)
           }, Effect.die)
-        ))
-      .handle("create", ({ payload }) =>
+        ),
+      create: ({ payload }) =>
         users.create(payload).pipe(
           // The API contract declares UsersError impossible for this endpoint.
           // Do not use orDie when the protocol should expose the failure.
           Effect.orDie
-          // You could also use Effect.unwrapReason to move error reasons up to
-          // the top level, so you can handle them with Effect.catch or
-          // Effect.catchTag etc.
-          //
-          // Effect.unwrapReason("UsersError"),
-          // Effect.catchTags({
-          //   UserNotFound: Effect.die,
-          //   SearchQueryTooShort: Effect.die
-          // })
-        ))
-      .handle("me", () =>
+        ),
+      update: ({ params, payload }) =>
+        users.update(params.id, payload).pipe(
+          Effect.catchReasons("UsersError", {
+            UserNotFound: (e) => Effect.fail(e)
+          }, Effect.die)
+        ),
+      me: () =>
         // The Authorization middleware provides the CurrentUser service, so we
         // can access it here.
-        CurrentUser)
+        CurrentUser
+    })
   })
-).pipe(
-  // Provide the dependencies for the handlers.
+)
+
+// Provide live dependencies only at the server composition edge.
+export const UsersApiHandlers = UsersApiHandlersNoDeps.pipe(
   Layer.provide([Users.layer, AuthorizationLayer])
 )

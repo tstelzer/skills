@@ -4,7 +4,7 @@
  * Use synchronous filters for pure checks. Use an effectful schema getter when
  * validation needs a service or asynchronous operation.
  */
-import { Context, Effect, Option, Schema, SchemaGetter, SchemaIssue } from "effect"
+import { Context, Effect, Schema, SchemaGetter, SchemaIssue } from "effect"
 
 export const Username = Schema.String.check(
   Schema.isMinLength(3),
@@ -52,7 +52,7 @@ export const ExistingUserId = Schema.String.pipe(
         const exists = yield* directory.exists(id)
         return exists
           ? undefined
-          : new SchemaIssue.InvalidValue(Option.some(id), {
+          : new SchemaIssue.InvalidValue({
             title: "an existing user id"
           })
       })

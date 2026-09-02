@@ -71,5 +71,5 @@ export const ValueWithBoolean = Value.mapMembers(
 )
 
 export const Started = Schema.TaggedStruct("Started", {
-  at: Schema.DateValid
+  at: Schema.Date
 })

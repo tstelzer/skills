@@ -34,12 +34,12 @@ export class Deleted extends Schema.TaggedClass<Deleted>()("Deleted", {
 
 export const UserEvent = Schema.Union([Created, Deleted])
 
-export class UserNotFound extends Schema.TaggedErrorClass<UserNotFound>()(
+export class UserNotFound extends Schema.TaggedError<UserNotFound>()(
   "UserNotFound",
   { id: AccountId }
 ) {}
 
-export class InvalidUser extends Schema.ErrorClass<InvalidUser>("InvalidUser")({
+export class InvalidUser extends Schema.Error<InvalidUser>("InvalidUser")({
   message: Schema.NonEmptyString
 }) {}
 
@@ -54,9 +54,7 @@ export const loadOptionalUser = (id: AccountId) =>
 // when no built-in schema or instanceof check can describe the value.
 export const NativeUrl = Schema.instanceOf(URL)
 
-export class Email extends Schema.asClass(
-  Schema.String.check(Schema.isPattern(/^[^@]+@[^@]+$/))
-) {
+export class Email extends Schema.String.check(Schema.isPattern(/^[^@]+@[^@]+$/)) {
   static readonly decodeUnknown = Schema.decodeUnknownEffect(this)
 }
 

@@ -30,7 +30,7 @@ not replace a schema with predicates or manual parsing.
 - `80_serialization-sensitive.ts`: JSON, string trees, forms, URL parameters,
   binary encodings, XML, and redacted values.
 - `90_tooling-errors.ts`: annotations, error formatting, JSON Schema,
-  arbitraries, equivalence, optics, and JSON Patch.
+  native arbitraries, equivalence, optics, and JSON Patch.
 
 ### Boundary rules
 
@@ -54,8 +54,7 @@ not replace a schema with predicates or manual parsing.
 
 This section covers the main public application-facing Schema API. It does not
 catalog every built-in filter or string encoding because they follow the same
-composition patterns shown here. It also omits Schema AST internals, the
-15-parameter internal type hierarchy, representation revivers, custom
-`declareConstructor` implementations, and framework-specific form and Elysia
-integrations. Use those only when the task requires that lower-level extension
-point or names that integration.
+composition patterns shown here. It also omits Schema AST internals,
+representation revivers, custom `declareConstructor` implementations, and
+framework-specific form and Elysia integrations. Use those only when the task
+requires that lower-level extension point or names that integration.

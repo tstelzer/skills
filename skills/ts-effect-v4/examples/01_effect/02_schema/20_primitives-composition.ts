@@ -14,7 +14,7 @@ export const PrimitiveRecord = Schema.Struct({
   count: Schema.Finite,
   sequence: Schema.BigInt,
   enabled: Schema.Boolean,
-  deletedAt: Schema.NullOr(Schema.DateValid)
+  deletedAt: Schema.NullOr(Schema.Date)
 })
 
 export const RequestId = Schema.String.check(Schema.isUUID())

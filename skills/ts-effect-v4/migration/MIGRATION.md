@@ -1,8 +1,8 @@
 # Migrating from Effect v3 to Effect v4
 
-> **Note:** Effect v4 is currently in beta. APIs may change between beta
-> releases. This guide will evolve as the beta progresses and community
-> feedback is incorporated.
+> **Note:** Effect v4 is currently a release candidate. APIs may change between
+> release candidates. This guide will evolve until v4 reaches stable release.
+> Community feedback will be incorporated.
 
 ## Background
 
@@ -16,8 +16,8 @@ and imported has changed significantly.
 All Effect ecosystem packages now share a **single version number** and are
 released together. In v3, packages were versioned independently (e.g.
 `effect@3.x`, `@effect/platform@0.x`, `@effect/sql@0.x`), making compatibility
-between packages difficult to track. In v4, if you use `effect@4.0.0-beta.0`,
-the matching SQL package is `@effect/sql-pg@4.0.0-beta.0`.
+between packages difficult to track. In v4, if you use `effect@4.0.0-rc.0`,
+the matching SQL package is `@effect/sql-pg@4.0.0-rc.0`.
 
 ### Package Consolidation
 
@@ -35,7 +35,7 @@ technology-specific:
 - `@effect/atom-*` — framework-specific atom bindings
 - `@effect/vitest` — Vitest testing utilities
 
-These packages must be bumped to matching v4 beta versions alongside `effect`.
+These packages must be bumped to matching v4 versions alongside `effect`.
 
 ### Unstable Module System
 
@@ -43,8 +43,8 @@ v4 introduces **unstable modules** under `effect/unstable/*` import paths.
 These modules may receive breaking changes in minor releases, while modules
 outside `unstable/` follow strict semver.
 
-Unstable modules include: `ai`, `cli`, `cluster`, `devtools`, `eventlog`,
-`http`, `httpapi`, `jsonschema`, `observability`, `persistence`, `process`,
+Unstable modules include: `ai`, `cli`, `cluster`, `devtools`, `encoding`, `eventlog`,
+`http`, `httpapi`, `observability`, `persistence`, `process`,
 `reactivity`, `rpc`, `schema`, `socket`, `sql`, `workflow`, `workers`.
 
 As these modules stabilize, they graduate to the top-level `effect/*` namespace.
