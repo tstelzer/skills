@@ -46,7 +46,7 @@ Use this section when this skill spawns sub-agent workers.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `gpt-5.3-codex-spark` | `high` |
+| 1 | OpenAI | `sol` | `medium` |
 | 2 | Cursor | `composer` | `high` |
 | 3 | Anthropic | `sonnet` latest | `high` |
 
