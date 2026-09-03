@@ -12,15 +12,28 @@ Unexpected defects are bugs. A corrupted invariant is not a business outcome.
 Let it explode, or assert with useful context. Continuing past a corrupted
 invariant usually creates a second, harder bug.
 
-Error mapping belongs at boundaries. Translate library errors before they
-enter the domain. Translate domain errors before they leave the system. A
-`MongoServerError` is not a domain model. A `DuplicateEmail` is not an HTTP
-response.
+Map errors at boundaries. Translate library errors before they enter the
+domain. Translate domain errors before they leave the system. Mapping changes
+the vocabulary, not the evidence. Preserve the original cause and useful
+structured context. A `MongoServerError` is not a domain model, but its safe
+diagnostic detail must not disappear behind `failed to save user`.
 
-Logging belongs at boundaries too. If every layer logs and rethrows, one
-failure becomes five log lines. Handle expected failures where they are
-expected. Log the rest once, at the outermost boundary that has enough
-context to explain them.
+Present and log errors at boundaries. A human-facing error names the failed
+operation and subject, then includes the safe cause messages and context its
+reader needs to start debugging. Stop at the reader's trust boundary. Redact
+secrets and restricted internals without discarding safe evidence.
+
+Include a corrective action only when it is known to apply. Do not replace
+missing knowledge with `try again`, `check your configuration`, or another
+generic suggestion.
+
+Match the interface. A CLI can use labels, indentation, and color while
+remaining clear as plain text. An API uses stable codes and structured fields.
+Logs use searchable fields and carry the safe original cause.
+
+If every layer logs and rethrows, one failure becomes five log lines. Handle
+expected failures where they are expected. Log the rest once, at the outermost
+boundary that has enough context to explain them.
 
 ## examples
 
@@ -158,8 +171,8 @@ class UserAlreadyExists extends Error {
 class UserPersistenceFailed extends Error {
   readonly _tag = "UserPersistenceFailed"
 
-  constructor(readonly cause: unknown) {
-    super("failed to save user")
+  constructor(readonly userId: UserId, cause: unknown) {
+    super(`failed to save user ${userId}`, { cause })
   }
 }
 
@@ -174,13 +187,13 @@ async function saveUser(user: User): Promise<Result<void, SaveUserError>> {
       return Result.fail(new UserAlreadyExists(user.email))
     }
 
-    return Result.fail(new UserPersistenceFailed(error))
+    return Result.fail(new UserPersistenceFailed(user.id, error))
   }
 }
 ```
 
-Keep driver details inside the adapter. The rest of the system should see the
-domain meaning.
+The domain sees the failed operation and user ID. The original driver error
+remains available to a trusted renderer or logger through `cause`.
 
 ### map domain errors outward
 
@@ -236,12 +249,21 @@ try {
   return await handleRequest(request)
 } catch (error) {
   logger.error({ error, requestId }, "request failed")
-  return Response.json({ code: "internal-error" }, { status: 500 })
+  return Response.json(
+    {
+      code: "internal-error",
+      message: "The request could not be completed.",
+      requestId,
+    },
+    { status: 500 },
+  )
 }
 ```
 
 Log once at the outermost boundary. Inside the system, either handle the
-failure or let it pass through.
+failure or let it pass through. The external response omits restricted
+internals but gives support and the caller a request ID that connects it to
+the original logged cause.
 
 ### defects are not business errors
 
@@ -277,4 +299,3 @@ function applyTransition(state: State, event: Event): State {
 
 If the type says the state is impossible, treat reaching it as a bug. Do not
 make callers recover from broken program assumptions.
-

@@ -3,7 +3,8 @@
 ## rules
 
 - Prefer a concrete example to another sentence of explanation.
-- Use real shapes: command, request, response, config, error, input, output.
+- Use real shapes: command, request, response, config, input, and output.
+- Show errors with the failed operation, subject, safe cause, and any known corrective action.
 - Keep examples current with the interface.
 - Show both weak and stronger examples when teaching a rule.
 - Use safe values for tokens, keys, emails, domains, and IDs.
@@ -111,22 +112,24 @@ Realistic values reveal naming, units, and shape.
 
 Weak:
 
-```md
-The endpoint can fail if the token is invalid.
+```text
+ConfigError: invalid configuration
 ```
 
 Stronger:
 
-```http
-HTTP/1.1 401 Unauthorized
-Content-Type: application/json
-
-{
-  "code": "invalid-token"
-}
+```text
+error: could not load config ./config/app.json
+  JSON parse failed at line 14, column 3: expected `,`
+  fix: add a comma after `"port": 8080`
 ```
 
-Failures are part of the contract.
+The message names the failed operation and file, forwards the parser's cause,
+and gives a correction because the parser knows where and why parsing failed.
+Do not add a `fix` line when the correction is unknown.
+
+This CLI uses labels and indentation for hierarchy. Color may reinforce that
+hierarchy in an interactive terminal, but the message remains clear without it.
 
 ### keep examples short enough to inspect
 

@@ -17,8 +17,10 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 ### write for a reader doing a job
 
 - Name the reader before writing.
-- Name what the reader wants to do, decide, fix, or understand.
-- Include only what helps that reader complete the job.
+- Name what the reader wants to do, decide, fix, or understand. In an error, name the failed operation and subject.
+- Include only what helps that reader complete the job. Preserve safe cause messages and diagnostic context.
+- Respect the reader's trust boundary. Do not expose secrets or restricted internals.
+- State a corrective action only when it is known to apply.
 - State assumed knowledge, prerequisites, and non-scope when they prevent wrong expectations.
 
 [Details](audience.md)
@@ -60,6 +62,7 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 ### prefer examples over abstractions
 
 - Show the command, code, config, input, output, error, or decision.
+- Show errors with the failed operation, subject, safe cause, and any known corrective action.
 - Make copyable examples correct.
 - Put examples near the rule they prove.
 - Use realistic values, not fake secret-shaped strings.

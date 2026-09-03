@@ -69,16 +69,19 @@ authorization, secrets, sensitive data, or dangerous capabilities.
 
 - Expected failures are named domain errors, carried by the Effect error channel, `Result`, etc.
 - Unexpected defects are bugs. Let them explode.
-- Map library errors to domain errors internally.
-- Map domain errors to protocol errors at boundaries.
-- Do not leak library errors inward or domain errors outward.
+- Map library errors into domain errors and domain errors into protocol errors at their boundaries.
+- Preserve the original cause and useful structured context when mapping an error.
+- Forward safe cause messages and context up to the reader's trust boundary.
+- Do not reduce a human-facing error to a type, tag, or generic summary.
+- Include a corrective action only when it is known to apply.
+- Format human-facing errors for their interface.
 - Avoid catch-log-rethrow.
 - Log unhandled errors exactly once, at the boundary.
 - Do not continue after corrupted invariants.
 - Do not encode programmer bugs as recoverable business errors.
 
-You must read [details](handle-it-or-die.md) when the work designs, changes, or reviews error types, error mapping,
-recovery, catching, or logging.
+You must read [details](handle-it-or-die.md) when the work designs, changes, or reviews error types, error messages,
+error mapping, error presentation, recovery, catching, or logging.
 
 ### avoid hasty abstractions
 
