@@ -202,8 +202,3 @@ contracts, migrations, or compatibility.
 
 You must read [details](design-for-operation.md) when the work designs, changes, or reviews cancellation, timeouts,
 retries, backpressure, or observability.
-
-## Architecture
-
-You must read [TypeScript architecture](architecture/typescript.md) before scaffolding a TypeScript application or
-package, adding a domain or feature, changing module boundaries, or adding infrastructure.

@@ -33,22 +33,24 @@ entries while preserving entries from other sources.
 ## Maturity
 
 - ts-principles: mature
+- ts-architecture-typescript: draft
 - ts-zod-v4: mature
 - ts-effect-v3: mature
 - ts-explore: mature
 - ts-review: mature
 - ts-plan: mature
 - ts-workflow-implement-review: mature
-- ts-chat: draft
-- ts-debug: draft
-- ts-implement: draft
+- ts-chat: mature
+- ts-debug: mature
+- ts-implement: mature
 - ts-log: draft
 - ts-qa: draft
 - ts-workflow-plan-review: draft
 - ts-workflow-explore-plan-review: draft
 - ts-workflow-prototype: draft
-- ts-effect-v4: draft
-- ts-create-skill: draft
+- ts-effect-v4: mature
+- ts-create-skill: mature
+- ts-performance-browser: draft
 
 ## Invocation
 
@@ -76,6 +78,8 @@ task changes skills.
 Reference skills may trigger by topic:
 
 - `ts-principles`
+- `ts-architecture-typescript`
+- `ts-performance-browser`
 - `ts-zod-v4`
 - `ts-effect-v3`
 - `ts-effect-v4`

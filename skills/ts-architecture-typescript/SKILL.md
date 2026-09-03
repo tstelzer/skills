@@ -1,3 +1,10 @@
+---
+name: ts-architecture-typescript
+description: >-
+  TypeScript application and package architecture. Use when scaffolding an application or package, adding a domain or
+  feature, changing module boundaries, or adding infrastructure.
+---
+
 # TypeScript architecture
 
 ## Workspace and package boundaries
