@@ -5,7 +5,7 @@
 
 ## Findings
 <Order these by priority (critical>high>low)>
-### <critical|high|low>: <defect and affected behavior>
+### F<NNN> [<critical|high|low>]: <defect and affected behavior>
 **Location:** `path/to/file.ts:42`, `path/to/other.ts:10`
 **Impact:** <concrete consequence for a user, operator, maintainer, or system>
 **Evidence:** <Observed|Inferred>. <brief redacted proof: code path, command

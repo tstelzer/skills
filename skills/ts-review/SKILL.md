@@ -136,6 +136,9 @@ Use this section when this skill spawns sub-agent workers.
   fully resolved it.
 - Deduplicate findings. Rewrite titles, impact, evidence, and suggested fixes for clarity without changing severity,
   technical meaning, locations, or conclusions.
+- After deduplication and priority ordering, assign each finding a document-wide ID: `F001`, `F002`, and so on.
+  Treat worker-supplied IDs as provisional. In follow-up reviews, preserve the prior ID for the same finding and assign
+  new findings the next unused ID.
 - Write titles that name the defect and affected behavior, not the review category.
 - State the concrete consequence in `Impact`.
 - Start each `Suggested Fix` with an action and name the target file, symbol, command, or document when known.
