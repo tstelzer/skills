@@ -165,8 +165,11 @@ The source request, named design, and recorded user decisions define the review
 contract. Principles do not add product goals. The first formal review is
 `initial`; later reviews are `follow-up`.
 
-Run the review against all review types from `skill: ts-review`.
-Workers do not know the mode. Classify their findings after they return:
+For a new inspection, run all review types from `skill: ts-review`.
+When dispatched to resolve pending review questions, resume adjudication
+from the existing artifact. Preserve mode, finding IDs, and admission; inspect
+only missing or changed evidence.
+Workers do not know the mode or prior rulings. Classify their findings:
 - `regular`: found initially or introduced by an identified later revision
 - `out-of-scope`: no basis in the review contract or plan revision
 - `carried`: the same open finding remains unresolved
@@ -181,7 +184,11 @@ decision, finding ID, or plan revision.
 Technical-writing review may edit the canonical plan artifact when `ts-review`
 allows a direct writing edit. Keep the same canonical plan link.
 
-Apply these dispositions:
+Rule on every finding before assigning work. Keep rejected, resolved, and
+duplicate findings in the review artifact without remediation tasks.
+For deferred rulings, record the finding IDs and exact questions in the log and
+return `STATUS: ESCALATE: review context needed` for the router to relay.
+Apply these dispositions only to upheld findings, using final severity:
 - Critical and high `regular`, `carried`, and `regression`: `fix now`.
 - Critical and high `late`: `fix now` only when the plan would otherwise
   violate the request, contradict itself, or leave required work undecided.
@@ -190,11 +197,12 @@ Apply these dispositions:
 
 This is a formal workflow review, not an informal review. You must write a
 separate review artifact, even when there are no findings.
-Preserve severity, admission, scope basis, disposition, and next action in
-`## Open Findings`.
+Keep upheld and deferred findings in `## Open Findings`, with ruling, reasoning,
+final severity, admission, scope basis, disposition, and next action. Remove
+closed entries from that section; retain every finding in the review artifact.
 
 Review status semantics:
-- `STATUS: DONE`: review completed with no blocking findings.
+- `STATUS: DONE`: review completed with no blocking findings or deferred rulings.
 - `STATUS: BLOCKED`: review completed with blocking findings for the next planning pass.
 - `STATUS: ESCALATE`: a human decision or exception is needed.
 
@@ -223,15 +231,17 @@ STATUS: ESCALATE: <reason>
 ### ROUTE_NEXT_PASS
 
 - Read `## Open Findings` and `## Current State` from the log before deciding.
-- Increment the round counter in `## Current State` after each completed review pass.
+- Count each completed review round once in `## Current State`. A review paused
+  for context and its resumed adjudication belong to the same round.
 - If subagent dispatch fails (tool error, no return), stop with `STATUS: BLOCKED: subagents unavailable`.
 - If a dispatched judge returns no status line or more than one, stop with `STATUS: BLOCKED: invalid handoff`.
 - If planning returns `BLOCKED` or `ESCALATE`, stop and report.
-- If review returns `ESCALATE`, stop and report.
+- If review returns `ESCALATE`, relay its recorded questions or decision to the
+  user. Leave the next handoff in `## Current State`; stop until answered.
 - If review returns `BLOCKED`, route from `## Open Findings`.
 - Treat any `fix now` finding as blocking. Use the review judge's disposition;
   do not reclassify findings in the router.
-- If review has no blocking findings, stop with `STATUS: DONE`.
+- If review has no blocking findings or deferred rulings, stop with `STATUS: DONE`.
 - If review has blocking findings and the round limit is not reached, dispatch
   planning again with the same log path and canonical plan path.
 - If developer feedback arrives after any router report, handle it through
@@ -243,21 +253,19 @@ STATUS: ESCALATE: <reason>
 
 ### HANDLE_DEVELOPER_FEEDBACK
 
-- Developer feedback means user change requests after a router report, including
-  after `STATUS: DONE`.
-- Interpret every change request in developer feedback as a planner task. Words
-  such as `change`, `update`, `fix`, `add`, `remove`, `rewrite`, `revise`, and
-  `adjust` always mean dispatch the planner.
-- Reopen the workflow as a new round.
-- Record the feedback in `## Timeline` and `## Current State` as the next
-  handoff.
-- Dispatch planning with the same log path and canonical plan path.
-- Run review after that planning pass.
+- Record user feedback verbatim in `## Timeline` and its next handoff in
+  `## Current State`, including feedback after `STATUS: DONE`.
+- Route answers to pending review questions back to a fresh review judge with
+  the same log and review artifact. Resume adjudication in the same round;
+  the judge records reusable context and updates the rulings.
+- Route plan change requests to planning as a new round, then review. Pass the
+  same log and canonical plan paths and any accompanying context answers.
 - Before dispatch, update only the work log. Never edit the plan.
 
 ## Stop Conditions
 
-- `STATUS: DONE`: latest review pass completed and `## Open Findings` has no blocking findings.
+- `STATUS: DONE`: latest review pass completed with no blocking findings or
+  deferred rulings in `## Open Findings`.
 - `STATUS: BLOCKED: <reason>`: required input, dependency, or verification is
   unavailable. Includes `subagents unavailable`, `invalid handoff`, and
   `review loop limit reached`.

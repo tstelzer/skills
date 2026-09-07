@@ -104,6 +104,7 @@ Use the first available entry.
 
 ### LOAD_CONTEXT
 
+- Use skill: ts-project-context to load shared facts and decisions.
 - Read relevant source, tests, docs, configs, `AGENTS.md`, and local guidance.
 - Identify current behavior, affected files, invariants, dependencies,
   contracts, test seams, and verification commands.
@@ -127,7 +128,7 @@ Use the first available entry.
 
 ### RESOLVE_DECISIONS
 
-- Resolve unknowns from repo context when possible.
+- Resolve unknowns from repo and shared project context; retain reusable conclusions in project context.
 - Keep unresolved decisions only in `Open Questions`.
 - Do not place alternatives inside implementation tasks.
 - If a task depends on an unresolved question, mark that task blocked and name

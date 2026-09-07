@@ -94,6 +94,7 @@ Use the first available entry.
 
 ### LOAD_CONTEXT
 
+- Use skill: ts-project-context to load shared facts and decisions.
 - Read repo files, docs, configs, prior plans, prior designs, `AGENTS.md`, and
   external references when they change the understanding.
 - Use principle detail docs as lenses for the topic.
@@ -169,6 +170,7 @@ or context that makes it part of the design. Do not leave it as a task command.
 
 Resolve disagreements and contradictions when possible. Preserve them as open
 questions or risks when they remain unresolved.
+When saving artifacts, retain reusable conclusions in project context.
 
 ### EDIT_TECHNICAL_WRITING
 

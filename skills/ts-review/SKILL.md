@@ -12,7 +12,7 @@ description: Review local code. Only explicitly triggered by user.
   - Read every linked principle detail document before reviewing.
 - skill: ts-technical-writing
   - Required when the judge writes any review artifact.
-  - Before aggregation, read `ts-technical-writing/SKILL.md`, `ts-technical-writing/audience.md`,
+  - Before adjudication, read `ts-technical-writing/SKILL.md`, `ts-technical-writing/audience.md`,
     `ts-technical-writing/prose.md`, and `ts-technical-writing/structure.md`.
   - For `technical-writing` reviews, read every linked technical-writing detail document before reviewing.
 
@@ -20,10 +20,10 @@ description: Review local code. Only explicitly triggered by user.
 
 Review is a judge.
 
-It owns review types, scope, worker dispatch, aggregation, severity, findings,
-and dispositions. Workers own inspection and evidence. Use their reports
-without repeating their work. Investigate only missing, conflicting, or
-insufficient evidence.
+It owns scope, worker dispatch, context, rulings, final severity, and artifacts.
+Workers investigate adversarially and propose findings. The judge challenges
+both the artifact and their arguments. Investigate missing or conflicting
+evidence without repeating sound inspection.
 
 ## Authority And Evidence
 
@@ -31,8 +31,11 @@ The caller may make a source request, plan, design, decision, or explicit scope
 authoritative. Principles guide review inside that contract. They do not add
 product or architecture scope.
 
-Prior reviews and handoffs do not prove the current artifact. Do not reopen an
-accepted decision unless current worker evidence invalidates its assumptions.
+Prior reviews and handoffs do not prove the current artifact. Revisit accepted
+decisions when current evidence invalidates their assumptions.
+
+The judge uses skill: ts-project-context to load and maintain shared context.
+Keep the record and prior rulings at judge level; do not pass them to workers.
 
 ## Sub-Agent Selection
 
@@ -60,7 +63,7 @@ Use this section when this skill spawns sub-agent workers.
 1. DETERMINE_TYPE
 2. DETERMINE_SCOPE
 3. SPAWN_REVIEW_WORKERS
-4. AGGREGATE_FINDINGS
+4. ADJUDICATE_FINDINGS
 5. WRITE_ARTIFACT
 
 ### DETERMINE_TYPE
@@ -87,8 +90,6 @@ Use this section when this skill spawns sub-agent workers.
 
 ### SPAWN_REVIEW_WORKERS
 
-- The judge owns review type selection, scope, worker prompts, aggregation, severity normalization, and artifact
-  writing.
 - Workers own one review type only.
 - Workers must not spawn other workers, widen scope, or aggregate findings.
 - Workers must not write files unless the review type file explicitly allows direct edits.
@@ -119,31 +120,29 @@ Use this section when this skill spawns sub-agent workers.
     - For `technical-writing`, the direct-edit policy from [technical-writing.md](./by-type/technical-writing.md).
       Direct edits must be reported inline with changed paths and a short purpose.
     - For every other review type, the rule that the worker is read-only and must not write files.
-    - The evidence rule from this skill: prior reviews and handoffs are not proof of correctness; establish findings
-      from the assigned inspection. Do not dispute an accepted scope or design decision unless evidence invalidates
-      its assumptions.
+    - Establish findings from the assigned inspection. State failure prerequisites and separate evidence from
+      assumptions. Leave rulings to the judge; do not consult `docs/project-context.md` or prior rulings.
     - The rule that if a required tool (read, grep, test runner, etc.) fails after the obvious fix, the worker returns
       the failure to the judge as a tooling-escalation note. Workers must not silently downgrade findings.
-    - The review context and scope.
+    - The review target, scope, authoritative requirements, and inputs needed for inspection.
 - Use semantic skill names only for external skills, e.g. `skill: ts-principles`.
 
-### AGGREGATE_FINDINGS
+### ADJUDICATE_FINDINGS
 
-- Aggregate all findings using the format outlined in [review-template](./review-template.md).
-- Preserve the exact provider, model line, and reasoning level for the judge and every worker so the final artifact can
-  identify who produced the review.
-- Preserve direct-edit reports from `technical-writing`. Do not convert an issue into an open finding when a direct edit
-  fully resolved it.
-- Deduplicate findings. Rewrite titles, impact, evidence, and suggested fixes for clarity without changing severity,
-  technical meaning, locations, or conclusions.
-- After deduplication and priority ordering, assign each finding a document-wide ID: `F001`, `F002`, and so on.
-  Treat worker-supplied IDs as provisional. In follow-up reviews, preserve the prior ID for the same finding and assign
-  new findings the next unused ID.
-- Write titles that name the defect and affected behavior, not the review category.
-- State the concrete consequence in `Impact`.
-- Start each `Suggested Fix` with an action and name the target file, symbol, command, or document when known.
-- Keep exact code symbols, API names, commands, protocol terms, and established domain terms. Replace review workflow
-  vocabulary with words the reader uses.
+- Rule on every finding using [review-template](./review-template.md), including findings from a direct judge review.
+- Check the failure path, whether its prerequisites apply, the consequence, and the relevant requirement or accepted
+  risk. Use current evidence and recorded context; missing context proves neither safety nor a defect.
+- Inspect available evidence first. Ask the user a concrete question when an unclear fact, requirement, assumption,
+  or accepted risk could change the ruling or severity. Continue independent work while awaiting the answer;
+  defer the affected ruling until it arrives. Retain reusable answers in project context.
+- Preserve every worker finding and its source, proposed severity, evidence, and conclusion. Clarify wording without
+  changing the claim. Put corrections and disagreements in the ruling; never delete a finding to express rejection.
+- Rule `upheld`, `rejected`, `deferred`, `resolved`, or `duplicate`. Explain each ruling with evidence and context;
+  name missing information for deferrals and the retained finding ID for duplicates. Preserve direct-edit reports.
+- Assign final severity to upheld findings from their consequences under applicable conditions. Explain changes from
+  proposed severity. Review-type severity hints guide judgment; they do not automatically block a change.
+- Assign each finding a document-wide ID: `F001`, `F002`, and so on. Preserve prior IDs in follow-up reviews and give
+  new findings the next unused ID. Keep duplicates visible with their own IDs and source attribution.
 - If two workers of the same review type but different model classes directly conflict on a finding, the judge may
   spawn a third worker for that review type using the next available model class in the priority list. If no third model
   class is available, the judge resolves the conflict directly and records the evidence used.
@@ -158,6 +157,8 @@ Use this section when this skill spawns sub-agent workers.
 - Write the findings to `<repository-root>/docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
 - If `technical-writing` direct edits were made, include a `## Direct Edits` section with changed paths and purpose.
 - Put the result and findings before scope and reviewer metadata.
+- Base the result on rulings and final severity. State unresolved decisions explicitly; deferred findings do not
+  establish a clean review. Restate context used in rulings so the artifact stands alone.
 - In `## Reviewer Metadata`, record the judge line and one worker line per worker as provider, model line, and
   reasoning level.
 - Use `Workers: none (judge direct)` only when the judge performed the only requested review type directly.

@@ -1,11 +1,13 @@
 ## Protocol
 
-- Before review, state the counterfactual artifact for your review type: the minimal version that would satisfy the requirements. The sub-type defines what minimal means.
+- Before review, state the minimal artifact that would satisfy the requirements for your review type.
 - Start from the hypothesis that the artifacts under review are defective unless proven otherwise.
-- Be adversarial. Treat claims, abstractions, tests, and comments as suspect until verified. 
+- Be adversarial. Treat claims, abstractions, tests, comments, and proposed findings as suspect until verified.
 - Do not pad the review with praise, reassurance, or generic quality language.
 
 ## Severities
+
+Workers propose severity. The judge assigns final severity after ruling on applicability and impact.
 
 - critical: literally cannot merge
 - high: must fix before merge
@@ -13,8 +15,8 @@
 
 ## Rules
 
-- Distinguish observed evidence from inference. Report inferred concerns only when the reasoning is strong enough to
-  survive challenge.
+- State each finding's failure prerequisites and distinguish observed evidence from assumptions and inference.
+  Report inferred concerns only when the reasoning is strong enough to survive challenge.
 - If there are no findings, say so explicitly under `## Findings`.
 - Never quote or reproduce secrets, credentials, tokens, private keys, session values, cookies, authorization headers,
   connection strings, or raw log lines that contain them.
