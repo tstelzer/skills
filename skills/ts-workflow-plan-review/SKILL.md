@@ -53,17 +53,21 @@ Use this section when this skill dispatches sub-agent judges.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `sol` latest | `xhigh` |
+| 1 | OpenAI | `astra` latest | `high` |
 | 2 | Anthropic | `fable` latest | `high` |
-| 3 | Cursor | `composer` | `high` |
+| 3 | OpenAI | `sol` latest | `high` |
+| 4 | Anthropic | `opus` latest | `high` |
+| 5 | Cursor | `composer` | `high` |
 
 ### Review Judge
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `sol` latest | `xhigh` |
-| 2 | Anthropic | `fable` latest | `xhigh` |
-| 3 | Cursor | `composer` | `high` |
+| 1 | OpenAI | `astra` latest | `high` |
+| 2 | Anthropic | `fable` latest | `high` |
+| 3 | OpenAI | `sol` latest | `high` |
+| 4 | Anthropic | `opus` latest | `high` |
+| 5 | Cursor | `composer` | `high` |
 
 ## Workflow
 
@@ -138,7 +142,7 @@ Before returning, you must:
 - Record the dispatched judge and every worker as provider, model line, and
   reasoning level in the work log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
-  `2 (api-contract: openai/gpt-5.3-codex-spark/high, test-inventory: anthropic/sonnet latest/high)`.
+  `2 (api-contract: openai/terra latest/medium, test-inventory: anthropic/sonnet latest/medium)`.
 
 Return exactly one status line:
 STATUS: DONE
@@ -220,7 +224,7 @@ Before returning, you must:
 - Record the dispatched judge and every worker as provider, model line, and
   reasoning level in the work log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
-  `2 (automatic-testing: openrouter/glm latest/xhigh, robustness: anthropic/fable latest/xhigh)`.
+  `2 (automatic-testing: anthropic/fable latest/high, robustness: openai/astra latest/high)`.
 
 Return exactly one status line:
 STATUS: DONE

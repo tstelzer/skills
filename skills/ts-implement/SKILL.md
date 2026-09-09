@@ -37,8 +37,6 @@ Use this section when this skill spawns sub-agent workers.
 - Do not spawn extra workers just to use every entry.
 - Spawn workers only when a worker can produce a disjoint patch that the judge
   can verify and integrate cheaply.
-- Use Spark first for bounded code edits, test additions, and mechanical
-  changes.
 - Do not delegate cross-cutting architecture, shared ownership decisions, or
   final integration.
 
@@ -46,9 +44,10 @@ Use this section when this skill spawns sub-agent workers.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `sol` | `medium` |
-| 2 | Cursor | `composer` | `high` |
-| 3 | Anthropic | `sonnet` latest | `high` |
+| 1 | OpenAI | `terra` latest | `medium` |
+| 2 | Anthropic | `sonnet` latest | `medium` |
+| 3 | OpenAI | `sol` latest | `high` |
+| 4 | Cursor | `composer` | `high` |
 
 Good worker tasks:
 
@@ -64,10 +63,10 @@ Use the first available entry.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `terra` latest | `high` |
-| 2 | Anthropic | `sonnet` latest | `high` |
-| 3 | Cursor | `composer` | `high` |
-| 4 | OpenAI | `gpt-5.3-codex-spark` | `high` |
+| 1 | OpenAI | `terra` latest | `medium` |
+| 2 | Anthropic | `sonnet` latest | `medium` |
+| 3 | OpenAI | `sol` latest | `high` |
+| 4 | Cursor | `composer` | `high` |
 
 ## Workflow
 

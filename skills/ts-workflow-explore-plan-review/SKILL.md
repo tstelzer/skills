@@ -54,9 +54,11 @@ Use this section when this skill dispatches the exploration judge.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `sol` latest | `xhigh` |
+| 1 | OpenAI | `astra` latest | `high` |
 | 2 | Anthropic | `fable` latest | `high` |
-| 3 | Cursor | `composer` | `high` |
+| 3 | OpenAI | `sol` latest | `high` |
+| 4 | Anthropic | `opus` latest | `high` |
+| 5 | Cursor | `composer` | `high` |
 
 ## Workflow
 

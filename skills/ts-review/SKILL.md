@@ -51,12 +51,14 @@ Use this section when this skill spawns sub-agent workers.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenRouter | `glm` latest | `xhigh` |
-| 2 | Anthropic | `fable` latest | `xhigh` |
-| 3 | OpenAI | `sol` latest | `xhigh` |
-| 4 | OpenRouter | `gemini flash` latest | `high` |
-| 5 | OpenRouter | `deepseek v4 pro` latest | `high` |
-| 6 | Cursor | `composer` | `high` |
+| 1 | Anthropic | `fable` latest | `high` |
+| 2 | OpenAI | `astra` latest | `high` |
+| 3 | OpenRouter | `glm` latest | `xhigh` |
+| 4 | Anthropic | `opus` latest | `high` |
+| 5 | OpenAI | `sol` latest | `high` |
+| 6 | OpenRouter | `gemini flash` latest | `high` |
+| 7 | OpenRouter | `deepseek v4 pro` latest | `high` |
+| 8 | Cursor | `composer` | `high` |
 
 ## Workflow
 

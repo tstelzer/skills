@@ -41,16 +41,15 @@ Use this section when this skill spawns sub-agent workers.
 - Do not spawn extra workers just to use every entry.
 - Spawn workers only when a worker can produce independent evidence that the
   judge can verify and integrate cheaply.
-- Use Spark first for repo-local mapping and inventory.
 
 ### Exploration Worker
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `gpt-5.3-codex-spark` | `high` |
-| 2 | Cursor | `composer` | `high` |
-| 3 | OpenAI | `terra` latest | `high` |
-| 4 | Anthropic | `sonnet` latest | `high` |
+| 1 | OpenAI | `terra` latest | `medium` |
+| 2 | Anthropic | `sonnet` latest | `medium` |
+| 3 | OpenAI | `sol` latest | `high` |
+| 4 | Cursor | `composer` | `high` |
 
 Good worker lenses:
 
@@ -68,10 +67,10 @@ Use the first available entry.
 
 | Priority | Provider | Model line | Reasoning |
 | --- | --- | --- | --- |
-| 1 | OpenAI | `terra` latest | `high` |
-| 2 | Anthropic | `sonnet` latest | `high` |
-| 3 | Cursor | `composer` | `high` |
-| 4 | OpenAI | `gpt-5.3-codex-spark` | `high` |
+| 1 | OpenAI | `terra` latest | `medium` |
+| 2 | Anthropic | `sonnet` latest | `medium` |
+| 3 | OpenAI | `sol` latest | `high` |
+| 4 | Cursor | `composer` | `high` |
 
 ## Workflow
 
