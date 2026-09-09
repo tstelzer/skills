@@ -130,8 +130,9 @@ export const invoiceTotal = (invoice: Invoice): Money =>
   )
 ```
 
-Use a service when it implements a workflow. Call a dependency directly when
-that call is the complete operation.
+Put a workflow in the service that owns its responsibility. Introduce a service
+only when that responsibility needs a distinct owner. Call a dependency
+directly when that call is the complete operation.
 
 Weak:
 

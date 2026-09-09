@@ -25,8 +25,9 @@ module structure, or feature structure.
 
 ### keep boundaries sharp
 
-- Disambiguate concerns across modules.
-- Avoid leaking implementation details across boundaries.
+- Extend the module that owns the responsibility. Add a boundary only for a responsibility that does not fit an
+  existing owner.
+- Keep implementation mechanics inside the module whose contract they support.
 - Map external concepts into internal concepts at the edge.
 - Prefer explicit dependencies over ambient coupling.
 - If two modules change together often, reconsider the boundary.

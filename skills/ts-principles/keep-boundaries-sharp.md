@@ -180,48 +180,24 @@ If the helper is not on the `users` public surface, either expose it
 deliberately, move it to `lib`, or duplicate the small bit you need until a
 real shared concept emerges.
 
-### co-change is a signal
+### extend an existing responsibility
 
-Suspicious:
+An order service owns the order lifecycle. Adding cancellation requires
+checking order state, releasing reserved stock, and recording the cancellation.
 
-```ts
-// users/user.service.ts
-import { recalculateInvoice } from "../billing/invoice.service"
+Weak:
 
-export async function updateUserAddress(/* ... */) {
-  // ...
-  await recalculateInvoice(user.activeInvoiceId)
-}
-
-// billing/invoice.service.ts
-import { findUserBillingDetails } from "../users/user.service"
-
-export async function recalculateInvoice(/* ... */) {
-  const details = await findUserBillingDetails(/* ... */)
-  // ...
-}
-```
-
-A cycle, or a strong co-change pattern even without a cycle, says the boundary
-is in the wrong place.
+- Keep placement and shipment in `OrderService`.
+- Add `CancelOrderService` for cancellation.
 
 Stronger:
 
-```ts
-// users/user.service.ts
-export async function updateUserAddress(/* ... */) {
-  await users.update(/* ... */)
-  await events.publish(new UserAddressChanged({ userId: user.id }))
-}
+- Add `cancel` beside `place` and `ship` in `OrderService`.
+- Keep cancellation helpers private to that implementation.
 
-// billing/invoice.service.ts
-events.subscribe(UserAddressChanged, async (event) => {
-  await invoices.recalculateFor(event.userId)
-})
-```
-
-One side owns the change. The other side reacts. Merging the modules is also
-a valid answer when the split was never real to begin with.
+Several steps do not establish a separate responsibility. Cancellation extends
+the order lifecycle already owned by `OrderService`. Choose boundaries by
+ownership, not by endpoint or operation count.
 
 ### cross boundaries with data, not behavior
 
