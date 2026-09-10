@@ -19,9 +19,13 @@ It turns a concrete symptom into a causal explanation and an
 architecture-aligned fix. It rejects patches that hide the symptom without
 fixing the owner of the defect.
 
-The judge may edit code. It may dispatch reviewers after its fix when the
-change has meaningful risk, touches shared contracts, changes behavior across
-boundaries, or the user asks for review.
+The judge must obtain explicit human signoff on the proposed fix before changing
+code, including tests and temporary diagnostic edits. This applies even to
+trivial fixes. Invoking this skill does not grant signoff.
+
+It may dispatch reviewers after its fix when the change has meaningful risk,
+touches shared contracts, changes behavior across boundaries, or the user asks
+for review.
 
 ## Sub-Agent Selection
 
@@ -52,10 +56,11 @@ Use this section when this skill spawns sub-agent reviewers.
 2. REPRODUCE
 3. TRACE_CAUSE
 4. CHOOSE_REMEDY
-5. APPLY_FIX
-6. VERIFY
-7. REVIEW_IF_NEEDED
-8. HANDOFF
+5. WAIT_FOR_SIGNOFF
+6. APPLY_FIX
+7. VERIFY
+8. REVIEW_IF_NEEDED
+9. HANDOFF
 
 ### FRAME_SYMPTOM
 
@@ -89,12 +94,12 @@ Before editing, classify the remedy:
 - `containment`: mitigates an upstream or environmental defect.
 - `workaround`: hides the symptom without fixing ownership.
 
-Apply `causal fix` or `boundary adaptation`.
+Propose `causal fix` or `boundary adaptation`.
 
-Apply `containment` only when the cause is outside the repo or cannot be fixed
+Propose `containment` only when the cause is outside the repo or cannot be fixed
 now. Record the reason and removal condition.
 
-Do not apply `workaround`.
+Reject `workaround`.
 
 Treat these as suspect until proven necessary:
 
@@ -105,6 +110,17 @@ Treat these as suspect until proven necessary:
 - sleeps, retries, and timing changes
 - broad fallback paths
 - special cases far from the owning boundary
+
+### WAIT_FOR_SIGNOFF
+
+- Present the causal explanation, remedy classification, affected files, and
+  concrete proposed changes with the verification plan.
+- Ask the user to approve the proposed changes. Wait for explicit signoff before
+  editing code or running commands that change it.
+- Keep investigation read-only until signoff. Obtain approval before adding
+  reproduction tests or temporary instrumentation.
+- Apply only the approved changes. Return to this gate when further diagnosis,
+  verification, or review requires changes outside the approved scope.
 
 ### APPLY_FIX
 
