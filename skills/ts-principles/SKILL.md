@@ -117,7 +117,8 @@ batching, concurrency, caching, or memory use.
 
 - Treat tests like production code.
 - Add tests only for behavior, contracts, boundaries, regressions, or stable invariants whose failure matters.
-- Do not test constants, type-only wiring, render-only components, pass-through wrappers, or framework plumbing.
+- Do not test constants, logger calls, captured log output, type-only wiring, render-only components, pass-through
+  wrappers, or framework plumbing.
 - Prefer public behavior, boundaries, and interfaces over internals.
 - Prefer plain code and data equality over framework-heavy test machinery.
 - Prefer `.test.each` / `.it.each` for repeated data cases.

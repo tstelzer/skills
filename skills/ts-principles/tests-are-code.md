@@ -20,6 +20,13 @@ details. The best case is input data to output data. Otherwise, compare the
 closest thing the code produces: durable state, protocol data, or observable
 behavior.
 
+Logs are diagnostic output, not a test contract. Tests that spy on logger
+methods or compare log messages freeze wording, fields, levels, and placement.
+Test the result, state change, error, or protocol response that caused the log.
+
+When an audit record is required behavior, model it as a typed domain event or
+owned boundary. Test that contract before its logging adapter.
+
 Prefer tests that protect decisions. Test the thing that would be expensive to
 rediscover during a refactor: parsing rules, state transitions, error mapping,
 contract behavior, persistence shape, authorization boundaries, idempotency,
