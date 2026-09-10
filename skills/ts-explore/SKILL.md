@@ -10,6 +10,10 @@ description: Explore. Only explicitly triggered by user.
 - skill: ts-principles
   - Read `ts-principles/SKILL.md`.
   - Read every linked principle detail document before exploring.
+- skill: ts-project-context
+  - The judge must read `ts-project-context/SKILL.md`.
+  - Keep the full record at judge level. Give workers only entries relevant to
+    their bounded task.
 - skill: ts-technical-writing
   - Read `ts-technical-writing/SKILL.md`.
   - Read every linked technical-writing detail document before writing an artifact.
@@ -169,7 +173,8 @@ or context that makes it part of the design. Do not leave it as a task command.
 
 Resolve disagreements and contradictions when possible. Preserve them as open
 questions or risks when they remain unresolved.
-When saving artifacts, retain reusable conclusions in project context.
+When synthesis produces candidate project context, follow the
+`ts-project-context` approval flow.
 
 ### EDIT_TECHNICAL_WRITING
 
@@ -260,4 +265,5 @@ Omit empty sections.
 - Continue exploration when useful questions remain.
 - Stop when the requested scope is understood well enough, or when remaining
   uncertainty is explicit.
-- If chat exploration has produced durable context, ask whether to save it.
+- If chat exploration has produced candidate project context, follow the
+  `ts-project-context` approval flow.

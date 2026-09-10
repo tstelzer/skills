@@ -7,8 +7,9 @@ description: Shared project context for exploration, planning, and review.
 
 ## Role
 
-Project Context is a reference for judges that read and maintain
-`<repository-root>/docs/project-context.md` across tasks.
+Project Context stores project-specific facts, constraints, and precedents that
+help judges choose between plausible options in later tasks. It is not a
+decision log, backlog, architecture inventory, or work history.
 
 Judges own the record. Give workers only context needed for their assigned task,
 following the invoking skill's independence rules.
@@ -25,28 +26,33 @@ following the invoking skill's independence rules.
 
 ## Record
 
-- Maintain the record within the active task's write permissions. Create it when
-  there is reusable context to retain. Read it before updating and preserve unrelated edits.
-- Retain what matters beyond the current task. Keep feature-specific decisions in
-  designs and plans, rulings in reviews, and coordination state in work logs.
+- Before creating, changing, or deleting project context, show the user the exact
+  proposed change and name the future decision it could affect. Write only after
+  explicit approval. Approval for another artifact or task does not authorize a
+  project-context change.
+- Retain only project-specific context that could change decisions beyond the
+  active task. Do not restate general principles or facts that are cheap to
+  recover from source. Keep feature-specific decisions in designs and plans,
+  rulings in reviews, and coordination or completion state in work logs.
 - Label facts, requirements, assumptions, accepted decisions, and accepted risks
-  distinctly. Record each entry's statement, scope, source, date, and condition for reconsideration.
+  distinctly. Record each entry's statement, scope, future decision it helps,
+  source, date, and condition for reconsideration.
 - State when an entry applies. Keep current behavior separate from accepted future
   changes; an approved design does not prove that the change has shipped.
 - Record the reason for decisions and accepted risks. Risk acceptance requires
   the user or an authoritative decision; an agent's assumption cannot accept a risk.
-- Update stale entries as evidence or decisions change. Keep unresolved assumptions
-  and contradictions explicit. Do not promote a proposal into an accepted decision.
+- Delete entries that no longer affect future decisions. When planned work ships,
+  retain only a durable reason, constraint, or accepted risk that still guides
+  later work. Never rewrite the plan as a completed-work record. Keep unresolved
+  assumptions and contradictions explicit. Do not promote a proposal into an
+  accepted decision.
 - Write a short statement that stands alone without past chats or disposable artifacts.
   Link to existing owners for detail; do not copy whole contracts or decision histories.
 
 ## Example
 
 **Fact:** Production stops the old application version before starting the new one.
+**Helps decide:** Whether migrations and API changes must support mixed application
+versions during deployment.
 **Source:** Deployment owner, 2026-09-07.
 **Revisit:** Before adopting rolling deployments.
-
-**Accepted decision:** Production will use rolling deployments after the deployment redesign ships.
-**Reason:** Avoid deployment downtime. This is not current behavior.
-**Source:** Accepted deployment design, 2026-09-07.
-**Revisit:** When the redesign ships or its scope changes.
