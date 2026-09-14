@@ -3,12 +3,16 @@
 ## rules
 
 - Remove phrases that sound helpful but add no information.
-- Replace hype with behavior.
+- Replace general claims about quality with supported behavior that helps the reader.
+- State behavior and reasons directly. Delete sentences that praise the design, announce an explanation,
+  or restate the previous sentence in broader terms.
+- Use contrasts to distinguish plausible alternatives. Use lists for needed facts, not to suggest completeness.
 - Replace generic transitions with structure.
 - Do not flatter the question or the plan.
 - Do not end with an invitation when no useful next action exists.
 - Treat feedback as an edit instruction, not artifact content.
 - Remove exclusions that do not prevent a plausible reader action.
+- Delete filler without replacing it when the useful answer is already complete.
 
 ## examples
 
@@ -58,7 +62,68 @@ Stronger:
 This feature imports CSV files up to 2 GB and resumes after worker restart.
 ```
 
-The stronger sentence gives the reader something to verify.
+Use only facts supported by the source material. Include them only when they help answer the reader's question.
+
+### replace stock rhetorical contrasts
+
+Weak:
+
+```md
+The queue is not merely a buffer; it is the foundation of reliable processing.
+```
+
+Stronger:
+
+```md
+The queue stores pending jobs until a worker can process them.
+```
+
+### replace vague praise of a design
+
+Weak:
+
+```md
+This approach provides a clean and predictable failure model.
+```
+
+Stronger:
+
+```md
+If validation fails, the command exits before writing any files.
+```
+
+### cut abstract restatements
+
+Weak:
+
+```md
+Each customer has a separate database. This establishes a clear isolation
+boundary between tenants.
+```
+
+Stronger:
+
+```md
+Each customer has a separate database.
+```
+
+Add a specific consequence when the reader needs it.
+
+### replace lists of virtues
+
+Weak:
+
+```md
+The design improves reliability, maintainability, extensibility, and operational clarity.
+```
+
+Stronger:
+
+```md
+New exporters can reuse the existing parser.
+```
+
+Name a supported benefit relevant to the reader. A list of desirable qualities does not establish one.
 
 ### avoid easy/simple claims
 
@@ -116,29 +181,17 @@ Weak:
 In conclusion, the replay command is an effective way to process failed events.
 ```
 
-Stronger:
-
-```md
-Use `events replay` only for events that failed before handler execution.
-```
-
-End with the constraint or next action, not a sign-off.
+Stronger: delete the sentence. End after the replay instructions.
 
 ### avoid meta explanation
 
 Weak:
 
 ```md
-This section will explain how to create a token.
+This distinction is important for understanding how retries behave.
 ```
 
-Stronger:
-
-```md
-Create a token:
-```
-
-Do the thing. Do not announce the thing.
+Stronger: delete the sentence. State the retry behavior directly.
 
 ### remove orphaned exclusions
 
@@ -188,11 +241,4 @@ Weak:
 If you have any questions, feel free to ask.
 ```
 
-Stronger:
-
-```md
-For retry failures, collect the import ID and the last checkpoint before paging
-the importer owner.
-```
-
-Close with useful operational detail.
+Stronger: delete the sentence. The answer is complete.

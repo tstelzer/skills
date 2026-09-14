@@ -18,7 +18,8 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 
 - Name the reader before writing.
 - Name what the reader wants to do, decide, fix, or understand. In an error, name the failed operation and subject.
-- Include only what helps that reader complete the job. Preserve safe cause messages and diagnostic context.
+- Choose detail by the reader's task, not their job title. Technical accuracy alone does not make a fact relevant.
+- Include facts that help answer the reader's question. In errors, preserve safe cause messages and diagnostic context.
 - Respect the reader's trust boundary. Do not expose secrets or restricted internals.
 - State a corrective action only when it is known to apply.
 - State assumed knowledge, prerequisites, and non-scope when they prevent wrong expectations.
@@ -48,10 +49,11 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 
 - Use common words when they carry the same meaning.
 - Prefer active voice.
-- Prefer strong verbs over noun phrases.
+- Explain behavior with concrete subjects and verbs. Use ordinary words around technical names.
 - Optimize for reading time before word count.
 - Split a sentence when it carries several decisions, causes, or conditions.
-- Keep exact code symbols, API names, protocol terms, and established domain terms.
+- Include an exact technical term when the reader needs to recognize or use it. Preserve its spelling.
+- Keep necessary conditions and consequences. Remove abstractions that merely rename the behavior.
 - Replace workflow vocabulary with words the reader uses.
 - Define an unfamiliar term on first use when code or context does not make it clear.
 - Cut filler, hedges, throat-clearing, and repeated setup.
@@ -82,8 +84,9 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 ### remove llm-isms
 
 - Remove generic hype, fake helpfulness, and empty transition phrases.
-- Do not say a task is simple, easy, seamless, powerful, robust, or crucial unless the claim is concrete and proven.
-- Do not explain that you are explaining.
+- Replace general claims about quality with supported behavior that helps the reader.
+- Delete sentences that praise the design, announce an explanation, or restate a fact in broader terms.
+- Use contrasts to distinguish plausible alternatives. Use lists for needed facts, not to suggest completeness.
 - Do not end with boilerplate invitations when the answer is done.
 - Treat feedback as an edit instruction, not artifact content.
 - Remove exclusions that do not prevent a plausible reader action.
@@ -93,7 +96,7 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 ### treat docs as contracts
 
 - Keep docs next to the surface readers use.
-- Document why, constraints, invariants, failure modes, and contracts.
+- Document reasons and constraints relevant to the reader's task. Put detailed contracts where readers look them up.
 - Do not repeat what names, types, schemas, and tests already say.
 - Update docs with behavior.
 - Delete stale docs.

@@ -2,12 +2,14 @@
 
 ## rules
 
-- Use common words when an exact technical term is not required.
-- Keep exact code symbols, API names, protocol terms, and established domain terms.
+- Explain behavior with concrete subjects and verbs. Use ordinary words around technical names.
+- Include an exact technical term when the reader needs to recognize or use it. Preserve its spelling.
 - Prefer active voice.
 - Name the actor when responsibility matters.
 - Replace hidden verbs with verbs.
 - Split sentences that carry several decisions, causes, or conditions.
+- Keep necessary conditions and consequences. Remove abstractions that merely rename the behavior.
+- Reduce the number of concepts the reader must track. Splitting a sentence does not remove unnecessary concepts.
 - Replace internal workflow terms with words the reader uses.
 - Define unfamiliar terms when code or context does not make them clear.
 - Replace vague claims with concrete facts.
@@ -20,49 +22,117 @@
 Weak:
 
 ```md
-Utilize the configuration interface to facilitate credential rotation.
+The scheduler mediates access to the execution pool.
 ```
 
 Stronger:
 
 ```md
-Use the settings page to rotate credentials.
+The scheduler assigns jobs to workers.
 ```
 
-Do not use bigger words to sound technical.
+Establish the behavior before simplifying it. These examples are rewrites, not fixed word substitutions.
 
 ### unpack dense technical prose
 
 Weak:
 
 ```md
-Add a boundary-level regression signal for contract drift.
+Cache eligibility requires successful authentication and absence of request-specific overrides.
 ```
 
 Stronger:
 
 ```md
-Add an API test that fails when the response shape changes.
+The server uses the cache only for authenticated requests with no custom settings.
 ```
 
-The stronger sentence names the test, the behavior it checks, and the failure it catches.
+Keep the conditions. Express them as behavior the reader can follow.
+
+### replace abstract subjects
+
+Weak:
+
+```md
+The retry mechanism provides resilience against transient upstream failures.
+```
+
+Stronger:
+
+```md
+The client retries requests when the server is temporarily unavailable.
+```
+
+### name the consequence
+
+Weak:
+
+```md
+Configuration changes have implications for connection lifecycle management.
+```
+
+Stronger:
+
+```md
+Changing the configuration closes existing connections.
+```
+
+State only consequences supported by the source material.
+
+### remove formal framing
+
+Weak:
+
+```md
+The architectural role of the index is to support efficient record discovery.
+```
+
+Stronger:
+
+```md
+The index lets queries find records without scanning the whole table.
+```
 
 ### keep exact technical terms
 
 Weak:
 
 ```md
-The payment request is safe to repeat.
+Idempotency is achieved through persistence of request-associated deduplication identifiers.
 ```
 
 Stronger:
 
 ```md
-`POST /payments` is idempotent when requests use the same `Idempotency-Key`.
-Repeated requests return the first payment.
+The API stores each request's idempotency key. If a request repeats that key,
+the API returns the saved result.
 ```
 
 Keep a precise term when the reader needs it. Explain its concrete behavior instead of replacing it with vague prose.
+
+### omit details outside the reader's task
+
+Reader's task: understand why email sending runs separately from web requests.
+
+Weak:
+
+```md
+The web server inserts pending email jobs into PostgreSQL so requests can finish
+without waiting for the email provider. Each row contains a UUID, recipient
+address, template identifier, JSON parameters, attempt count, and next-attempt
+timestamp. Workers select eligible rows with `FOR UPDATE SKIP LOCKED` and record
+completion after the provider accepts the message.
+```
+
+Stronger:
+
+```md
+The web server saves email jobs in PostgreSQL. Separate workers send the messages,
+so web requests can finish without waiting for the email provider.
+```
+
+Keep the division of work and its reason. Row fields and locking syntax help someone implementing the worker;
+they do not help this reader understand why sending happens separately.
 
 ### use active voice
 
@@ -101,16 +171,16 @@ Use passive voice when the object matters more than the actor and no responsibil
 Weak:
 
 ```md
-The scheduler performs validation of each job before execution.
+Token invalidation occurs upon completion of password reset.
 ```
 
 Stronger:
 
 ```md
-The scheduler validates each job before running it.
+Resetting the password invalidates existing tokens.
 ```
 
-`Validates` carries the sentence. `Performs validation` adds weight.
+Make the action a verb.
 
 ### cut filler
 

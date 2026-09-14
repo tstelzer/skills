@@ -1,8 +1,14 @@
 # audience
 
-## rule
+## rules
 
-Write for a named reader doing a named job.
+- Write for a named reader doing a named job.
+- Choose detail by the reader's task, not their job title. A maintainer learning the design needs different detail
+  from a maintainer debugging a function.
+- Include facts that help answer the reader's question. Technical accuracy alone does not make a fact relevant.
+- For architecture, explain the main parts, how they work together, and why the design was chosen. Include
+  implementation details only when they explain a design constraint. Keep field definitions and exact limits
+  in reference docs.
 
 ## examples
 
@@ -105,20 +111,20 @@ Weak:
 The reconciliation worker consumes settlement events and materializes the balance projection.
 ```
 
-Stronger for support:
+Stronger for understanding when balances change:
 
 ```md
 The reconciliation worker updates the account balance after each settlement event.
 ```
 
-Stronger for maintainers:
+Stronger for finding the code that updates balances:
 
 ```md
 `ReconciliationWorker` consumes `PaymentSettled` events and writes the current
 balance to `account_balances`.
 ```
 
-Use the reader's vocabulary. Do not make support read storage terms. Do not hide exact names from maintainers.
+Use the reader's vocabulary. Include exact names when they help the reader complete the task.
 
 ### answer the reader's first question
 
