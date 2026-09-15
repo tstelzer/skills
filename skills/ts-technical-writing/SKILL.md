@@ -8,8 +8,8 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 ## How to use
 
 - Always read this file first.
-- Treat the bullets below as the canonical short form.
-- Read the local detail docs that match the artifact.
+- Use the bullets below as the summary of these rules.
+- Read the local detail docs that match what you are writing.
 - For software documentation, also read `skill: ts-principles`, especially `integrated documentation`.
 
 ## Principles
@@ -17,22 +17,22 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 ### write for a reader doing a job
 
 - Name the reader before writing.
-- Name what the reader wants to do, decide, fix, or understand. In an error, name the failed operation and subject.
+- Name what the reader wants to do, decide, fix, or understand. In an error, say what failed and what it acted on.
 - Choose detail by the reader's task, not their job title. Technical accuracy alone does not make a fact relevant.
-- Include facts that help answer the reader's question. In errors, preserve safe cause messages and diagnostic context.
-- Respect the reader's trust boundary. Do not expose secrets or restricted internals.
-- State a corrective action only when it is known to apply.
-- State assumed knowledge, prerequisites, and non-scope when they prevent wrong expectations.
+- Include facts that answer the reader's question. In errors, keep cause messages and debugging details safe to show.
+- Show only what the reader is allowed to know. Do not expose secrets or restricted internals.
+- Give a corrective action only when you know it applies.
+- State what the reader must know or have, and what the document excludes, when this prevents wrong expectations.
 
 [Details](audience.md)
 
-### choose the artifact shape before writing
+### choose the document type before writing
 
 - Tutorial: teach by doing.
 - How-to: complete one task.
 - Reference: describe facts, contracts, parameters, commands, fields, and errors.
 - Explanation: explain context, reasons, tradeoffs, and design.
-- Do not mix shapes by accident.
+- Do not mix these types by accident.
 
 [Details](artifact-shape.md)
 
@@ -41,22 +41,22 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 - Start with the action, decision, result, or summary.
 - Put background after the thing the reader came for.
 - Use headings that say what is inside the section.
-- Use the first paragraph as the fastest useful path through the artifact.
+- Make the first paragraph useful on its own.
 
 [Details](structure.md)
 
-### write plain prose at a useful density
+### write plain, concise prose
 
 - Use common words when they carry the same meaning.
 - Prefer active voice.
-- Explain behavior with concrete subjects and verbs. Use ordinary words around technical names.
-- Optimize for reading time before word count.
+- Say what acts and what it does. Use ordinary words around technical names.
+- Aim for a quick read before a low word count.
 - Split a sentence when it carries several decisions, causes, or conditions.
 - Include an exact technical term when the reader needs to recognize or use it. Preserve its spelling.
-- Keep necessary conditions and consequences. Remove abstractions that merely rename the behavior.
-- Replace workflow vocabulary with words the reader uses.
+- Keep conditions and consequences the reader needs. Cut abstract labels that only repeat the behavior.
+- Use the reader's words for workflow steps.
 - Define an unfamiliar term on first use when code or context does not make it clear.
-- Cut filler, hedges, throat-clearing, and repeated setup.
+- Cut filler, hedges, empty introductions, and repeated setup.
 - Keep one idea per paragraph.
 
 [Details](prose.md)
@@ -64,7 +64,7 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 ### prefer examples over abstractions
 
 - Show the command, code, config, input, output, error, or decision.
-- Show errors with the failed operation, subject, safe cause, and any known corrective action.
+- In errors, show what failed, what it acted on, the cause safe to share, and any known corrective action.
 - Make copyable examples correct.
 - Put examples near the rule they prove.
 - Use realistic values, not fake secret-shaped strings.
@@ -73,30 +73,31 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 
 ### make content scannable
 
-- Use bullets for sets of peers.
+- Use bullets for items at the same level.
 - Use numbered lists for ordered steps.
 - Use tables for structured comparison.
-- Keep list items parallel.
-- Start procedure steps with imperative verbs.
+- Give list items the same sentence structure.
+- Start procedure steps with commands.
 
 [Details](structure.md)
 
 ### remove llm-isms
 
-- Remove generic hype, fake helpfulness, and empty transition phrases.
-- Replace general claims about quality with supported behavior that helps the reader.
+- Cut hype, fake helpfulness, and empty transitions.
+- Replace vague quality claims with proven behavior useful to the reader.
 - Delete sentences that praise the design, announce an explanation, or restate a fact in broader terms.
-- Use contrasts to distinguish plausible alternatives. Use lists for needed facts, not to suggest completeness.
+- Use contrasts when the reader could reasonably choose either option.
+  List needed facts; do not pad lists to look complete.
 - Do not end with boilerplate invitations when the answer is done.
-- Treat feedback as an edit instruction, not artifact content.
-- Remove exclusions that do not prevent a plausible reader action.
+- Apply feedback to the writing. Do not recount it in the document.
+- Remove exclusions for actions the reader has no reason to take.
 
 [Details](llm-isms.md)
 
 ### treat docs as contracts
 
-- Keep docs next to the surface readers use.
-- Document reasons and constraints relevant to the reader's task. Put detailed contracts where readers look them up.
+- Keep docs next to what readers use.
+- Explain reasons and limits that affect the reader's task. Put detailed contracts where readers look them up.
 - Do not repeat what names, types, schemas, and tests already say.
 - Update docs with behavior.
 - Delete stale docs.
@@ -105,7 +106,7 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 
 ## Source Material
 
-This skill distills:
+Sources:
 
 - Diataxis: https://diataxis.fr/
 - Google Technical Writing One: https://developers.google.com/tech-writing/one

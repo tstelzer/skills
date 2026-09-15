@@ -1,19 +1,23 @@
 ---
 name: ts-zod-v4
-description: Canonical handbook for Zod 4 usage in TypeScript and JavaScript. Use when defining Zod schemas, parsing or validating data, shaping objects, composing unions, applying refinements or transforms or codecs, customizing errors, or generating JSON Schema and metadata.
+description: >-
+  Handbook for Zod 4 in TypeScript and JavaScript. Use when defining Zod schemas, parsing or validating data,
+  shaping objects, composing unions, applying refinements or transforms or codecs, customizing errors,
+  or generating JSON Schema and metadata.
 ---
 
 # Zod v4 Handbook
 
 ## Purpose
-Use this as the single source of truth for Zod 4 usage in this repository. Keep lookup cheap: route to one file first, then follow `See also` only if that file is not enough.
+Use this handbook as the source of truth for Zod 4 in this repo.
+Start with one file. Follow `See also` only if that file does not answer the task.
 
-## Routing Rules
-- Do not read this handbook linearly.
+## Where to start
+- Do not read the whole handbook in order.
 - Pick exactly one target file first.
 - Start with a `sections/*.md` file for broad tasks.
 - Start with a `topics/*.md` file for narrow API questions.
-- Follow `See also` only when the first file is insufficient.
+- Follow `See also` only when the first file does not answer the task.
 - Ignore release notes, versioning, migration, and library-author internals unless the user explicitly asks for them.
 
 ## Quick Picks (Task -> File)
@@ -90,7 +94,7 @@ Use this as the single source of truth for Zod 4 usage in this repository. Keep 
 
 ## Conventions
 - Section files: What it is | When to use | Quick rules | Minimal examples | Common pitfalls | See also
-- Topic files: same structure, compact, task-oriented
+- Topic files: the same structure, kept short and focused on one task
 - Paths are relative to this `SKILL.md`
 
 ## When to Use This Handbook

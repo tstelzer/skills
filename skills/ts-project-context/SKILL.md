@@ -7,22 +7,21 @@ description: Shared project context for exploration, planning, and review.
 
 ## Role
 
-Project Context stores project-specific facts, constraints, and precedents that
-help judges choose between plausible options in later tasks. It is not a
-decision log, backlog, architecture inventory, or work history.
+Project Context stores project facts, limits, and past decisions that help judges choose between reasonable options
+in later tasks. Do not use it as a decision log, backlog, architecture map, or work history.
 
-Judges own the record. Give workers only context needed for their assigned task,
-following the invoking skill's independence rules.
+Judges maintain the record. Give workers only the context their task needs, following the calling skill's rules
+for independent work.
 
 ## Read
 
 - Read relevant entries before exploring, planning, or ruling on findings.
-- Check scope, applicability, and source before relying on an entry. Follow
-  current user instructions and challenge entries contradicted by current evidence.
+- Before relying on an entry, check what it covers, whether it applies, and where it came from.
+  Follow current user instructions and question entries that conflict with current evidence.
 - Use implementation evidence to check facts, not to rewrite requirements.
 - Resolve unknowns from available evidence first. Ask concrete questions when
   the answer changes a decision. Missing context proves neither safety nor a defect.
-- Let context emerge from work. A missing record does not require an upfront questionnaire.
+- Gather context as you work. Do not start with a questionnaire just because the record is missing.
 
 ## Record
 
@@ -30,24 +29,20 @@ following the invoking skill's independence rules.
   proposed change and name the future decision it could affect. Write only after
   explicit approval. Approval for another artifact or task does not authorize a
   project-context change.
-- Retain only project-specific context that could change decisions beyond the
-  active task. Do not restate general principles or facts that are cheap to
-  recover from source. Keep feature-specific decisions in designs and plans,
-  rulings in reviews, and coordination or completion state in work logs.
-- Label facts, requirements, assumptions, accepted decisions, and accepted risks
-  distinctly. Record each entry's statement, scope, future decision it helps,
-  source, date, and condition for reconsideration.
+- Keep only project context that could change decisions in later tasks. Do not repeat general principles or facts
+  that are easy to find in source. Keep feature decisions in designs and plans, rulings in reviews,
+  and work status and coordination in work logs.
+- Label facts, requirements, assumptions, accepted decisions, and accepted risks separately.
+  For each entry, record the statement, scope, future decision it helps, source, date, and when to revisit it.
 - State when an entry applies. Keep current behavior separate from accepted future
   changes; an approved design does not prove that the change has shipped.
-- Record the reason for decisions and accepted risks. Risk acceptance requires
-  the user or an authoritative decision; an agent's assumption cannot accept a risk.
-- Delete entries that no longer affect future decisions. When planned work ships,
-  retain only a durable reason, constraint, or accepted risk that still guides
-  later work. Never rewrite the plan as a completed-work record. Keep unresolved
-  assumptions and contradictions explicit. Do not promote a proposal into an
-  accepted decision.
-- Write a short statement that stands alone without past chats or disposable artifacts.
-  Link to existing owners for detail; do not copy whole contracts or decision histories.
+- Record why decisions were made and risks accepted. Only the user or an authoritative decision can accept a risk.
+  An agent's assumption cannot.
+- Delete entries that no longer affect future decisions. When planned work ships, keep only reasons, limits,
+  or accepted risks that still guide later work. Never turn the plan into a record of completed work.
+  State unresolved assumptions and conflicts. Do not label a proposal as an accepted decision.
+- Write short statements that make sense without past chats or temporary artifacts.
+  Link to the source for details. Do not copy whole contracts or decision histories.
 
 ## Example
 

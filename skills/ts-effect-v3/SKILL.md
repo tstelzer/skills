@@ -1,25 +1,24 @@
 ---
 name: ts-effect-v3
 description: >-
-  Canonical handbook for Effect v3 in TypeScript. Use for effect@3 and
+  Handbook for Effect v3 in TypeScript. Use for effect@3 and
   @effect/platform@0.x packages. Use ts-effect-v4 for effect@4.
 ---
 
 # Effect v3
 
 ## Purpose
-Use this as the source of truth for Effect v3 guidance. The examples target
+Use this handbook as the source of truth for Effect v3. The examples target
 `effect@3.22.1`. Check the project's installed minor version before using an
 API added late in v3.
 
-## Routing Rules
-- Do not read this handbook linearly.
+## Where to start
+- Do not read the whole handbook in order.
 - Pick one target file below.
-- Follow `See also` only if that file is insufficient.
+- Follow `See also` only if that file does not answer the task.
 - For Schema work, read `topics/schema.md`, then the one specialized Schema
   file that matches the task.
-- For implementation or review, finish with the
-  [final consistency audit](#final-consistency-audit).
+- After implementation or review, run the [final checks](#final-consistency-audit).
 
 ## Quick Picks (Task -> File)
 - Work with Schema -> `topics/schema.md`, then its task-specific route
@@ -180,28 +179,24 @@ API added late in v3.
 
 ## Final consistency audit
 
-Before finishing an Effect implementation or review, inspect the complete
-change for:
+Before finishing an Effect implementation or review, check the whole change for:
 
 - Direct `node:*`, `process.*`, current time, randomness, or global environment
   access that should use an Effect service or explicit dependency.
-- Native APIs used for required semantics that Effect does not expose. Keep
-  them at the platform edge and state the reason.
-- Hidden service inputs and platform layers provided inside implementations
-  instead of at the runtime edge.
-- Manual promise lifecycles, `try` / `finally`, or cleanup that should be scoped.
+- Native APIs needed for behavior Effect does not provide. Keep them at the platform edge and say why they are needed.
+- Hidden service inputs or platform layers supplied inside implementations instead of where the program starts.
+- Promises managed by hand, `try` / `finally`, or cleanup that should use a scope.
 - `catch` handlers that only log, render, set metadata, or return `void`.
 - Broad `mapError`, `unknown`, `instanceof`, `catchDefect`, or `orDie` usage
-  that hides a narrower typed failure boundary.
-- Cleanup that suppresses a required failure or replaces the original result.
+  that hides a more specific error type at the boundary.
+- Cleanup that hides a failure that must be reported or replaces the original result.
 - Missing, empty, malformed, partial, and complete outcomes that callers need
   to distinguish.
-- Normalization or disclosure of opaque and redacted values.
-- Pure transformations coupled to Effect or output.
-- One-use Effect wrappers, copied result types, or tests of implementation
-  shape instead of public behavior.
-- Repeated tests that should use `it.effect.each`, and missing boundary,
-  cleanup, or exact-value-preservation cases.
+- Normalizing or exposing opaque and redacted values.
+- Pure transformations that depend on Effect or output.
+- One-use Effect wrappers, copied result types, or tests that check code structure instead of public behavior.
+- Repeated tests that should use `it.effect.each`, and missing tests for boundaries, cleanup,
+  or keeping values exactly as received.
 
 ## When to Use This Handbook
 - Implementing Effect-based services, CLIs, HTTP APIs, or tests
@@ -233,10 +228,10 @@ change for:
   `@effect/sql-sqlite-do`
 - SQL adapters: `@effect/sql-drizzle`, `@effect/sql-kysely`
 
-## Specialized Packages Not Yet Routed In Detail
+## Packages without topic files
 - `@effect/cluster`
 - `@effect/workflow`
 - `@effect/experimental`
 
-If one of these appears in a task, consult the reference repository first.
-This handbook does not have dedicated topic files for them.
+If a task uses one of these packages, read the reference repository first.
+This handbook has no topic files for them.

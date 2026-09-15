@@ -15,30 +15,26 @@ description: Implement or fix code. Only explicitly triggered by user.
 
 Implement is a judge.
 
-It owns scope, delegation, changes, verification, and handoff. Use it for concrete code work: building a request,
-fixing bugs, applying review findings, or changing behavior. Not for discovery or planning.
+It sets scope, delegates work, changes code, checks results, and reports the handoff.
+Use it to build a requested change, fix bugs, address review findings, or change behavior.
+Do not use it to explore or plan.
 
-The judge may do implementation directly. Delegate only when the work separates
-cleanly across files, domains, or independent tasks. Workers return changes and
-verification notes. The judge reconciles them.
+Implement directly or delegate work that splits cleanly by files, domains, or independent tasks.
+Workers return changes and check results. The judge checks and combines them.
 
-The technical-writing editor is the exception: when the change creates or
-modifies technical writing, always spawn a sub-agent with
-`skill: ts-technical-writing` to edit that writing directly. The editor is not a
-reviewer and must not return findings.
+When the change adds or edits technical writing, always spawn a sub-agent with `skill: ts-technical-writing`
+to edit it directly. The editor returns edited writing, not review findings.
 
 ## Sub-Agent Selection
 
-Use this section when this skill spawns sub-agent workers.
+Choose sub-agent workers as follows.
 
 - Choose the first available entry for the worker role.
-- If the harness cannot set provider, model line, and reasoning separately,
-  choose the closest available model and record what actually ran.
+- If the agent tool cannot set provider, model line, and reasoning separately, choose the closest available model.
+  Record what actually ran.
 - Do not spawn extra workers just to use every entry.
-- Spawn workers only when a worker can produce a disjoint patch that the judge
-  can verify and integrate cheaply.
-- Do not delegate cross-cutting architecture, shared ownership decisions, or
-  final integration.
+- Spawn workers only when their patches do not overlap and the judge can check and combine them with little effort.
+- Keep architecture that spans modules, decisions about shared ownership, and final integration with the judge.
 
 ### Implementation Worker
 
@@ -52,10 +48,10 @@ Use this section when this skill spawns sub-agent workers.
 Good worker tasks:
 
 - one module or adapter
-- one UI surface
+- one part of the UI
 - one test file or test suite
 - one docs update before the final technical-writing edit
-- one mechanical refactor slice
+- one mechanical part of a refactor
 
 ### Technical-Writing Editor
 
@@ -84,27 +80,25 @@ Use the first available entry.
 
 ### DETERMINE_DELEGATION
 
-- Implement directly when the change is one bounded edit.
+- Implement directly when the change is one scoped edit.
 - Spawn sub-agent workers only when the work separates cleanly across files, domains, or independent tasks.
-- Use disjoint write scopes for parallel workers.
+- Give parallel workers separate files or areas to edit.
 - Workers must not spawn other workers, widen scope, or write the handoff.
-- The prompt of each worker MUST include:
-    - The bounded task and scope.
+- Each worker prompt must include:
+    - The assigned task and its limits.
     - The worker's assigned provider, model line, and reasoning level.
     - The skills to use, e.g. `skill: ts-principles`.
-    - The output shape: changes made, verification run, open risks.
-    - The rule that workers escalate tooling failures to the judge instead of silently downgrading output.
+    - The response format: changes made, checks run, open risks.
+    - The rule that workers report tool failures to the judge instead of silently doing less work.
 
 ### APPLY_CHANGES
 
 - Apply the changes per `skill: ts-principles`.
 - Add or update tests when the changed behavior needs proof.
-- Before finishing code, check changed exported contracts, invariants, failure
-  modes, concurrency, performance, security, and domain rules for knowledge the
-  code cannot carry.
-- Add the nearest useful documentation: `/** ... */` for exported contracts,
-  short comments for non-obvious invariants or sharp edges, or source-owned docs
-  for changed behavior.
+- Before finishing code, check whether changed exported interfaces, rules that must hold, failure cases, concurrency,
+  performance, security, or domain rules need an explanation the code cannot give.
+- Put that explanation nearby: `/** ... */` for exported interfaces, short comments for surprising rules or pitfalls,
+  or docs kept with the source for changed behavior.
 - Do not add comments that repeat names, types, schemas, tests, or obvious code.
 
 ### EDIT_TECHNICAL_WRITING
@@ -118,13 +112,13 @@ Use the first available entry.
   patch, not review findings or suggestions.
 - The editor must preserve technical facts, commands, APIs, file paths, code
   symbols, examples, source links, behavior, and scope.
-- The editor may fix audience fit, artifact shape, structure, bullets, prose,
-  examples, and llm-isms.
+- The editor may adjust the writing to its reader and purpose, fix structure, bullets, prose, and examples,
+  and remove llm-isms.
 - The judge must not perform the technical-writing edit itself. The judge may
   make factual corrections after the edit.
-- If factual corrections materially rewrite the writing, run the editor again.
+- Run the editor again if factual corrections substantially change the text.
 - The editor prompt must include:
-    - The changed writing surfaces and exact file paths.
+    - The changed writing and its exact file paths.
     - The technical facts and behavior that must not change.
     - The assigned provider, model line, and reasoning level.
     - `skill: ts-technical-writing`.
@@ -135,13 +129,13 @@ Use the first available entry.
 - Run the most relevant checks available: typecheck, lint, tests touching the change.
 - If a required check cannot run after the obvious fix, stop and escalate. In a workflow, return
   `STATUS: ESCALATE: <tool> unavailable: <reason>`. Outside a workflow, stop and surface the failure inline.
-  Recording-and-proceeding is allowed only when the task input explicitly authorizes proceeding without that check.
+  Record the failure and continue only when the task explicitly allows proceeding without that check.
 
 ### HANDOFF
 
 - Report:
-    - Scope changed.
-    - Verification run and result.
-    - Open risks or deviations.
+    - What changed.
+    - Checks run and their results.
+    - Open risks or departures from the requested work.
     - Findings resolved or still unresolved.
 - If a log path was provided, use the `ts-log` skill to update it. Otherwise report inline.

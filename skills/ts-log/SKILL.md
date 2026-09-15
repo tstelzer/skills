@@ -9,8 +9,8 @@ description: Keep a shared work log. Only explicitly triggered by user.
 
 Maintain a shared work log that lets another agent continue without reading chat history.
 
-Use it when the user, another skill, or a workflow asks for a log or provides a log path. The log records major
-developments and links to durable work artifacts. It does not contain those artifacts.
+Use it when the user, another skill, or a workflow asks for a log or provides a log path.
+Record major developments and link to durable work artifacts. Do not copy those artifacts into the log.
 
 ## Location
 
@@ -25,19 +25,19 @@ Create `docs/work-logs/` if it does not exist.
 ## Rules
 
 - Read an existing log before contributing to it.
-- Keep chronological entries append-only. Use `## Log` unless the caller defines another section.
+- Append entries in time order. Do not rewrite old entries. Use `## Log` unless the caller defines another section.
 - Keep `## Artifacts` to artifact links only.
 - Link every durable work artifact created or used.
 - Record major developments that affect later work. This includes completed work, decisions, discoveries, changed
   assumptions, blockers, and handoffs.
-- State the consequence of a linked artifact when it affects later work. Do not summarize or copy its contents.
+- Say how a linked artifact affects later work. Do not summarize or copy its contents.
 - Do not paste command output. Record a command and its result only when they affect later work.
 - Do not repeat information that is already clear from a linked artifact or the repository.
 - Write for an agent that has the repository and log, but no chat history.
-- Let calling skills and workflows add arbitrary sections and entry fields.
+- Let calling skills and workflows add any sections and entry fields they need.
 - Follow rules defined by the calling skill or workflow for the sections it owns.
 - Preserve sections and conventions you do not own.
-- Do not impose a single current state, next action, work type, or thread of execution.
+- Do not require all work to share one current state, next action, work type, or work sequence.
 
 ## What Belongs Here
 
@@ -61,11 +61,10 @@ Do not add:
 
 ## Log
 ### YYYY-MM-DD HH:MM - <short description>
-<concise record of the development and its implications>
+<what happened and how it affects later work>
 ```
 
-Calling skills and workflows may add arbitrary sections and may define a different chronological section or entry
-shape.
+Calling skills and workflows may add sections or choose another section or format for entries in time order.
 
 ## Examples
 

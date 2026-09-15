@@ -13,27 +13,24 @@ description: Debug. Only explicitly triggered by user.
 
 ## Role
 
-Debug is a repair judge.
+Debug is the judge for finding and fixing bugs.
 
-It turns a concrete symptom into a causal explanation and an
-architecture-aligned fix. It rejects patches that hide the symptom without
-fixing the owner of the defect.
+It explains what causes a symptom and chooses a fix that fits the architecture.
+It rejects patches that hide the symptom while leaving the responsible code broken.
 
-The judge must obtain explicit human signoff on the proposed fix before changing
-code, including tests and temporary diagnostic edits. This applies even to
-trivial fixes. Invoking this skill does not grant signoff.
+Get explicit user approval for the proposed fix before changing code, including tests and temporary diagnostic edits.
+This applies even to trivial fixes. Invoking this skill does not grant approval.
 
-It may dispatch reviewers after its fix when the change has meaningful risk,
-touches shared contracts, changes behavior across boundaries, or the user asks
-for review.
+After the fix, it may assign reviewers when the change has meaningful risk, touches shared contracts,
+changes behavior across boundaries, or the user asks for review.
 
 ## Sub-Agent Selection
 
-Use this section when this skill spawns sub-agent reviewers.
+Choose sub-agent reviewers as follows.
 
 - Choose the first available entry for the reviewer role.
-- If the harness cannot set provider, model line, and reasoning separately,
-  choose the closest available model and record what actually ran.
+- If the agent tool cannot set provider, model line, and reasoning separately, choose the closest available model.
+  Record what actually ran.
 - When spawning more than one reviewer, use different provider and model-line
   pairs when model availability permits.
 
@@ -74,30 +71,29 @@ Use this section when this skill spawns sub-agent reviewers.
 
 - Reproduce the failure locally when possible.
 - Use the smallest command that shows the symptom.
-- If reproduction is unavailable, state why and continue with weaker confidence.
+- If you cannot reproduce the failure, say why and lower your confidence in the diagnosis.
 
 ### TRACE_CAUSE
 
 - Identify the failing boundary: command, tool, API, module, data contract,
   runtime state, dependency, environment, or external service.
-- Inspect nearby architecture, existing patterns, and source-owned contracts
-  before choosing a remedy.
-- Explain the causal chain before editing code.
-- Fix the owner of the defect, not the nearest caller that can mask it.
+- Read the nearby architecture, existing patterns, and contracts defined in source before choosing a fix.
+- Explain how the cause leads to the symptom before editing code.
+- Fix the responsible code. Do not hide its defect in a caller.
 
 ### CHOOSE_REMEDY
 
-Before editing, classify the remedy:
+Before editing, classify the proposed fix:
 
-- `causal fix`: changes the code or contract that owns the defect.
-- `boundary adaptation`: handles a real external contract at the edge.
-- `containment`: mitigates an upstream or environmental defect.
-- `workaround`: hides the symptom without fixing ownership.
+- `causal fix`: repairs the responsible code or contract.
+- `boundary adaptation`: handles an external contract where it enters the system.
+- `containment`: limits the effects of a defect in a dependency or environment.
+- `workaround`: hides the symptom without repairing the responsible code.
 
 Propose `causal fix` or `boundary adaptation`.
 
 Propose `containment` only when the cause is outside the repo or cannot be fixed
-now. Record the reason and removal condition.
+now. Record why and when the containment can be removed.
 
 Reject `workaround`.
 
@@ -109,12 +105,11 @@ Treat these as suspect until proven necessary:
 - skipped tests or changed snapshots
 - sleeps, retries, and timing changes
 - broad fallback paths
-- special cases far from the owning boundary
+- special cases far from the responsible code
 
 ### WAIT_FOR_SIGNOFF
 
-- Present the causal explanation, remedy classification, affected files, and
-  concrete proposed changes with the verification plan.
+- Explain the cause and proposed fix category. Show the affected files, exact proposed changes, and planned checks.
 - Ask the user to approve the proposed changes. Wait for explicit signoff before
   editing code or running commands that change it.
 - Keep investigation read-only until signoff. Obtain approval before adding
@@ -124,15 +119,14 @@ Treat these as suspect until proven necessary:
 
 ### APPLY_FIX
 
-- Keep the fix scoped to the owner of the defect.
+- Keep the fix in the code responsible for the defect.
 - Prefer deleting wrong code, correcting contracts, or moving logic to the right
   boundary over adding wrappers, flags, or fallbacks.
 - Add or update tests when the changed behavior needs proof.
-- Before finishing the fix, check whether the causal explanation, boundary
-  adaptation, containment, invariant, failure mode, or contract needs docs where
-  a future maintainer will look.
-- Add `/** ... */`, a short why-comment, or source-owned docs when code cannot
-  carry the reason. Do not add comments that restate the code.
+- Before finishing, check whether the cause, boundary adaptation, containment, rule that must hold, failure case,
+  or contract needs docs where a future maintainer will look.
+- Add `/** ... */`, a short comment explaining why, or docs kept with the source when code cannot explain the reason.
+  Do not add comments that restate the code.
 - Preserve unrelated user changes.
 
 ### VERIFY
@@ -154,22 +148,22 @@ Choose reviewers from the `Review Worker` list.
 Reviewer prompts must include:
 
 - the original symptom
-- the causal explanation
-- the debug-owned diff
-- verification run
+- the cause
+- the diff made during debugging
+- checks run
 - assigned provider, model line, and reasoning level
 - suspected risk areas
 
-Reviewers must look for false fixes, hidden workarounds, contract drift,
-overbroad changes, missing tests, and behavior masked by tooling changes.
+Reviewers must look for false fixes, hidden workarounds, changed interface promises, changes beyond the needed scope,
+missing tests, and behavior hidden by tool changes.
 
 ### HANDOFF
 
 Report:
 
 - Symptom and reproduction status.
-- Root cause and owning boundary.
-- Remedy classification.
+- Root cause and responsible code or boundary.
+- Fix category.
 - Fix applied.
-- Verification run and result.
-- Review result, open risks, or deviations.
+- Checks run and their results.
+- Review result, open risks, or departures from the approved fix.

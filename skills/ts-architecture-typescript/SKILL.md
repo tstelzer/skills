@@ -9,9 +9,8 @@ description: >-
 
 ## Workspace and package boundaries
 
-Create a workspace only for a distinct deployable unit or code shared by
-multiple workspaces. A service, frontend, mobile application, or CLI is a
-deployable unit. Keep domains and features inside their owning workspace.
+Create a workspace only for something deployed separately or code shared by multiple workspaces.
+A service, frontend, mobile app, or CLI can be deployed separately. Keep domains and features in their workspace.
 
 Weak:
 
@@ -33,16 +32,15 @@ workspaces/api/src/
 
 Create an internal `core`, `lib`, or `domain` workspace when multiple
 workspaces share that code. Keep it private. Publish an npm package only when
-code must be consumed from other repositories or is deliberately open-sourced.
+other repositories need the code or you intend to release it as open source.
 
 ## Executables
 
-Give each executable one entrypoint. Use it as the composition root: load
-runtime inputs, construct adapters, connect resources, start the process, and
-close resources.
+Give each executable one entrypoint. Assemble the application there: load runtime inputs, create adapters,
+connect resources, start the process, and close resources. This is the composition root.
 
-Keep imports inert. Importing a module must not connect to a database, start a
-server, register process handlers, or run a command.
+Keep imports free of side effects. Importing a module must not connect to a database, start a server,
+register process handlers, or run a command.
 
 Weak:
 
@@ -80,13 +78,11 @@ export const main = async () => {
 ```
 
 Use a separate entrypoint for each independently run API, worker, CLI, or
-scheduled task. Compose only the resources that executable needs.
+scheduled task. Set up only the resources that executable needs.
 
-For a CLI with multiple subcommands, give each subcommand its own module. The
-module owns its arguments, command wiring, and CLI-specific boundary
-orchestration. Keep business and storage logic outside it. The entrypoint loads
-configuration, assembles the command tree, constructs shared dependencies,
-runs it, and closes resources.
+For a CLI with multiple subcommands, give each subcommand its own module. Put its arguments, command setup,
+and CLI coordination there. Keep business and storage logic outside it. The entrypoint loads configuration,
+assembles the command tree, creates shared dependencies, runs the command, and closes resources.
 
 ```text
 src/
@@ -99,20 +95,20 @@ src/
 
 ## File roles
 
-Choose the narrowest role that owns the behavior.
+Choose the most specific role that fits the behavior.
 
 | Role                    | Owns                                                                            |
 | ----------------------- | ------------------------------------------------------------------------------- |
-| Concept module          | Domain types, schemas, invariants, constructors, and related pure functions     |
-| Top-level function      | Named stateless logic that improves its caller, co-located with its domain       |
-| Service                 | A workflow that coordinates dependencies, or behavior with owned lifecycle      |
-| Repository              | Persistence operations and mapping between stored and application values        |
-| Adapter                 | A stateful client and the domain-shaped operations exposed above it              |
+| Concept module          | Domain types, schemas, rules that must hold, constructors, and pure functions    |
+| Top-level function      | Stateless logic that makes its caller clearer, kept with its domain             |
+| Service                 | Work that coordinates dependencies or manages its own lifecycle                |
+| Repository              | Storage operations and translation between stored and application values       |
+| Adapter                 | A stateful client and the domain operations it supports                         |
 | Controller or handler   | Protocol input, request context, one application operation, and protocol output |
-| DTO                      | Protocol schemas, wire types, and mapping to or from domain values               |
-| Configuration module    | One capability's environment parser and typed configuration slice               |
-| Framework-specific file | Framework wiring such as Nest modules, providers, decorators, or Effect layers  |
-| Composition root        | Runtime input, construction, startup, and shutdown                              |
+| DTO                     | Protocol schemas, wire types, and translation to or from domain values          |
+| Configuration module    | One capability's environment parser and typed settings                          |
+| Framework-specific file | Framework setup such as Nest modules, providers, decorators, or Effect layers  |
+| Composition root        | Runtime inputs, object creation, startup, and shutdown                          |
 
 Do not create one file for every function. Keep a small function beside its
 domain types or the workflow that uses it.
@@ -130,9 +126,8 @@ export const invoiceTotal = (invoice: Invoice): Money =>
   )
 ```
 
-Put a workflow in the service that owns its responsibility. Introduce a service
-only when that responsibility needs a distinct owner. Call a dependency
-directly when that call is the complete operation.
+Put a workflow in the service responsible for it. Add a service only when the work needs a separate owner.
+Call a dependency directly when that call does the whole job.
 
 Weak:
 
@@ -170,11 +165,9 @@ class RegisterUser {
 }
 ```
 
-Always put a constructed, stateful client behind an application adapter. The
-adapter owns client access and boundary translation, and exposes domain-shaped
-operations instead of the vendor API. Construct and close the client inside the
-adapter or composition root. Pure, stateless client modules may be used
-directly.
+Always put a constructed, stateful client behind an application adapter. The adapter accesses the client,
+translates its data, and exposes domain operations rather than the vendor API.
+Create and close the client in the adapter or composition root. Pure, stateless client modules may be used directly.
 
 ```ts
 // main.ts
@@ -192,20 +185,17 @@ import { addDays } from "date-fns"
 export const paymentDueAt = (issuedAt: Date) => addDays(issuedAt, 30)
 ```
 
-A controller, handler, or consumer translates its protocol boundary. It parses
-input, establishes request context, calls one application operation, and maps
-the result back to the protocol. It does not own business rules or storage.
+A controller, handler, or consumer translates between the protocol and application. It parses input, sets up request
+context, calls one application operation, and translates the result back. Keep business rules and storage outside it.
 
 ## Configuration and secrets
 
 - Load dotenv and read `process.env` only inside an executable's entry
   function.
-- Treat the environment as one boundary read, not as a global application
-  configuration.
-- Let each capability define a parser that extracts only its configuration
-  slice. Invoke those parsers in the composition root and pass typed results
-  inward.
-- Do not construct or inject a super-config containing unrelated settings.
+- Read the environment once at the entrypoint. Do not use it as global application configuration.
+- Let each capability define a parser that extracts only its own settings. Call those parsers in the composition root
+  and pass their typed results to the code that needs them.
+- Do not create or inject one config object containing unrelated settings.
 - Convert environment names to application names during parsing.
 - Wrap secrets in a redacted type. Reveal them only at the final client or
   process boundary.

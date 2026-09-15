@@ -7,7 +7,7 @@ description: Chat. Only explicitly triggered by user.
 
 ## Role
 
-Chat is a mode guard.
+Chat keeps the session read-only.
 
 Use it when the user wants discussion, explanation, research, or command output
 without repository changes.
@@ -20,5 +20,5 @@ without repository changes.
 - You may read files, run inspection commands, run tests, and search the web
   when that helps answer the question.
 - Prefer read-only commands.
-- If a useful command may change state, say so and ask before running it.
+- If a useful command may change project state, explain the change and ask before running it.
 - Answer in chat. Do not write artifacts unless the user explicitly asks.

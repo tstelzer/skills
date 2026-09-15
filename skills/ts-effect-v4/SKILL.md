@@ -11,17 +11,17 @@ description: Effect v4 handbook for effect@4 and effect/unstable/*. Use ts-effec
 - Commit: `2600f62f4532026928454dcea8d1c48557b3f942`
 - Package: `effect@4.0.0-rc.112`
 
-Treat the commit, not a moving branch name, as the source for this handbook version.
+Use this commit as the source for this handbook version. A branch name can move to another commit.
 
-## Routing
+## Where to start
 
-- Do not read this file linearly. Pick one target.
+- Do not read this file in order. Pick one topic.
 - Match the task to a folder below.
 - For API lookup, open the file whose title fits.
-- For implementation or review, read that folder's `index.md` and the relevant
-  examples. The index contains behavioral rules that examples may not repeat.
-- Within a folder, the lowest-numbered file is the lead example for that topic; higher numbers add variations.
-- `fixtures/` folders hold supporting modules for an example, not standalone topics.
+- For implementation or review, read that folder's `index.md` and relevant examples.
+  The index states rules the examples may not repeat.
+- In each folder, the lowest-numbered file is the main example. Higher numbers show variations.
+- `fixtures/` folders hold modules used by examples. They are not separate topics.
 - Migrating existing v3 code? Go to [Migration](#migration) first.
 
 ## Identify the version
@@ -123,33 +123,28 @@ Each folder also has an `index.md` with the section intro.
 
 ## Final consistency audit
 
-Before finishing an Effect implementation or review, inspect the complete
-change for:
+Before finishing an Effect implementation or review, check the whole change for:
 
 - Direct `node:*`, `process.*`, `Date.now()`, randomness, or global environment
   access that should use an Effect capability or explicit dependency.
-- Hidden service inputs and platform layers provided inside implementations
-  instead of at the runtime edge.
-- Manual promise lifecycles, `try` / `finally`, or cleanup that should be
-  scoped.
+- Hidden service inputs or platform layers supplied inside implementations instead of where the program starts.
+- Promises managed by hand, `try` / `finally`, or cleanup that should use a scope.
 - `catch` handlers that only log, render, set metadata, or return `void`.
 - Broad `mapError`, `unknown`, `instanceof`, `catchDefect`, or `orDie` usage
-  that hides a narrower typed failure boundary.
-- Cleanup behavior that accidentally suppresses a required failure or replaces
-  the original result.
+  that hides a more specific error type at the boundary.
+- Cleanup that hides a failure that must be reported or replaces the original result.
 - Missing, empty, malformed, partial, and complete outcomes that callers need
   to distinguish.
-- Normalization or disclosure of opaque or redacted values.
-- Pure transformations coupled to Effect or output.
-- One-use Effect wrappers, copied result types, or tests that protect
-  implementation shape instead of public behavior.
-- Repeated tests that should be table-driven and missing boundary, cleanup, or
-  exact-value-preservation cases.
+- Normalizing or exposing opaque or redacted values.
+- Pure transformations that depend on Effect or output.
+- One-use Effect wrappers, copied result types, or tests that check code structure instead of public behavior.
+- Repeated tests that should use tables, and missing tests for boundaries, cleanup,
+  or keeping values exactly as received.
 
 ## Migration
 
 Migrating v3 → v4. Start at **`migration/MIGRATION.md`**.
-It covers versioning, package consolidation, and the `effect/unstable/*` system. It indexes:
+It explains versions, merged packages, and `effect/unstable/*`. It links to:
 
 - `migration/v3-to-v4.md`: import and API rename maps.
 - `migration/services.md`: `Context.Tag` → `Context.Service`.

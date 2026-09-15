@@ -12,8 +12,7 @@ description: Explore. Only explicitly triggered by user.
   - Read every linked principle detail document before exploring.
 - skill: ts-project-context
   - The judge must read `ts-project-context/SKILL.md`.
-  - Keep the full record at judge level. Give workers only entries relevant to
-    their bounded task.
+  - Keep the full record with the judge. Give workers only entries needed for their assigned task.
 - skill: ts-technical-writing
   - Read `ts-technical-writing/SKILL.md`.
   - Read every linked technical-writing detail document before writing an artifact.
@@ -22,29 +21,25 @@ description: Explore. Only explicitly triggered by user.
 
 Explore is a judge.
 
-It owns scope, context loading, questions, synthesis, decisions, and any saved
-design artifact. Use it to build a source of truth about a problem space,
-solution space, domain, workflow, system behavior, or product decision.
+It sets scope, reads context, asks questions, combines findings, makes decisions, and saves any design document.
+Use it to establish what is known about a problem, possible solutions, a domain, a workflow, system behavior,
+or a product decision.
 
-The judge may do the exploration directly. Delegate only when a bounded lens can
-run independently, such as domain modeling, existing behavior, user workflow,
-API contracts, state models, abuse cases, operations, migration risk, or prior
-art. Workers return notes.
+Explore directly or delegate a separate part, such as the domain model, existing behavior, user workflow,
+API promises, states, abuse cases, operations, migration risk, or earlier solutions. Workers return notes.
 
-The technical-writing editor is the exception: for written artifacts, always
-spawn a sub-agent with `skill: ts-technical-writing`. The editor edits the
-artifact text directly. It is not a reviewer and must not return findings.
+For written documents, always spawn a sub-agent with `skill: ts-technical-writing` to edit the text directly.
+The editor returns edited text, not review findings.
 
 ## Sub-Agent Selection
 
-Use this section when this skill spawns sub-agent workers.
+Choose sub-agent workers as follows.
 
 - Choose the first available entry for the worker role.
-- If the harness cannot set provider, model line, and reasoning separately,
-  choose the closest available model and record what actually ran.
+- If the agent tool cannot set provider, model line, and reasoning separately, choose the closest available model.
+  Record what actually ran.
 - Do not spawn extra workers just to use every entry.
-- Spawn workers only when a worker can produce independent evidence that the
-  judge can verify and integrate cheaply.
+- Spawn workers only when they can gather separate evidence that the judge can check and use with little effort.
 
 ### Exploration Worker
 
@@ -55,15 +50,15 @@ Use this section when this skill spawns sub-agent workers.
 | 3 | OpenAI | `sol` latest | `high` |
 | 4 | Cursor | `composer` | `high` |
 
-Good worker lenses:
+Good worker tasks:
 
-- current behavior trace
-- API or data contract map
+- trace current behavior
+- map API or data promises
 - state model
 - user workflow map
 - abuse or failure cases
 - operations, performance, or migration risk
-- prior-art scan
+- find earlier solutions
 
 ### Technical-Writing Editor
 
@@ -86,10 +81,9 @@ Use the first available entry.
 
 ### SET_SCOPE
 
-- Treat exploration as knowledge finding.
-- Explore the problem space, solution space, existing system, constraints,
-  tradeoffs, decisions, risks, and open questions.
-- Name the subject and boundary of the exploration.
+- Use exploration to learn.
+- Explore the problem, possible solutions, existing system, limits, tradeoffs, decisions, risks, and open questions.
+- State what the exploration covers and where it stops.
 - If the request revises an existing design artifact, use that existing design
   path as the artifact path.
 - Default to chat. Write an artifact only when the user asks for one or the
@@ -100,27 +94,26 @@ Use the first available entry.
 - Use skill: ts-project-context to load shared facts and decisions.
 - Read repo files, docs, configs, prior plans, prior designs, `AGENTS.md`, and
   external references when they change the understanding.
-- Use principle detail docs as lenses for the topic.
+- Use the principle details to guide what you examine.
 
 ### MAP_SPACE
 
-Build the smallest useful map:
+Describe the parts needed to understand the topic:
 
 - problem or decision
 - users, actors, readers, or operators
 - current state
 - domain terms
 - states and transitions
-- boundaries and ownership
-- contracts and long-lived interfaces
+- where parts meet and who owns them
+- promises and long-lived interfaces
 - constraints
 - assumptions
 - risks and edge cases
 - unknowns
 
-Adapt the map to the topic. A general problem space may need taxonomy,
-principles, tradeoffs, history, or competing frames. A product workflow may need
-actors, states, failure modes, and constraints.
+Adapt this to the topic. A broad problem may need categories, principles, tradeoffs, history, or competing views.
+A product workflow may need actors, states, ways it can fail, and limits.
 
 ### RUN_EXPLORATION_LOOP
 
@@ -133,21 +126,20 @@ scope changes:
 4. CHECK_GATES
 5. WRITE_ARTIFACT
 
-For written artifacts, write early and keep the design document current after
-each meaningful synthesis. The user should be able to stop and resume from the
-artifact without losing important context.
+Write design documents early and update them when findings change the understanding.
+The user must be able to stop and resume from the document without losing important context.
 
 ### ASK_QUESTIONS
 
 - Ask only questions whose answers change the understanding.
 - Prefer one critical question over several weak ones.
-- Keep question batches answerable and purposeful.
-- Explain what decision or uncertainty each question unlocks when useful.
-- Stop asking when the next synthesis step is clear enough.
+- Keep question batches focused and easy to answer.
+- When useful, explain what decision or unknown each answer will settle.
+- Stop asking when you have enough to explain what you have learned.
 
 ### SYNTHESIZE
 
-Give each material item a disposition:
+Classify each important finding:
 
 - accepted fact
 - source-owned contract
@@ -161,57 +153,51 @@ Give each material item a disposition:
 - risk
 - follow-up exploration target
 
-Use these categories while reasoning. Do not copy their names into the artifact unless a label helps the reader find or
-compare information.
+Use these categories to think through the findings. Include their names in the document only when labels help the
+reader find or compare information.
 
-Before writing, classify each concrete implementation statement as a decision,
-constraint, example, implementation implication, or planning note. Exclude
-planning notes from durable artifacts.
+Before writing, classify each implementation statement as a decision, constraint, example, implementation implication,
+or planning note. Keep planning notes out of saved documents.
 
-When a concrete implementation choice is a design decision, explain the reason
-or context that makes it part of the design. Do not leave it as a task command.
+When an implementation choice is part of the design, explain why it belongs there. Do not write it as a task command.
 
 Resolve disagreements and contradictions when possible. Preserve them as open
 questions or risks when they remain unresolved.
-When synthesis produces candidate project context, follow the
-`ts-project-context` approval flow.
+When findings could become shared project context, follow the `ts-project-context` approval flow.
 
 ### EDIT_TECHNICAL_WRITING
 
 - Skip only for chat-only exploration with no written artifact.
 - Before writing or updating an artifact, spawn a technical-writing editor
   sub-agent with `skill: ts-technical-writing`.
-- The editor owns prose, structure, headings, bullets, examples, and llm-ism
-  removal.
+- The editor edits prose, structure, headings, bullets, and examples, and removes llm-isms.
 - The editor edits the artifact draft directly. It must return the edited
   artifact text, not review findings or suggestions.
 - The editor must preserve meaning, exact technical names, facts, decisions, scope, source links, line references,
   contracts, assumptions, risks, and open questions. It may rewrite abstract labels and workflow terms.
 - The judge must not perform the technical-writing edit itself. The judge may
   make factual corrections after the edit.
-- If factual corrections materially rewrite the artifact, run the editor again.
+- Run the editor again if factual corrections substantially change the document text.
 - The editor prompt must include:
   - `skill: ts-technical-writing`
   - the reader and artifact purpose
   - the full draft or artifact path
-  - the source constraints that must not change
+  - the source requirements that must not change
   - the rule that the editor is not a reviewer and must edit directly
 
 ### CHECK_GATES
 
-At each synthesis point, verify:
+After combining findings, check:
 
-- The synthesis answers the requested exploration scope.
-- The confidence level matches the evidence gathered.
+- The explanation answers the requested exploration.
+- Match the strength of claims to the evidence.
 - Assumptions are labeled.
 - Open questions are real unresolved unknowns.
-- Remaining uncertainty is clear enough for the user to decide whether to keep
-  exploring.
+- The user can see what remains uncertain and decide whether to keep exploring.
 
 For written artifacts, also verify:
 
-- A technical-writing editor edited the artifact after the latest material
-  synthesis.
+- A technical-writing editor edited the document after the latest substantial change in understanding.
 - The artifact stands alone without prior chat.
 - Section choices fit the topic.
 
@@ -223,11 +209,10 @@ For written artifacts, also verify:
   `<repository-root>/docs/designs/YYYY-MM-DD_HH:MM_<design-name>.md`.
 - When updating an existing design, write back to the existing artifact path.
   Do not create a revised copy.
-- Rewrite the whole artifact on each update so it reads as the current source
-  of truth.
-- When source files or reference docs own a contract, link to the owner with line numbers and summarize only the facts
-  the reader needs. Do not inline copied source contracts, generated output, schemas, or command definitions unless the
-  source is unavailable or the snippet is explicitly illustrative.
+- Rewrite the whole document on each update so it states the current understanding.
+- When source files or reference docs define a contract, link to them with line numbers and summarize only what the
+  reader needs. Do not copy contracts, generated output, schemas, or command definitions into the document unless the
+  source is unavailable or the snippet is clearly an example.
 - State decisions in the system's own words. Explain the reason in the next sentence or bullet. Use labels such as
   `Constraint` or `Risk` only when they help the reader scan the document.
 - Avoid roadmap and task-order language such as `next`, `before`, `for v1`,
@@ -238,15 +223,14 @@ For written artifacts, also verify:
 
 Do not force a standard section list.
 
-Use domain- or problem-specific sections. Headings should use names from the domain or system. Name the topic or
-decision, not a workflow category from this skill.
+Choose sections for the problem or domain. Use the system's names in headings. Name the topic or decision,
+not a workflow category from this skill.
 
 Each section should state what the reader needs to know about its topic. Include decisions, reasons, risks,
 assumptions, and open questions when they apply. Do not repeat the whole checklist in every section.
 
 Write short paragraphs and direct sentences. Do not pack context, a decision, its reason, and its risks into one
-sentence. Prefer concrete examples over abstract framing. Cut filler, transition phrases, roadmap language, and empty
-setup.
+sentence. Prefer concrete examples. Cut filler, transition phrases, roadmap language, and empty introductions.
 
 The first section after the title should state the problem, what is known, and which choices remain open. Do not write a
 task list or roadmap.
@@ -255,7 +239,7 @@ Preserve:
 
 - contracts owned by source files or reference docs, linked rather than copied;
 - decisions and their reasons;
-- rejected or deferred options when they clarify the decision space;
+- rejected or postponed options when they clarify the available choices;
 - risks, edge cases, assumptions, and open questions.
 
 Omit empty sections.
@@ -265,5 +249,4 @@ Omit empty sections.
 - Continue exploration when useful questions remain.
 - Stop when the requested scope is understood well enough, or when remaining
   uncertainty is explicit.
-- If chat exploration has produced candidate project context, follow the
-  `ts-project-context` approval flow.
+- If chat findings could become shared project context, follow the `ts-project-context` approval flow.

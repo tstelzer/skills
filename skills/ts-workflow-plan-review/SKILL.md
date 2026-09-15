@@ -9,8 +9,7 @@ description: Run a plan-review loop. Only explicitly triggered by user.
 
 - skill: ts-log
 
-Do not read `ts-plan` or `ts-review` in the router. Pass those skill names
-verbatim to the dispatched judges.
+The router must not read `ts-plan` or `ts-review`. Pass those exact skill names to the assigned judges.
 
 ## Role
 
@@ -20,33 +19,32 @@ It runs a fixed sequence:
 
 `(judge-plan -> judge-review){1,n}`
 
-It dispatches judge passes to subagents, reads status and finding dispositions,
-and routes the next pass. It never plans, reviews, edits artifacts, or changes
+It sends each pass to a sub-agent judge, reads the status and planned action for each finding,
+and chooses the next pass. It never plans, reviews, edits artifacts, or changes
 the plan content itself.
 
-The router's only write target is the work log. Any artifact change belongs
-to a dispatched judge.
+The router writes only the work log. A dispatched judge makes any artifact changes.
 
 Use this when the user asks for an implementation plan and wants a review loop.
-This skill does not implement code. The plan is the primary artifact.
+This skill does not implement code. The plan is the main artifact.
 
-## Artifact Contract
+## Artifact Rules
 
-- This workflow has one primary artifact: the plan.
+- The plan is this workflow's main artifact.
 - Pass 1 creates the plan and records one `plan` link in `## Artifacts`.
 - Later planning passes rewrite the same plan file.
 - Do not create `revised`, `v2`, or replacement plan files for review findings.
 - `## Artifacts` must contain exactly one `plan` link. Remove competing plan
   links before returning.
-- Review artifacts and the work log are supporting artifacts.
+- Reviews and the work log support the plan.
 
 ## Sub-Agent Selection
 
-Use this section when this skill dispatches sub-agent judges.
+Choose sub-agent judges as follows.
 
 - Choose the first available entry for the judge role.
-- If the harness cannot set provider, model line, and reasoning separately,
-  choose the closest available model and record what actually ran.
+- If the agent tool cannot set provider, model line, and reasoning separately, choose the closest available model.
+  Record what actually ran.
 - Do not dispatch extra judges just to use every entry.
 
 ### Planning Judge
@@ -82,22 +80,16 @@ Use this section when this skill dispatches sub-agent judges.
 - Use the `ts-log` skill to create the shared work log.
 - Record the user request as `Source request:`. Link a design artifact when one
   exists, or copy the request inline.
-- In this workflow, the router owns log creation and routing state. Each
-  judge pass owns its own log entry, artifact links, findings, worker dispatch
-  count, types, providers, model lines, reasoning levels, and handoff.
-- The router must record the exact selected provider, model line, and reasoning
-  level for each dispatched judge in the work log.
-- When composing a judge prompt, replace `<provider>`, `<model-line>`, and
-  `<reasoning>` with the actual selected values.
+- The router creates the log and records which pass runs next. Each judge pass records its own log entry,
+  artifact links, findings, worker count, types, providers, model lines, reasoning levels, and handoff.
+- Record each dispatched judge's exact provider, model line, and reasoning level in the work log.
+- Replace `<provider>`, `<model-line>`, and `<reasoning>` in each judge prompt with the selected values.
 - Always pass the same log path to every judge pass.
 - Use the owning skill's artifact directory for each pass: plans in
   `docs/plans/`, reviews in `docs/reviews/`, work logs in `docs/work-logs/`.
-- Sub-agents must start with fresh context. Never fork parent history. Use a
-  self-contained prompt: cwd, log path, source request, relevant artifacts, and
-  output contract.
-- Always close sub-agents once they return. After each pass returns its status
-  line, kill the spawned sub-agent before routing the next pass; do not let them
-  stick around.
+- Start sub-agents with fresh context. Never pass parent history. Give each a complete prompt with the cwd,
+  log path, source request, relevant artifacts, and required response format.
+- Close each sub-agent after it returns its status line, before choosing the next pass.
 
 ### DISPATCH_PLAN
 
@@ -114,31 +106,26 @@ Task input:
 - On pass 1: produce the plan for the linked source request from the log.
 - If the log contains developer feedback, use it as input to rewrite the affected
   plan sections.
-- On later passes: read the canonical `plan` artifact linked in `## Artifacts`,
-  use open blocking findings and the latest review handoff as inputs, and
-  rewrite that same file so the affected plan sections are correct.
-- On later passes, make the smallest revision that resolves each blocker.
+- On later passes: read the main `plan` artifact linked in `## Artifacts`. Use open blocking findings
+  and the latest review handoff to correct the affected sections in that same file.
+- On later passes, make the smallest edit that fixes each blocker.
   Treat suggested fixes as advice.
-- Escalate before adding a product goal or making a decision reserved for the
-  user.
+- Escalate before adding a product goal or making a decision reserved for the user.
 - On later passes, return `STATUS: BLOCKED: missing canonical plan artifact` if
   the log has no valid `plan` link.
-- Preserve review-owned direct writing edits recorded in the log unless an open
-  finding explicitly requires changing them.
+- Preserve the writing edits the reviewer recorded in the log unless an open finding explicitly requires changing them.
 
 Artifact destinations:
 - Pass 1 plan artifact: `docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
 - Later pass plan artifact: the existing `plan` path linked in `## Artifacts`.
 - Work log: `<path>`.
-- Record exactly one canonical `plan` link in `## Artifacts`.
+- Record exactly one main `plan` link in `## Artifacts`.
 
 Before returning, you must:
 - Write the plan artifact using the `ts-plan` artifact rules.
-- For revisions, write back to the canonical `plan` path. Do not add a second
-  plan link.
+- Write revisions to the same main `plan` path. Do not add a second plan link.
 - Write or update the work log at `<path>`.
-- Keep the work log as coordination state with links, finding dispositions,
-  pass status, and handoff.
+- Keep links, the planned action for each finding, pass status, and handoff in the work log.
 - Record the dispatched judge and every worker as provider, model line, and
   reasoning level in the work log.
 - Record worker dispatches as `<count> (<type>: <provider>/<model-line>/<reasoning>, ...)`, e.g.
@@ -161,51 +148,46 @@ You are the review judge. Use `skill: ts-review`.
 Work log path: <path>.
 Dispatched judge: provider <provider>, model line <model-line>, reasoning <reasoning>.
 
-Review the canonical `plan` artifact linked in `## Artifacts`
-against the source request. Score the plan only; there is no implementation diff
-in this workflow. Return
+Review the main `plan` artifact linked in `## Artifacts` against the source request.
+Assess only the plan; this workflow has no implementation diff. Return
 `STATUS: BLOCKED: missing valid plan artifact link` until that target exists.
-The source request, named design, and recorded user decisions define the review
-contract. Principles do not add product goals. The first formal review is
+Review against the source request, named design, and recorded user decisions.
+Principles do not add product goals. The first formal review is
 `initial`; later reviews are `follow-up`.
 
 For a new inspection, run all review types from `skill: ts-review`.
-When dispatched to resolve pending review questions, resume adjudication
-from the existing artifact. Preserve mode, finding IDs, and admission; inspect
-only missing or changed evidence.
+When answering pending review questions, continue ruling on findings from the existing artifact.
+Keep the mode, finding IDs, and admission classes. Inspect only missing or changed evidence.
 Workers do not know the mode or prior rulings. Classify their findings:
-- `regular`: found initially or introduced by an identified later revision
-- `out-of-scope`: no basis in the review contract or plan revision
-- `carried`: the same open finding remains unresolved
-- `regression`: the same resolved finding has recurred
+- `regular`: found in the first review or caused by a known later revision
+- `out-of-scope`: not supported by the review requirements or plan revision
+- `carried`: the same open finding is still unresolved
+- `regression`: the same resolved finding has returned
 - `late`: first reported in a follow-up without a later revision that caused it
 
-`carried` and `regression` require the prior ID and the same requirement and
-impact. A broader defect gets its own class. New follow-up findings default to
-`late`; use `regular` only when evidence names the later revision that caused
-it. Record `**Admission:**` and `**Scope Basis:**` with the requirement,
-decision, finding ID, or plan revision.
-Technical-writing review may edit the canonical plan artifact when `ts-review`
-allows a direct writing edit. Keep the same canonical plan link.
+Use `carried` or `regression` only for the prior ID with the same requirement and impact.
+Classify broader defects separately. New follow-up findings default to `late`.
+Use `regular` only when evidence identifies the later revision that caused the defect.
+Record `**Admission:**` and `**Scope Basis:**` with the requirement, decision, finding ID, or plan revision.
+Technical-writing review may edit the main plan when `ts-review` allows it. Keep the same main plan link.
 
-Rule on every finding before assigning work. Keep rejected, resolved, and
-duplicate findings in the review artifact without remediation tasks.
+Rule on every finding before assigning work. Keep rejected, resolved, and duplicate findings in the review artifact.
+Do not assign fixes for them.
 For deferred rulings, record the finding IDs and exact questions in the log and
 return `STATUS: ESCALATE: review context needed` for the router to relay.
-Apply these dispositions only to upheld findings, using final severity:
+Choose actions only for upheld findings, using their final severity:
 - Critical and high `regular`, `carried`, and `regression`: `fix now`.
 - Critical and high `late`: `fix now` only when the plan would otherwise
   violate the request, contradict itself, or leave required work undecided.
-- Other `late`, low, or `out-of-scope`: executable `follow-up`.
+- Other `late`, low, or `out-of-scope`: `follow-up` with enough detail to carry out.
 - A new product goal or user decision: `STATUS: ESCALATE`.
 
-This is a formal workflow review, not an informal review. You must write a
-separate review artifact, even when there are no findings.
+This is a formal workflow review. Write a separate review artifact even when there are no findings.
 Keep upheld and deferred findings in `## Open Findings`, with ruling, reasoning,
 final severity, admission, scope basis, disposition, and next action. Remove
 closed entries from that section; retain every finding in the review artifact.
 
-Review status semantics:
+Review status meanings:
 - `STATUS: DONE`: review completed with no blocking findings or deferred rulings.
 - `STATUS: BLOCKED`: review completed with blocking findings for the next planning pass.
 - `STATUS: ESCALATE`: a human decision or exception is needed.
@@ -217,8 +199,7 @@ Before returning, you must:
   - Review artifact: `docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
   - Work log: `<path>`.
 - Record the review artifact link in `## Artifacts`.
-- Keep the work log as coordination state with links, finding dispositions,
-  pass status, worker metadata, and handoff.
+- Keep links, the planned action for each finding, pass status, worker metadata, and handoff in the work log.
 - If direct edits were made, record changed paths and purpose in the review
   artifact and work log handoff.
 - Record the dispatched judge and every worker as provider, model line, and
@@ -235,19 +216,18 @@ STATUS: ESCALATE: <reason>
 ### ROUTE_NEXT_PASS
 
 - Read `## Open Findings` and `## Current State` from the log before deciding.
-- Count each completed review round once in `## Current State`. A review paused
-  for context and its resumed adjudication belong to the same round.
+- Count each completed review round once in `## Current State`.
+  Pausing for context and resuming rulings stays within the same round.
 - If subagent dispatch fails (tool error, no return), stop with `STATUS: BLOCKED: subagents unavailable`.
 - If a dispatched judge returns no status line or more than one, stop with `STATUS: BLOCKED: invalid handoff`.
 - If planning returns `BLOCKED` or `ESCALATE`, stop and report.
 - If review returns `ESCALATE`, relay its recorded questions or decision to the
   user. Leave the next handoff in `## Current State`; stop until answered.
 - If review returns `BLOCKED`, route from `## Open Findings`.
-- Treat any `fix now` finding as blocking. Use the review judge's disposition;
-  do not reclassify findings in the router.
+- Treat every `fix now` finding as blocking. Use the action chosen by the review judge.
+  The router must not reclassify findings.
 - If review has no blocking findings or deferred rulings, stop with `STATUS: DONE`.
-- If review has blocking findings and the round limit is not reached, dispatch
-  planning again with the same log path and canonical plan path.
+- If review has blocking findings and rounds remain, run planning again with the same log path and main plan path.
 - If developer feedback arrives after any router report, handle it through
   `HANDLE_DEVELOPER_FEEDBACK`.
 - Default round limit is 5 unless the user sets another. One round is one
@@ -259,11 +239,10 @@ STATUS: ESCALATE: <reason>
 
 - Record user feedback verbatim in `## Timeline` and its next handoff in
   `## Current State`, including feedback after `STATUS: DONE`.
-- Route answers to pending review questions back to a fresh review judge with
-  the same log and review artifact. Resume adjudication in the same round;
-  the judge records reusable context and updates the rulings.
+- Send answers to pending review questions to a fresh review judge with the same log and review artifact.
+  Continue rulings in the same round. The judge records context useful to later tasks and updates the rulings.
 - Route plan change requests to planning as a new round, then review. Pass the
-  same log and canonical plan paths and any accompanying context answers.
+  same log and main plan paths and any accompanying context answers.
 - Before dispatch, update only the work log. Never edit the plan.
 
 ## Stop Conditions

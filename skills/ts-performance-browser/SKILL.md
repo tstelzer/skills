@@ -7,50 +7,45 @@ description: >-
 
 # Browser performance
 
-## mental model
+## how the browser spends time
 
-Treat the browser main thread as a shared resource. JavaScript execution, event
-handling, style calculation, layout, and paint compete for the same time. A
-task that occupies the thread also delays input and the next frame.
+JavaScript, event handling, style calculation, layout, and paint share the browser's main thread.
+A task that keeps the thread busy delays input and the next frame.
 
-Optimize responsiveness separately from completion time. Splitting work adds
-overhead and may increase total runtime, but it gives input and rendering a
-chance to run. A faster operation can still produce a worse interface when it
-blocks the thread in one uninterrupted task.
+Improve response to input separately from total runtime. Splitting work can take more time overall,
+but lets the browser handle input and render between tasks. Even a faster operation can make the UI feel slower
+if it blocks the thread until it finishes.
 
-Derive budgets from the target device and display. A 60 Hz display starts a
+Set time budgets for the target device and display. A 60 Hz display starts a
 new frame about every 16.7 milliseconds, while a 120 Hz display starts one
 about every 8.3 milliseconds. The application receives only part of that
 interval. Do not turn either number into a universal JavaScript budget.
 
-Measure on representative hardware. Desktop development machines hide long
-tasks, allocation pressure, and expensive layout. Use browser profiles and
-field measurements to find delayed interactions, missed frames, repeated
-layout, and work that continues outside the viewport.
+Measure on hardware like the user's. Development desktops can hide long tasks, heavy memory allocation,
+and expensive layout. Use browser profiles and measurements from real use to find delayed input, missed frames,
+repeated layout, and work that continues offscreen.
 
 ## shape main-thread work
 
-Use these moves in order of leverage:
+Try these in order:
 
 1. Eliminate work that does not affect the current result.
 2. Move suitable work away from the main thread.
-3. Shape the remaining work around interaction and rendering.
-4. Optimize the measured hot operation.
+3. Schedule the remaining work around input and rendering.
+4. Speed up the operation measurements show is costly.
 
 ### eliminate obsolete work
 
-Do not process every update when the product needs only the current state.
-Coalesce superseded values, discard stale stream entries, skip repeated
-computations, and cap retained history. Preserve every event only when losing
-one would change the contract.
+When the product needs only the current state, combine updates and keep the latest values. Discard stale stream
+entries, skip repeated calculations, and limit saved history. Keep every event only when losing one would break
+required behavior.
 
 Do not create or update invisible UI without a reason. Render large lists near
 the viewport, pause recurring work while it is hidden, and delay expensive
 initialization until the user approaches the feature.
 
-Memoization is useful only when repeated work is measured and its cache has a
-clear lifetime. A growing memo table exchanges main-thread time for an
-unbounded memory cost.
+Cache computed results only when measurements show repeated work and the cache has a clear lifetime.
+A cache that keeps growing saves main-thread time at an unlimited memory cost.
 
 ### split long tasks
 
@@ -61,8 +56,7 @@ an arbitrary item count.
 Choose the yield point for the work:
 
 - Resume frame-related work through `requestAnimationFrame`.
-- Resume other work through a task-yielding primitive supported by the target
-  browsers.
+- Resume other work with an API that yields to another browser task and is supported by the target browsers.
 - Do not use a resolved promise as a yield. Microtasks run before rendering
   gets another turn.
 
@@ -95,13 +89,11 @@ format.
 
 ### batch frequent work
 
-Batch when repeated fixed costs dominate. Apply DOM changes together, process
-queue entries in bounded groups, and render at most once for each frame when
-several events describe the same visual update.
+Batch work when repeating setup costs most of the time. Apply DOM changes together, process queue entries in
+limited groups, and render at most once per frame when several events describe the same visual update.
 
 Debounce work that should run after activity settles. Throttle work that must
-make progress during continuous activity. Both policies change timing, so
-choose them from the interaction contract.
+make progress during continuous activity. Both change timing, so choose based on how the interaction must behave.
 
 ```ts
 let latestPrice: Price | undefined
@@ -122,27 +114,23 @@ const receivePrice = (price: Price): void => {
 Batching improves throughput but can create a long task. Bound batch size or
 execution time when a batch can grow with external input.
 
-### prioritize current intent
+### prioritize what the user needs now
 
-Handle direct user input before speculative or background work. A task can
-become urgent when the user requests its result, so allow queued work to be
-promoted or cancelled.
+Handle user input before work done in anticipation or in the background. When the user needs a queued result,
+the task may become urgent. Allow queued work to move up in priority or be cancelled.
 
 Priority cannot interrupt JavaScript that is already running. Long tasks must
 yield before urgent work can pass them.
 
 ### defer non-urgent work
 
-Delay code loading, rendering, computation, and recurring updates until their
-results can affect the user. Visibility and proximity to the viewport are
-useful signals. Idle time is an opportunity, not proof that the work is
-needed.
+Delay code loading, rendering, calculations, and recurring updates until they can affect the user.
+Use whether content is visible or nearly onscreen to help decide. Spare time alone does not make work necessary.
 
 ## control rendering cost
 
-Group layout reads before DOM or style writes. Reading geometry after a write
-can force the browser to calculate layout immediately. Alternating reads and
-writes inside a loop can repeat that cost for every element.
+Read sizes and positions before writing DOM or style changes. Reading them after a write can force immediate layout.
+Alternating reads and writes in a loop can repeat that cost for every element.
 
 Weak:
 
@@ -183,9 +171,8 @@ such as image processing, large-data transforms, or parsing that cannot be
 split. Keep UI mutation on the main thread and return the smallest useful
 result.
 
-Worker boundaries have costs. Account for startup, structured cloning,
-message frequency, and memory. Transfer ownership of large transferable
-buffers when the sender no longer needs them.
+Workers cost time and memory to start and exchange data. Account for startup, structured cloning, message frequency,
+and memory. Transfer large transferable buffers when the sender no longer needs them.
 
 ```ts
 worker.postMessage(
@@ -197,7 +184,7 @@ worker.postMessage(
 Do not move small operations to a worker by default. Communication can cost
 more than the computation it replaces.
 
-## overload policy
+## when updates arrive too fast
 
 Live data can arrive faster than the interface can render it. A queue without
 a bound turns a temporary burst into growing latency and memory use. Define
@@ -208,19 +195,19 @@ what the interface does when it falls behind:
 - Preserve and batch events when every event matters.
 - Stop or reduce optional effects while the backlog exists.
 
-Expose overload when silent loss would violate the product contract. The UI
-may need to show that updates were sampled, paused, or omitted.
+Show overload when silently losing updates would break required product behavior.
+The UI may need to say that updates were sampled, paused, or omitted.
 
 ## measurement
 
 Start with user-visible symptoms and trace them to main-thread work. Check:
 
-- interaction latency and its slow tail
+- time to respond to input, including the slowest responses
 - long tasks around delayed input
 - frame timing during scroll and animation
 - scripting, style, layout, paint, and compositing cost
 - forced synchronous layout and repeated DOM mutation
-- detached nodes, retained caches, and allocation churn
+- detached nodes, caches kept in memory, and repeated memory allocation
 - background work that continues while hidden
 
 Profile the real interaction with realistic data. Test cold startup and

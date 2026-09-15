@@ -18,14 +18,13 @@ description: Prepare changelog and manual QA artifacts from implemented changes.
 
 QA is a judge.
 
-It owns scope, context loading, product-area selection, changelog writing, QA design, and artifact writing. It turns an
-implementation into two brief, easy-to-scan artifacts:
+It sets scope, reads context, chooses product areas, and writes a changelog and manual QA steps.
+It describes an implemented change in two short, scannable artifacts:
 
-- `docs/changelog/`: the user-facing changeset
-- `docs/qa/`: the manual QA walkthrough for that changeset
+- `docs/changelog/`: changes users will see
+- `docs/qa/`: manual steps to check those changes
 
-Do the work directly. Do not spawn workers; these artifacts need one coherent
-product view.
+Do the work directly. Do not spawn workers; both artifacts need the same view of the product.
 
 Do not test the product yourself. Do not run app code, tests, browsers, dev
 servers, jobs, migrations, scripts, or API calls that exercise behavior. Use
@@ -64,23 +63,21 @@ read-only repo inspection to understand the implementation.
 - Do not run project commands that execute product behavior, automated tests,
   builds, linters, dev servers, migrations, scripts, background jobs, browsers,
   or network calls.
-- Identify changed behavior, affected entry points, data prerequisites, feature
-  flags, permissions, roles, devices, and external dependencies when visible in
-  the repo.
-- Record unknowns only after repo context cannot answer them. Do not invent
-  routes, roles, flags, account states, or expected copy.
+- Find the changed behavior, where users reach it, required data, feature flags, permissions, roles, devices,
+  and external dependencies shown in the repo.
+- Check the repo before recording unknowns. Do not invent routes, roles, flags, account states, or expected text.
 
 ### FIND_USER_ENTRY_POINTS
 
-- Describe the changeset from the user's perspective, not from the file list.
+- Describe what changed for the user.
 - Assign stable change IDs: `C1`, `C2`, `C3`.
 - Prefer concrete product language:
   - Good: `Checkout shows tax before payment confirmation.`
   - Bad: `Refactored checkout total calculation.`
-- Map each change to an entry point a human can use:
+- For each change, name where a person can use it:
   - screen, route, modal, form, notification, email, report, API, CLI command,
     import/export, admin task, scheduled outcome, or documented workflow
-- For internal-only changes, name the nearest user-observable behavior and explain why it is the right place to test.
+- For internal-only changes, name the closest behavior a user can observe and explain why it is the right place to test.
 - Separate direct changes from nearby behavior likely to break. Do not turn every touched file into a test area.
 
 ### DRAFT_CHANGELOG
@@ -88,7 +85,7 @@ read-only repo inspection to understand the implementation.
 - Write a brief changelog for a human who needs to understand what changed.
 - Include only user-facing behavior, operator-visible behavior, API behavior,
   CLI behavior, documentation changes, or workflow outcomes.
-- Put implementation notes only when they explain a visible limit or a manual QA prerequisite.
+- Include implementation notes only when they explain a visible limit or setup needed for manual QA.
 - Link to the companion QA artifact by relative path.
 - Do not claim the change shipped, passed QA, or reached production.
 
@@ -107,7 +104,7 @@ read-only repo inspection to understand the implementation.
   - setup: account state, data, flags, permissions, environment, or `None`
   - steps: exact manual actions
   - expected result: observable result a human can confirm
-  - checks: the changeset item or risk the test proves
+  - checks: the change or risk the test checks
 - Avoid broad smoke tests, full regression suites, and implementation details.
 - Do not claim anything passed. The artifact is a plan for manual QA, not a test
   report.
@@ -125,9 +122,9 @@ Before writing the artifacts, verify:
 - Every `Checks` value references a changelog item ID or named regression risk.
 - Unknown prerequisites are explicit.
 - No test result, pass/fail claim, or executed command output appears.
-- The test list is compact and scoped to the implementation.
+- The test list is short and covers the implemented change.
 - Exact UI labels, routes, commands, API names, and domain terms are preserved. Other prose uses the reader's words.
-- The artifacts have no meta notes about this skill or the authoring process.
+- The artifacts contain no notes about this skill or how they were written.
 
 ### WRITE_ARTIFACTS
 
@@ -135,8 +132,7 @@ Before writing the artifacts, verify:
   `<repository-root>/docs/changelog/YYYY-MM-DD_HH:MM_<qa-name>.md`.
 - Write the final QA artifact to
   `<repository-root>/docs/qa/YYYY-MM-DD_HH:MM_<qa-name>.md`.
-- When revising artifacts, rewrite both complete artifacts. Do not write deltas
-  from previous drafts.
+- When revising, rewrite both complete artifacts. Do not write only the differences from earlier drafts.
 
 ## Changelog Artifact Template
 
@@ -187,6 +183,6 @@ Expected:
 - <observable result>
 
 ## Not Covered
-- <Known gap, unavailable prerequisite, or deferred adjacent regression; skip
+- <Known gap, unavailable setup, or postponed check of nearby behavior; skip
   section if none>
 ```
