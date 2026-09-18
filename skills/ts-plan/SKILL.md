@@ -170,12 +170,13 @@ Code in the plan:
 - Always spawn a technical-writing editor sub-agent after drafting the plan and
   before running gates.
 - Include `skill: ts-technical-writing` in the editor prompt.
-- The editor edits prose, structure, headings, bullets, and examples, and removes llm-isms.
+- The editor rewrites abstract phrases as concrete actions and gives independent rules separate bullets.
+  It edits structure, headings, and examples, and removes llm-isms.
 - The editor edits the plan draft directly. It must return the complete edited
   plan text, not review findings or suggestions.
-- The editor must preserve meaning, exact technical names, scope, task order, file paths, code hunks, verification
-  commands, open questions, blockers, planned tests, and technical facts. It may rewrite abstract labels and workflow
-  terms.
+- The editor must preserve meaning, exact code and interface names, scope, task order, file paths, code hunks,
+  verification commands, open questions, blockers, planned tests, and technical facts. Rewrite descriptive phrases
+  and workflow terms in plain words.
 - Tell the editor to write for a skilled engineer who has not read the chat. The plan must make clear what to build
   and how to check it.
 - The judge must not perform the technical-writing edit itself. The judge may

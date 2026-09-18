@@ -2,12 +2,12 @@
 
 ## rules
 
-- Explain behavior with concrete subjects and verbs. Use ordinary words around technical names.
-- Include an exact technical term when the reader needs to recognize or use it. Preserve its spelling.
+- Replace abstract phrases with the actions they describe. Name what reads, writes, changes, or fails.
+- Preserve exact code and interface names. Rewrite descriptive phrases to explain what happens.
 - Prefer active voice.
 - Name the actor when responsibility matters.
 - Replace hidden verbs with verbs.
-- Split sentences that carry several decisions, causes, or conditions.
+- Split sentences that carry several decisions, causes, or conditions. Give independent rules separate bullets.
 - Keep necessary conditions and consequences. Remove abstractions that merely rename the behavior.
 - Reduce the number of concepts the reader must track. Splitting a sentence does not remove unnecessary concepts.
 - Replace internal workflow terms with words the reader uses.
@@ -19,19 +19,22 @@
 
 ### use common words
 
-Weak:
+These examples are not a complete list or fixed substitutions. Establish the behavior, then rewrite without losing
+conditions or meaning. Keep this table to at most 25 examples; replace rows to improve coverage.
 
-```md
-The scheduler mediates access to the execution pool.
-```
-
-Stronger:
-
-```md
-The scheduler assigns jobs to workers.
-```
-
-Establish the behavior before simplifying it. These examples are rewrites, not fixed word substitutions.
+| Wording | Possible rewrite |
+| --- | --- |
+| utilize | use |
+| prior to | before |
+| in the absence of | without |
+| perform validation | validate |
+| connection establishment | opening a connection |
+| materialize output | write the output file |
+| retain provenance | record where the data came from |
+| effective settings | settings after applying overrides |
+| effective requiredness | whether required keys have values after applying overrides |
+| command cutover | switching commands to the new implementation |
+| shared-write isolation | keeping personal values out of shared writes |
 
 ### unpack dense technical prose
 

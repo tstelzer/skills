@@ -47,12 +47,13 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 
 ### write plain, concise prose
 
-- Use common words when they carry the same meaning.
+- Replace formal words and abstract phrases with ordinary words that state the same behavior. See the examples in
+  [prose.md](prose.md#use-common-words).
 - Prefer active voice.
 - Say what acts and what it does. Use ordinary words around technical names.
 - Aim for a quick read before a low word count.
-- Split a sentence when it carries several decisions, causes, or conditions.
-- Include an exact technical term when the reader needs to recognize or use it. Preserve its spelling.
+- Split sentences that carry several decisions, causes, or conditions. Give independent rules separate bullets.
+- Preserve exact code and interface names. Rewrite descriptive phrases to explain what happens.
 - Keep conditions and consequences the reader needs. Cut abstract labels that only repeat the behavior.
 - Use the reader's words for workflow steps.
 - Define an unfamiliar term on first use when code or context does not make it clear.
