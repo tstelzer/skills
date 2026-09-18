@@ -13,9 +13,13 @@ Read each summary first. Read the linked details whenever the stated condition a
 - Use one internal term for one domain concept.
 - Prefer names from the domain over names for how the code works.
 - Structure by domain: `users`, `machines`, `orders` over `components`, `controllers`, `repositories`, `routes`.
-- Add a technical role only to mark a separate responsibility such as HTTP, storage, or an external contract:
-  `UserRepository` in code, `user.repository.ts` for the file. Keep one concept in `user.ts` rather than splitting it
-  across `.types.ts` / `.schema.ts` / `.constants.ts` files.
+- Use a PascalCase filename only when a matching type, interface, or class owns the file. Keep that owner's schemas,
+  constructors, errors, and operations with it.
+- When no declaration owns the code, group it under the nearest real domain owner. Do not invent `Stuff.ts` for
+  `doStuff` and `doOtherStuff`.
+- Split out a technical role only for a separate responsibility such as HTTP, storage, or an external contract.
+- Prefer a few cohesive files. Use a one-function file only when no broader grouping is clearer.
+- Keep one concept together instead of splitting it across `.types.ts`, `.schema.ts`, `.constants.ts`, or `.errors.ts`.
 - Avoid generic names in broad scopes: `data`, `entity`, `item`, `manager`, `helper`.
 - Check existing naming before introducing new terms.
 - Translate external names, legacy names, UI labels, and synonyms at boundaries.

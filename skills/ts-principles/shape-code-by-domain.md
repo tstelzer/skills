@@ -24,6 +24,15 @@ mechanism words only when they clarify a role inside that domain. A
 `user.repository.ts` file inside `users` is usually clearer than a global
 `repositories/user.ts` bucket.
 
+A PascalCase filename claims that a matching type, interface, or class owns
+the file. Keep the owner's schemas, constructors, errors, and operations there.
+Do not create `Stuff.ts` because several functions contain `Stuff` in their
+names when the model has no `Stuff` declaration.
+
+When no declaration owns the code, move up to the nearest real domain owner.
+Prefer a few cohesive files over neighboring files named after individual
+functions. Use a one-function file only when no broader grouping is clearer.
+
 Shared code should earn its distance. A small local helper belongs next to the
 feature that needs it. Extractable, library-esque code can live in `lib`.
 Kitchen-sink `utils` usually means ownership is unclear.
@@ -126,47 +135,45 @@ Stronger:
 ```text
 src/
   users/
-    user.controller.ts
+    user.ts
     user.repository.ts
-    user.service.ts
   machines/
-    machine.controller.ts
+    machine.ts
     machine.repository.ts
-    machine.service.ts
 ```
 
-The weaker structure groups by mechanism first. The stronger structure groups
-by the thing that changes together.
+The weaker structure groups by mechanism first. The stronger structure starts
+with each domain owner and adds a separate persistence boundary.
 
-### mechanism only to disambiguate
+### files need real owners
 
 Weak:
 
 ```text
 src/
-  users/
-    controller.ts
-    service.ts
-    repository.ts
+  orders/
+    CancelOrder.ts       // exports cancelOrder
+    RescheduleOrder.ts   // exports rescheduleOrder
 ```
 
 Stronger:
 
 ```text
 src/
-  users/
-    user.controller.ts
-    user.service.ts
-    user.repository.ts
+  orders/
+    order.ts             // Order, cancelOrder, rescheduleOrder
 ```
 
-Mechanism words are useful when they clarify role. They should not become the
-primary organizing idea.
+The functions operate on `Order`; `Order` owns them. The verbs do not establish
+`CancelOrder` or `RescheduleOrder` types. If no type owns related functions,
+group them under the nearest domain module instead of capitalizing each verb
+into a file-level concept.
 
 ### mechanism separates concerns, not kinds of code
 
 A "role" here is a real concern boundary: HTTP, persistence, an external
-contract. It is not the TypeScript construct kind (types, schema, constants).
+contract. It is not the TypeScript construct kind (types, schemas, constants,
+errors).
 
 Weak:
 
@@ -176,6 +183,7 @@ src/
     user.types.ts
     user.schema.ts
     user.constants.ts
+    user.errors.ts
     user.dto.ts
     user.dto-schema.ts
     user.dto-types.ts
@@ -190,9 +198,9 @@ src/
     user.dto.ts     // DTO types and schemas, mapping helpers
 ```
 
-Controllers, services, repositories, and DTOs have different reasons to
-change: they sit on different sides of a boundary. Types, schemas, and
-constants for one concept do not. They describe the same thing and change
+HTTP adapters, repositories, and DTOs can have different reasons to change:
+they sit on different sides of a boundary. Types, schemas, constants, errors,
+and operations for one concept do not. They describe the same thing and change
 together. Co-locate them in one file named for the concept.
 
 Add a mechanism suffix when you cross a real boundary (`user.dto.ts` for the
@@ -216,15 +224,16 @@ Stronger:
 ```text
 src/
   users/
-    build-user-display-name.ts
+    user.ts                 // includes buildUserDisplayName
   machines/
-    parse-machine-label.ts
+    machine.ts              // includes parseMachineLabel
   lib/
-    format-status.ts
+    status.ts               // includes formatStatus when it earns a shared owner
 ```
 
 Keep domain-specific helpers with their domain. Move code to `lib` when it
-behaves like a small library rather than a feature detail.
+behaves like a small library rather than a feature detail. Do not make one file
+per helper when a domain file already owns the work.
 
 ### abbreviations should buy readability
 
