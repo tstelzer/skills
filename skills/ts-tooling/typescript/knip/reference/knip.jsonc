@@ -1,0 +1,22 @@
+// Keep this strict. Entries describe intended roots, not known-failing exceptions.
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "treatConfigHintsAsErrors": true,
+  "entry": ["src/main.ts"],
+  "project": ["src/**/*.ts"],
+  "rules": {
+    "files": "error",
+    "dependencies": "error",
+    "unlisted": "error",
+    "unresolved": "error",
+    "binaries": "off",
+    "catalog": "off",
+    "exports": "off",
+    "types": "off",
+    "nsExports": "off",
+    "nsTypes": "off",
+    "enumMembers": "off",
+    "namespaceMembers": "off",
+    "duplicates": "off"
+  }
+}

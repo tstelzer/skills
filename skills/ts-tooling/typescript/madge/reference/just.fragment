@@ -1,0 +1,4 @@
+[doc('Find circular imports')]
+[group('Check')]
+find-circular:
+    pnpm run circular

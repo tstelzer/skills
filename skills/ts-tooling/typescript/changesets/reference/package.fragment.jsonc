@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "changeset": "changeset",
+    "changeset:status": "changeset status --since=master",
+    "changeset:version": "changeset version && pnpm run check:fix",
+    "ci:publish": "pnpm run build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "<latest-3.x>"
+  }
+}

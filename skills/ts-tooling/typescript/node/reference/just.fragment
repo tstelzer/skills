@@ -1,0 +1,4 @@
+[doc('Show the Node.js version')]
+[group('Core')]
+node-version:
+    @node --version

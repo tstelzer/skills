@@ -1,0 +1,9 @@
+[doc('Run tests once')]
+[group('Check')]
+test:
+    pnpm run test
+
+[doc('Run tests in watch mode')]
+[group('Check')]
+test-watch:
+    pnpm run test:watch

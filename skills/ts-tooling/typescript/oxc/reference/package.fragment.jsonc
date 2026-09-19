@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "check": "pnpm run lint && pnpm run format:check",
+    "check:fix": "pnpm run lint:fix && pnpm run format",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix"
+  },
+  "devDependencies": {
+    "oxfmt": "<latest-0.x>",
+    "oxlint": "<latest-1.x>"
+  }
+}

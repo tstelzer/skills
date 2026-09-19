@@ -1,0 +1,24 @@
+[doc('Check formatting')]
+[group('Check')]
+format-check:
+    pnpm run format:check
+
+[doc('Format files')]
+[group('Check')]
+format:
+    pnpm run format
+
+[doc('Lint source files')]
+[group('Check')]
+lint:
+    pnpm run lint
+
+[doc('Apply safe lint fixes')]
+[group('Check')]
+lint-fix:
+    pnpm run lint:fix
+
+[doc('Apply lint and format fixes')]
+[group('Check')]
+check-fix:
+    pnpm run check:fix

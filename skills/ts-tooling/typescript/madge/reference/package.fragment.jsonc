@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "circular": "madge --extensions ts,mts,tsx --circular --no-spinner --no-color src"
+  },
+  "devDependencies": {
+    "madge": "<latest-8.x>"
+  }
+}

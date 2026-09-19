@@ -1,0 +1,4 @@
+[doc('Show the Volta version')]
+[group('Core')]
+volta-version:
+    @volta --version

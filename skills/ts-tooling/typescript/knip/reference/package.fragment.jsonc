@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "declutter": "knip --config knip.jsonc"
+  },
+  "devDependencies": {
+    "knip": "<latest-6.x>"
+  }
+}

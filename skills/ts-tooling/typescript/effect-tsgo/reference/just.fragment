@@ -1,0 +1,4 @@
+[doc('Patch TypeScript with Effect diagnostics')]
+[group('Effect')]
+effect-patch:
+    pnpm exec effect-tsgo patch

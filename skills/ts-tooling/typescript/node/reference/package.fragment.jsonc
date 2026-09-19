@@ -1,0 +1,8 @@
+{
+  "engines": {
+    "node": ">=<latest-lts-major>"
+  },
+  "devDependencies": {
+    "@types/node": "<latest release matching the LTS major>"
+  }
+}

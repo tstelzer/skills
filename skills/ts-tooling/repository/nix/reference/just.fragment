@@ -1,0 +1,9 @@
+[doc('Evaluate the flake')]
+[group('Environment')]
+flake-check:
+    nix flake check
+
+[doc('Update flake inputs')]
+[group('Environment')]
+flake-update:
+    nix flake update

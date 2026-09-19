@@ -1,0 +1,14 @@
+[doc('Show the pnpm version')]
+[group('Core')]
+pnpm-version:
+    @pnpm --version
+
+[doc('Install dependencies')]
+[group('Core')]
+deps:
+    pnpm install
+
+[doc('Choose dependency updates interactively')]
+[group('Core')]
+deps-update:
+    pnpm update --interactive --latest

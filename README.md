@@ -51,6 +51,7 @@ entries while preserving entries from other sources.
 - ts-effect-v4: mature
 - ts-create-skill: mature
 - ts-performance-browser: draft
+- ts-tooling: draft
 
 ## Invocation
 
@@ -83,6 +84,10 @@ Reference skills may trigger by topic:
 - `ts-zod-v4`
 - `ts-effect-v3`
 - `ts-effect-v4`
+
+Explicit-only reference skills:
+
+- `$ts-tooling`
 
 Use `ts-chat` to discuss, inspect, run read-only commands, or search without
 changing files.

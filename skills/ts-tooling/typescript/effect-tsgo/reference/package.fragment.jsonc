@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "prepare": "effect-tsgo patch"
+  },
+  "devDependencies": {
+    "@effect/tsgo": "<latest-0.x>"
+  }
+}

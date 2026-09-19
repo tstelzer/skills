@@ -1,0 +1,9 @@
+[doc('Type-check all TypeScript project references')]
+[group('Check')]
+typecheck:
+    pnpm run typecheck
+
+[doc('Build all TypeScript project references')]
+[group('Build')]
+build:
+    pnpm run build

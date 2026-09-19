@@ -1,0 +1,4 @@
+[doc('Run a TypeScript file with tsx')]
+[group('Run')]
+tsx file *args:
+    pnpm exec tsx {{ file }} {{ args }}

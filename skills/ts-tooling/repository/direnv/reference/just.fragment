@@ -1,0 +1,4 @@
+[doc('Reload the direnv environment')]
+[group('Environment')]
+env-reload:
+    direnv reload

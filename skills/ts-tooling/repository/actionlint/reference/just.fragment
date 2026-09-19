@@ -1,0 +1,4 @@
+[doc('Check GitHub Actions workflows')]
+[group('Check')]
+actionlint:
+    actionlint
