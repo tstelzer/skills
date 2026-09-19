@@ -9,8 +9,6 @@ description: Personal repository tooling standards and reference configs. Only e
 
 Use this skill as the source of truth when setting up or updating repository tooling.
 
-Read `skill: ts-principles` before changing a repository.
-
 ## Start here
 
 Do not read every file. Establish the repository context, then open only the matching indexes and tool folders.
