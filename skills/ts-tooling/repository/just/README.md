@@ -7,6 +7,8 @@ uses Nix.
 
 Treat the `justfile` as a curated command interface, not an inventory of tools and package scripts.
 Do not add a header comment that explains the `justfile` or repeats these rules.
+Do not mirror a Just recipe with an npm script of the same name. Keep the npm script only when another consumer,
+such as a Dockerfile, invokes it.
 
 Add a recipe when it:
 
