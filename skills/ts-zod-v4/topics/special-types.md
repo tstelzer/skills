@@ -13,6 +13,7 @@ Less-common but user-facing schemas and utilities for runtime-specific values an
 - Use `z.file()` for browser preflight checks on `File` metadata. Inspect uploaded bytes before trusting their contents.
 - Use `z.instanceof(Class)` when runtime class identity matters.
 - Use `z.property(key, schema)` to validate a property on an existing runtime value.
+- Use `.properties(shape)` on `z.instanceof(Class)` to validate several properties in place and narrow their types.
 - Use `z.json()` when any JSON-encodable value is allowed.
 - Give `z.custom()` a predicate for types Zod does not model directly. Never use bare `z.custom<T>()` as a cast.
 - Use branded schemas to mark validated domain values in TypeScript.
@@ -26,6 +27,10 @@ import * as z from "zod"
 
 const AvatarSelection = z.file().max(2_000_000).mime(["image/png", "image/jpeg"])
 const ErrorLike = z.instanceof(Error)
+const OkResponse = z.instanceof(Response).properties({
+  ok: z.literal(true),
+  status: z.number().min(200).max(299),
+})
 const HttpsUrl = z.instanceof(URL).check(
   z.property("protocol", z.literal("https:"))
 )
@@ -51,6 +56,7 @@ const trimAndMeasure = Handler.implement((value) => value.trim().length)
 
 ## Common pitfalls
 - Using `instanceof` where plain object validation would be more portable
+- Expecting `.properties()` checks to apply defaults or transforms; their parsed results are discarded
 - Expecting `z.file()` to work in environments without the corresponding runtime type
 - Treating a `File` MIME value as proof of its contents
 - Treating an HTTPS URL as safe for redirects or server-side requests without a sink-specific policy

@@ -15,8 +15,11 @@ Core Zod workflow: define a schema, parse untrusted input, and derive static typ
 - Treat each real boundary as a new parse site. Do not reparse intermediate values inside one boundary.
 - Use `parse()` when failure should throw.
 - Use `safeParse()` when failure is part of normal control flow.
+- Use `validate()` when you need only a boolean and no parsed output or issues.
 - Use `parseAsync()` or `safeParseAsync()` if any nested refinement or transform is async.
+- Use `validateAsync()` when an async schema needs only a boolean result.
 - Use `z.input<typeof Schema>` for pre-parse type, `z.output<typeof Schema>` for post-parse type.
+- Use `z.toZod<T>()(schema)` when an existing static type must exactly equal the schema output type.
 
 ## Minimal examples
 ```ts
@@ -37,6 +40,10 @@ if (result.success) {
 } else {
   console.error(result.error.issues)
 }
+
+if (User.validate(data)) {
+  data.id
+}
 ```
 
 ```ts
@@ -47,6 +54,17 @@ const TrimmedInt = z.string()
 
 type Before = z.input<typeof TrimmedInt>
 type After = z.output<typeof TrimmedInt>
+```
+
+```ts
+type Account = { id: string; enabled: boolean }
+
+const Account = z.toZod<Account>()(
+  z.object({
+    id: z.uuid(),
+    enabled: z.boolean(),
+  })
+)
 ```
 
 ## One parse per boundary
@@ -79,10 +97,12 @@ composition would do either, keep the extra parse in the adapter and document wh
 ## Common pitfalls
 - Using `z.infer` when input and output types differ after transforms or coercion
 - Calling sync parse APIs on schemas with async refinements or transforms
+- Using `validate()` when the caller needs transformed output or validation issues
 - Parsing trusted in-process values repeatedly instead of validating once at the boundary
 - Parsing an intermediate value with another schema instead of composing the schemas before the boundary parse
 - Coercing `unknown` directly when the boundary accepts a narrower wire type
 - Treating `.optional()` as the same thing as `.nullable()` or `.nullish()`
+- Using `satisfies z.ZodType<T>` when exact agreement with an existing type is required
 
 ## See also
 - `10-primitives.md`
@@ -90,3 +110,4 @@ composition would do either, keep the extra parse in the adapter and document wh
 - `30-composition.md`
 - `40-transforms-codecs.md`
 - `50-errors.md`
+- `../topics/compiled-validation.md`

@@ -8,6 +8,15 @@ description: >-
 
 # Zod v4 Handbook
 
+## Reference snapshot
+
+- Repository: `colinhacks/zod`
+- Release: `v4.6.5`
+- Commit: `59bbc03e10c636b9eb3c393dfeb552819774ec21`
+- Package: `zod@4.6.5`
+
+Use this release tag as the source for this handbook version. A branch name can move to another commit.
+
 ## Purpose
 Use this handbook as the source of truth for Zod 4 in this repo.
 Start with one file. Follow `See also` only if that file does not answer the task.
@@ -22,12 +31,13 @@ Start with one file. Follow `See also` only if that file does not answer the tas
 
 ## Quick Picks (Task -> File)
 - Define a first schema, parse data, infer types -> `sections/00-basics.md`
+- Check validity without parsed data or errors, or compile a hot schema -> `topics/compiled-validation.md`
 - Give a missing field a value -> `topics/fallbacks.md`
 - Choose a primitive or literal schema -> `sections/10-primitives.md`
 - Validate string formats like email, UUID, URL, ISO datetime -> `topics/string-formats.md`
-- Build or reshape object schemas -> `topics/object-shape-control.md`
+- Build, reshape, or make object schemas partial -> `topics/object-shape-control.md`
 - Validate arrays, tuples, records, maps, or sets -> `topics/collection-types.md`
-- Model variants or optional/null values -> `topics/unions-and-optionality.md`
+- Model unions, exclusive variants, or optional/null values -> `topics/unions-and-optionality.md`
 - Add custom validation rules -> `topics/refinements.md`
 - Model recursive trees or graphs -> `topics/recursive-schemas.md`
 - Transform input, preprocess, or pipe schemas -> `sections/40-transforms-codecs.md`
@@ -51,20 +61,25 @@ Start with one file. Follow `See also` only if that file does not answer the tas
 
 ## By Feature
 - `parse` / `safeParse` / async parsing -> `sections/00-basics.md`
+- `validate` / `validateAsync` / `compile` -> `topics/compiled-validation.md`
 - Missing-field defaults -> `topics/fallbacks.md`
 - `z.input` / `z.output` / `z.infer` -> `sections/00-basics.md`
+- `z.toZod<T>()` for an existing static type -> `sections/00-basics.md`
 - String formats -> `topics/string-formats.md`
 - `z.object` / `z.strictObject` / `z.looseObject` / `catchall` -> `topics/object-shape-control.md`
+- `partial` / `exactPartial` / `deepPartial` -> `topics/object-shape-control.md`
 - Arrays / tuples / records / maps / sets -> `topics/collection-types.md`
-- `optional` / `nullable` / `nullish` / unions -> `topics/unions-and-optionality.md`
+- `optional` / `exactOptional` / `nullable` / `nullish` / `xor` / discriminated unions ->
+  `topics/unions-and-optionality.md`
 - Recursive schemas -> `topics/recursive-schemas.md`
 - `refine` / `superRefine` / `check` -> `topics/refinements.md`
 - `preprocess` / `transform` / `pipe` -> `sections/40-transforms-codecs.md`
+- Runtime `z.input(schema)` / `z.output(schema)` projections -> `sections/40-transforms-codecs.md`
 - `default` / `prefault` / `catch` -> `topics/fallbacks.md`
 - `z.codec` / `z.decode` / `z.encode` -> `topics/codecs.md`
 - Error maps and per-parse customization -> `topics/error-customization.md`
 - `z.treeifyError` / `z.flattenError` / `z.prettifyError` -> `topics/error-formatting.md`
-- `z.toJSONSchema` / `z.toJSONSchema(schema, { io })` -> `topics/json-schema.md`
+- `z.toJSONSchema` / `z.fromJSONSchema` -> `topics/json-schema.md`
 - `meta` / `describe` / registries / `z.globalRegistry` -> `topics/metadata-registries.md`
 - `instanceof` / `file` / `function` / branded / readonly -> `topics/special-types.md`
 
@@ -78,7 +93,8 @@ Start with one file. Follow `See also` only if that file does not answer the tas
 - `sections/60-json-schema-metadata.md` - metadata registries and JSON Schema conversion
 
 ## Topic Index
-- `topics/string-formats.md` - email, URL, UUID, ISO datetime, IPs, hashes, `stringbool`
+- `topics/compiled-validation.md` - boolean validation and ahead-of-time schema compilation
+- `topics/string-formats.md` - email, URL, UUID, ISO datetime, IPs, payment formats, hashes, `stringbool`
 - `topics/object-shape-control.md` - object derivation and unknown-key handling
 - `topics/collection-types.md` - arrays, tuples, records, maps, sets
 - `topics/unions-and-optionality.md` - optional, nullable, nullish, unions, discriminated unions, intersections
@@ -106,4 +122,4 @@ Start with one file. Follow `See also` only if that file does not answer the tas
 
 ## Package References
 - Use `zod` by default.
-- Only reach for `zod/mini` or `zod/v4/core` if the user explicitly asks about those packages.
+- Only reach for `zod/mini`, `@zod/mini`, or `zod/v4/core` if the user explicitly asks about those packages.

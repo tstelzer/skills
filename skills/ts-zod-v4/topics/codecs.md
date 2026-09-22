@@ -12,6 +12,7 @@ Bidirectional schemas that decode one representation into another and can encode
 - Use `z.codec(inputSchema, outputSchema, { decode, encode })`.
 - Use `.parse()` or `z.decode(...)` for input-to-output conversion.
 - Use `z.encode(...)` for output-to-input conversion.
+- Use runtime `z.input(schema)` and `z.output(schema)` to project codecs nested inside larger schemas.
 - Do not throw from `decode` or `encode`. Report conversion errors through the codec context.
 - Narrow both schemas so every successful value is representable in the opposite direction.
 - Make round trips exact, or name and document the canonical representation when normalization is intentional.
@@ -27,6 +28,10 @@ const YesNo = z.codec(z.enum(["yes", "no"]), z.boolean(), {
 
 const enabled = z.decode(YesNo, "yes")
 const wireValue = z.encode(YesNo, false)
+
+const Payload = z.object({ enabled: YesNo })
+const PayloadInput = z.input(Payload)
+const PayloadOutput = z.output(Payload)
 ```
 
 ## Useful codecs
@@ -93,6 +98,7 @@ const Base64ToBytes = z.codec(z.base64(), z.instanceof(Uint8Array), {
 - Making `decode` and `encode` disagree about the contract
 - Mixing side effects into codec functions
 - Assuming JSON Schema export can represent codec behavior
+- Confusing runtime `z.input(schema)` with the type-level `z.input<typeof schema>` utility
 
 ## See also
 - `../sections/40-transforms-codecs.md`

@@ -1,7 +1,8 @@
 # Primitives
 
 ## What it is
-Primitive and scalar schemas: strings, numbers, booleans, bigints, dates, enums, literals, plus permissive or impossible schemas like `unknown`, `any`, and `never`.
+Primitive and scalar schemas: strings, numbers, booleans, bigints, dates, enums, literals, plus permissive or
+impossible schemas like `unknown`, `any`, and `never`.
 
 ## When to use
 - You are validating leaf values

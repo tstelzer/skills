@@ -1,7 +1,8 @@
 # Transforms and Codecs
 
 ## What it is
-APIs that change values during parsing or bridge between input and output representations: preprocess, transform, pipe, defaults, prefaults, catch, and codecs.
+APIs that change values during parsing or bridge between input and output representations: preprocess, transform,
+pipe, defaults, prefaults, catch, and codecs.
 
 ## When to use
 - Input arrives in a loose representation and must become a stricter one
@@ -19,6 +20,7 @@ APIs that change values during parsing or bridge between input and output repres
 - Do not create field defaults with `||`, `??`, or `.transform()`. Declare them on the field schema with `.default()`
   or `.prefault()`.
 - Use `z.codec()` when you need both decode and encode, not just one-way parsing.
+- Use runtime `z.input(schema)` and `z.output(schema)` to project nested pipes and codecs onto one side.
 
 ## Minimal examples
 ```ts
@@ -45,6 +47,19 @@ const PortWithParsing = PortFromString.prefault("3000")
 const SavedColorScheme = z.enum(["light", "dark", "system"]).catch("system")
 ```
 
+```ts
+const Event = z.object({
+  name: z.string(),
+  at: z.codec(z.iso.datetime(), z.date(), {
+    decode: (value) => new Date(value),
+    encode: (value) => value.toISOString(),
+  }),
+})
+
+const EventInput = z.input(Event)
+const EventOutput = z.output(Event)
+```
+
 ## Common pitfalls
 - Using `.default()` when you actually need the fallback to be transformed or validated
 - Defaulting a field at the parse call or in `.transform()` instead of its schema
@@ -52,6 +67,7 @@ const SavedColorScheme = z.enum(["light", "dark", "system"]).catch("system")
 - Parsing a transformed value again instead of piping the output schema into the boundary pipeline
 - Returning invalid output from `.transform()` and assuming later code will catch it
 - Using transforms for bidirectional data flow when a codec is the correct abstraction
+- Confusing runtime `z.input(schema)` with the type-level `z.input<typeof schema>` utility
 - Stacking many transforms when a clearer `preprocess -> base schema -> pipe` split is available
 
 ## See also

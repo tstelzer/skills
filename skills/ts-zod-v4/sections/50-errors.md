@@ -1,7 +1,8 @@
 # Errors
 
 ## What it is
-How Zod reports validation failure: `ZodError`, issue arrays, error customization, and formatting helpers for logs, APIs, and UIs.
+How Zod reports validation failure: `ZodError`, issue arrays, error customization, and formatting helpers for logs,
+APIs, and UIs.
 
 ## When to use
 - You need structured validation failures instead of thrown exceptions only
