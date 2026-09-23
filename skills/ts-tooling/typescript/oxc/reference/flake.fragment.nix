@@ -1,2 +1,0 @@
-pkgs.oxfmt
-pkgs.oxlint
