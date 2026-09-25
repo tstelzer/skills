@@ -6,7 +6,7 @@ description: Core engineering principles. Use as a guiding reference for designi
 ## Principles
 
 Read each summary first. Read the linked details whenever the stated condition applies.
-Always read the `tests are code` details.
+Always read ALL the details.
 
 ### shape code by domain
 
