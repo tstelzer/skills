@@ -5,6 +5,7 @@
  * comparison, optics, and patches from the same contract.
  */
 import { Effect, Schema, SchemaIssue } from "effect"
+import { Arbitrary } from "effect/unstable/arbitrary"
 
 export const Product = Schema.Struct({
   id: Schema.String.annotate({
@@ -38,7 +39,7 @@ export const ProductJsonSchema = Schema.toJsonSchemaDocument(Product)
 
 // Generated values satisfy built-in filters. Add arbitrary annotations for
 // custom filters whose constraints cannot be inferred.
-export const ProductArbitrary = Schema.toArbitrary(Product)
+export const ProductArbitrary = Arbitrary.schema(Product)
 
 export const productsEqual = Schema.toEquivalence(Product)
 export const ProductIso = Schema.toIso(Product)

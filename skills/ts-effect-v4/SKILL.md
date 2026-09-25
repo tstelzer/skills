@@ -8,8 +8,8 @@ description: Effect v4 handbook for effect@4 and effect/unstable/*. Use ts-effec
 ## Reference snapshot
 
 - Repository: `Effect-TS/effect`
-- Commit: `2600f62f4532026928454dcea8d1c48557b3f942`
-- Package: `effect@4.0.0-rc.112`
+- Commit: `14a3f140095fdebbff9162944fe7d4ea83e054e6`
+- Package: `effect@4.0.0-rc.117`
 
 Use this commit as the source for this handbook version. A branch name can move to another commit.
 
@@ -81,7 +81,7 @@ Paths are relative to this file.
   - `10_creating-streams.ts`: streams from iterables, effects, pagination, async iterables, events, callbacks,
     Node readables.
   - `20_consuming-streams.ts`: transform and run streams (`map`, `flatMap`, `mapEffect`, `run*`).
-  - `30_encoding.ts`: decode / encode with `Ndjson` & `Msgpack` channels.
+  - `30_encoding.ts`: decode / encode with `Ndjson` and `SchemaBinary` channels.
 - **`examples/04_integration/`**: bridging Effect into non-Effect code.
   - `10_managed-runtime.ts`: `ManagedRuntime` with Hono.
 - **`examples/05_batching/`**: batching external requests.

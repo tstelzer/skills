@@ -12,3 +12,7 @@ messages or implementation calls.
 Test public behavior. Do not add tests for pass-through Effect wrappers. At an
 external boundary, cover the distinct missing, empty, malformed, partial,
 cleanup, and exact-value-preservation cases that affect callers.
+
+For property tests, pass Schemas or native `Arbitrary` values to `it.prop` or
+`it.effect.prop`. Set run options under `arbitrary`, not `fastCheck`. See the
+[rc117 Arbitrary guide](https://github.com/Effect-TS/effect/blob/effect@4.0.0-rc.117/packages/effect/ARBITRARY.md).

@@ -63,6 +63,11 @@ cp "$src/MIGRATION.md" "$here/migration/MIGRATION.md"
 
 mig="$here/migration/MIGRATION.md"
 
+# Link to the release source because the handbook does not copy ARBITRARY.md.
+arbitrary_url="https://github.com/Effect-TS/effect/blob/effect@$version/packages/effect/ARBITRARY.md"
+sed -i "s#](../packages/effect/ARBITRARY.md)#]($arbitrary_url)#" \
+  "$here/migration/schema.md"
+
 # 3. flatten links: guides are siblings here, not in a ./migration/ subdir
 sed -i 's#](\./migration/#](./#g' "$mig"
 
