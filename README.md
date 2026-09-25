@@ -25,6 +25,8 @@ The remote sync installs skills for Codex and Cursor under `~/.agents/skills`,
 and for Claude Code under `~/.claude/skills`. It replaces installations of
 these skills made by `npx skills` and removes retired skills. Existing files
 that it does not manage are moved to a timestamped backup before replacement.
+Both sync commands remove archived skills from known install paths. Unmanaged
+copies are moved to a timestamped backup.
 
 Remote sync requires `curl`, `tar`, `bash`, and `rsync`. If it finds an
 `npx skills` lock file, it also requires `node` to remove this repository's
@@ -39,19 +41,25 @@ entries while preserving entries from other sources.
 - ts-explore: mature
 - ts-review: mature
 - ts-plan: mature
-- ts-workflow-implement-review: mature
 - ts-chat: mature
 - ts-debug: mature
 - ts-implement: mature
 - ts-log: draft
 - ts-qa: draft
-- ts-workflow-plan-review: draft
-- ts-workflow-explore-plan-review: draft
-- ts-workflow-prototype: draft
 - ts-effect-v4: mature
 - ts-create-skill: mature
 - ts-performance-browser: draft
 - ts-tooling: draft
+
+## Archived
+
+These skills are in `archive/` and are removed on the next sync:
+
+- ts-explain-skill
+- ts-workflow-explore-plan-review
+- ts-workflow-implement-review
+- ts-workflow-plan-review
+- ts-workflow-prototype
 
 ## Invocation
 
@@ -64,10 +72,6 @@ Most local workflow skills are explicit-only. Invoke them by name:
 - `$ts-implement`
 - `$ts-qa`
 - `$ts-review`
-- `$ts-workflow-plan-review`
-- `$ts-workflow-explore-plan-review`
-- `$ts-workflow-implement-review`
-- `$ts-workflow-prototype`
 
 Skill authoring may trigger by task:
 
@@ -152,7 +156,7 @@ The router chooses the next judge. It does not synthesize findings.
 
 Examples:
 
-- run `ts-plan`, then `ts-workflow-implement-review`, then `ts-review`
+- run `ts-plan`, then `ts-implement`, then `ts-review`
 - run only `ts-review` for a prepared diff
 - run one formal review now, then stop
 
