@@ -76,18 +76,19 @@ authorization, secrets, sensitive data, or dangerous capabilities.
 
 ### handle it, or die
 
-- Represent expected failures as named domain errors in the Effect error channel, `Result`, or similar types.
-- Let unexpected bugs fail loudly.
-- Map library errors into domain errors and domain errors into protocol errors at their boundaries.
-- Preserve the original cause and useful structured context when mapping an error.
-- Pass cause messages and context to readers only as far as they are allowed to see them.
-- Do not reduce a human-facing error to a type, tag, or generic summary.
-- Include a corrective action only when it is known to apply.
-- Format human-facing errors for their interface.
-- Avoid catch-log-rethrow.
-- Log unhandled errors exactly once, at the boundary.
-- Stop when a rule the program relies on no longer holds.
-- Do not encode programmer bugs as recoverable business errors.
+- Let errors pass through internal boundaries by default. A module boundary does not justify a new error type.
+- Use domain errors for business outcomes that callers need to handle.
+- Keep expected failures in the Effect error channel, `Result`, or similar types.
+  Technical errors can keep technical types.
+- Handle known failures where recovery belongs. Retry using the original error when it provides enough information.
+- Parse and enrich errors only when handling needs trusted fields or useful context. Preserve the original cause.
+- Do not catch every infrastructure failure and rename it as a domain error.
+- Let defects propagate to the application boundary. Do not turn them into recoverable business errors.
+- Stop work when a rule the program relies on no longer holds.
+- Map errors leaving the application to safe responses for the external interface. Include a catch-all for defects.
+- Keep diagnostic evidence in trusted reports. Expose only details the reader is allowed to see.
+- Format errors for their interface. Include corrective actions only when known to apply.
+- Log unhandled failures once at the outer boundary. Avoid catch-log-rethrow.
 
 You must read [details](handle-it-or-die.md) when the work designs, changes, or reviews error types, error messages,
 error mapping, error presentation, recovery, catching, or logging.

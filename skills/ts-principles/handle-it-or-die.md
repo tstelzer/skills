@@ -2,300 +2,305 @@
 
 ## reasoning
 
-Failures are not all the same thing.
+An error type earns its place when it helps a caller decide what to do. A pricing
+rule can fail with `DiscountTooLarge` because the caller can ask for a smaller
+discount. Renaming every failure to `PricingFailed` removes that distinction.
+Adding a wrapper at each layer also makes the original failure harder to find.
 
-Expected failures are part of the program. Model them as named domain errors
-and carry them through the codebase's fallible return type. The names exist so
-callers can decide what to do.
+Parsing and enriching keep the failure's meaning while making it easier to handle
+or explain. Domain mapping changes that meaning. A database constraint can mean
+that an email is taken; a database outage cannot. The mapping needs evidence for
+the business claim it makes.
 
-Unexpected defects are bugs. A corrupted invariant is not a business outcome.
-Let it explode, or assert with useful context. Continuing past a corrupted
-invariant usually creates a second, harder bug.
+External users and internal handlers need different information. A handler may
+need a driver code to recover. An operator needs the cause to debug a failure.
+An HTTP caller needs a safe response. Keeping the original error until this last
+boundary supports those needs without making every internal layer translate it.
 
-Map errors at boundaries. Translate library errors before they enter the
-domain. Translate domain errors before they leave the system. Mapping changes
-the vocabulary, not the evidence. Preserve the original cause and useful
-structured context. A `MongoServerError` is not a domain model, but its safe
-diagnostic detail must not disappear behind `failed to save user`.
-
-Present and log errors at boundaries. A human-facing error names the failed
-operation and subject, then includes the safe cause messages and context its
-reader needs to start debugging. Stop at the reader's trust boundary. Redact
-secrets and restricted internals without discarding safe evidence.
-
-Include a corrective action only when it is known to apply. Do not replace
-missing knowledge with `try again`, `check your configuration`, or another
-generic suggestion.
-
-Match the interface. A CLI can use labels, indentation, and color while
-remaining clear as plain text. An API uses stable codes and structured fields.
-Logs use searchable fields and carry the safe original cause.
-
-If every layer logs and rethrows, one failure becomes five log lines. Handle
-expected failures where they are expected. Log the rest once, at the outermost
-boundary that has enough context to explain them.
+In Effect,
+[defects sit outside the typed error channel](https://effect.website/docs/v4/error-management/two-error-types).
+A handler for typed failures alone will miss them. The final boundary must cover
+defects too, so they produce a safe response and a useful report. That response
+does not make it safe to resume work after a broken invariant.
 
 ## examples
 
-### expected failures as values
+The examples use `Result` for expected outcomes and Promises for IO. The logger
+retains error stacks and causes while redacting secrets.
 
-Weak:
+### create domain errors for business rules
 
-```ts
-async function createUser(input: CreateUserInput): Promise<User> {
-  if (await emailExists(input.email)) {
-    throw new Error("email already exists")
-  }
-
-  return insertUser(input)
-}
-```
-
-Better:
+A pricing service computes a quote. A discount that takes the price below the
+allowed minimum is an expected business failure. No infrastructure has failed.
+Amounts are validated integer cents.
 
 ```ts
-class DuplicateEmail extends Error {
-  readonly _tag = "DuplicateEmail"
-
-  constructor(readonly email: string) {
-    super("duplicate email")
+class DiscountTooLarge extends Error {
+  constructor(readonly maxDiscount: number) {
+    super("discount exceeds the allowed maximum")
   }
 }
 
-async function createUser(input: CreateUserInput): Promise<User> {
-  if (await emailExists(input.email)) {
-    throw new DuplicateEmail(input.email)
+function calculateQuote(
+  price: number,
+  minimumPrice: number,
+  discount: number,
+): Result<number, DiscountTooLarge> {
+  const maxDiscount = price - minimumPrice
+  if (discount > maxDiscount) {
+    return Result.fail(new DiscountTooLarge(maxDiscount))
   }
-
-  return insertUser(input)
-}
-```
-
-This is still exception control flow, but at least the failure has a domain
-name.
-
-Stronger:
-
-```ts
-class DuplicateEmail extends Error {
-  readonly _tag = "DuplicateEmail"
-
-  constructor(readonly email: string) {
-    super("duplicate email")
-  }
+  return Result.succeed(price - discount)
 }
 
-class InvalidUser extends Error {
-  readonly _tag = "InvalidUser"
+function previewOffer(input: OfferInput): Result<number, DiscountTooLarge> {
+  return calculateQuote(input.price, input.minimumPrice, input.discount)
 }
 
-type CreateUserError = DuplicateEmail | InvalidUser
-
-async function createUser(
-  input: CreateUserInput,
-): Promise<Result<User, CreateUserError>> {
-  if (await emailExists(input.email)) {
-    return Result.fail(new DuplicateEmail(input.email))
-  }
-
-  return Result.succeed(await insertUser(input))
-}
-```
-
-With Effect:
-
-```ts
-class DuplicateEmail extends Schema.TaggedError<DuplicateEmail>()(
-  "DuplicateEmail",
-  { email: Schema.String },
-) {}
-
-const createUser = (
-  input: CreateUserInput,
-): Effect.Effect<User, DuplicateEmail> =>
-  Effect.gen(function* () {
-    if (yield* emailExists(input.email)) {
-      return yield* Effect.fail(new DuplicateEmail({ email: input.email }))
-    }
-
-    return yield* insertUser(input)
+function showOfferPreview(input: OfferInput): void {
+  Result.match(previewOffer(input), {
+    onSuccess: (total) => showTotal(total),
+    onFailure: (error) => showDiscountError(
+      `Choose a discount of at most ${formatMoney(error.maxDiscount)}.`,
+    ),
   })
+}
 ```
 
-The caller can now handle the expected case without catching unknown exceptions.
+For a price of 10,000 cents and a minimum of 8,000, a 3,000-cent discount fails.
+The form shows the allowed maximum of 2,000. `previewOffer` passes the same error
+through. Wrapping it in `OfferFailed` would give the form no new information.
+There is no underlying exception to preserve and no unhandled failure to log.
 
-### map library errors inward
+### pass the original error to the outer handler
 
 Weak:
 
 ```ts
 async function saveUser(user: User): Promise<void> {
-  await collection.insertOne(user)
-}
-```
-
-This leaks whatever the database driver happens to throw.
-
-Code smell:
-
-```ts
-async function registerUser(
-  input: RegisterUserInput,
-): Promise<Result<User, RegisterUserError>> {
   try {
-    return Result.succeed(await userRepository.save(input))
-  } catch (error) {
-    if (error instanceof MongoServerError && error.code === 11000) {
-      return Result.fail(new DuplicateEmail(input.email))
-    }
+    await collection.insertOne(user)
+  } catch {
+    throw new Error("database failed")
+  }
+}
 
-    throw error
+async function registerUser(user: User): Promise<void> {
+  try {
+    await saveUser(user)
+  } catch {
+    throw new Error("registration failed")
+  }
+}
+
+async function postUser(user: User, requestId: string): Promise<Response> {
+  try {
+    await registerUser(user)
+    return new Response(null, { status: 201 })
+  } catch (error) {
+    logger.error({ error, requestId }, "registration failed")
+    return Response.json({ code: "internal-error", requestId }, { status: 500 })
   }
 }
 ```
 
-The service now knows about MongoDB. A library error crossed a boundary that
-should have translated it.
+A database timeout becomes `registration failed`. The log loses the driver stack
+and connection details. Each internal catch adds code without helping the caller.
 
 Stronger:
 
 ```ts
-class UserAlreadyExists extends Error {
-  readonly _tag = "UserAlreadyExists"
+async function saveUser(user: User): Promise<void> {
+  await collection.insertOne(user)
+}
 
-  constructor(readonly email: string) {
-    super("user already exists")
+async function registerUser(user: User): Promise<void> {
+  await saveUser(user)
+}
+
+async function postUser(user: User, requestId: string): Promise<Response> {
+  try {
+    await registerUser(user)
+    return new Response(null, { status: 201 })
+  } catch (error) {
+    logger.error({ error, requestId }, "registration failed")
+    return Response.json({ code: "internal-error", requestId }, { status: 500 })
+  }
+}
+```
+
+The same database timeout reaches the logger intact. The HTTP caller still gets
+only a safe code and request ID. A bug in either internal function reaches the
+same final handler. Adding `cause` to the weak wrappers would retain evidence,
+but would still add error types that no caller needs.
+
+### handle a technical failure where its meaning is known
+
+The client exposes `HttpError.status`. This application treats a missing profile
+as a new user with default preferences. It also allows one retry for a temporary
+service failure.
+
+Weak:
+
+```ts
+async function fetchProfile(id: string): Promise<Profile> {
+  try {
+    return await profileClient.get(id)
+  } catch {
+    throw new ProfileServiceError("profile unavailable")
   }
 }
 
-class UserPersistenceFailed extends Error {
-  readonly _tag = "UserPersistenceFailed"
+async function loadProfile(id: string): Promise<Profile> {
+  try {
+    return await fetchProfile(id)
+  } catch (error) {
+    if (!(error instanceof ProfileServiceError)) throw error
+    return await fetchProfile(id)
+  }
+}
+```
 
-  constructor(readonly userId: UserId, cause: unknown) {
-    super(`failed to save user ${userId}`, { cause })
+Every failure gets the same name. The caller retries missing profiles,
+authentication failures, and client bugs as though they were temporary outages.
+
+Stronger:
+
+```ts
+async function readProfile(id: string): Promise<Profile> {
+  try {
+    return await profileClient.get(id)
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 404) {
+      return defaultProfile(id)
+    }
+    throw error
   }
 }
 
-type SaveUserError = UserAlreadyExists | UserPersistenceFailed
+async function loadProfile(id: string): Promise<Profile> {
+  try {
+    return await readProfile(id)
+  } catch (error) {
+    if (!(error instanceof HttpError) || error.status !== 503) throw error
+    await delay(200)
+    return await readProfile(id)
+  }
+}
 
-async function saveUser(user: User): Promise<Result<void, SaveUserError>> {
+async function getProfile(id: string, requestId: string): Promise<Response> {
+  try {
+    return Response.json(await loadProfile(id))
+  } catch (error) {
+    logger.error({ error, requestId }, "profile lookup failed")
+    return Response.json({ code: "internal-error", requestId }, { status: 500 })
+  }
+}
+```
+
+A 404 becomes a default profile, including when it follows a retry. A 503 gets
+one retry. Other failures reach the HTTP handler with their original details.
+Returning a default and retrying are both handling: each makes a decision using
+the existing error. Neither needs a domain wrapper or an error log on success.
+
+#### parse and enrich when the handler needs a trusted shape
+
+Suppose another client throws unknown values with a nested `response.status`.
+The handler needs a valid HTTP error status. A technical wrapper can guarantee
+that field and record which profile was being read.
+
+```ts
+class ProfileHttpError extends Error {
+  private constructor(
+    readonly status: number,
+    readonly profileId: string,
+    cause: unknown,
+  ) {
+    super(`profile read failed for ${profileId}: HTTP ${status}`, { cause })
+  }
+
+  static parse(cause: unknown, profileId: string): ProfileHttpError | undefined {
+    if (typeof cause !== "object" || cause === null || !("response" in cause)) return
+    const response = cause.response
+    if (typeof response !== "object" || response === null || !("status" in response)) return
+    const status = response.status
+    if (typeof status !== "number" || !Number.isInteger(status) || status < 400 || status > 599) return
+    return new ProfileHttpError(status, profileId, cause)
+  }
+}
+
+async function readProfile(id: string): Promise<Profile> {
+  try {
+    return await profileClient.get(id)
+  } catch (cause) {
+    const error = ProfileHttpError.parse(cause, id)
+    if (!error) throw cause
+    if (error.status === 404) return defaultProfile(id)
+    throw error
+  }
+}
+
+async function getProfile(id: string, requestId: string): Promise<Response> {
+  try {
+    return Response.json(await readProfile(id))
+  } catch (error) {
+    logger.error({ error, requestId }, "profile lookup failed")
+    return Response.json({ code: "internal-error", requestId }, { status: 500 })
+  }
+}
+```
+
+A 404 returns the default profile. A 503 reaches the logger with a trusted status,
+the profile ID, and the original error in `cause`. An unrelated exception passes
+through unchanged. The wrapper still describes an HTTP failure; it makes no
+business claim about the profile. Use the project's schema library for these
+shape checks when one is available.
+
+### define and use business errors
+
+Registration needs to tell the user when an email is already taken. The repository
+can identify that specific constraint. It must let unrelated failures pass through.
+
+```ts
+class EmailAlreadyTaken extends Error {
+  constructor(cause: unknown) {
+    super("email already taken", { cause })
+  }
+}
+
+async function registerUser(user: User): Promise<Result<void, EmailAlreadyTaken>> {
   try {
     await collection.insertOne(user)
     return Result.succeed(undefined)
   } catch (error) {
-    if (isDuplicateKey(error)) {
-      return Result.fail(new UserAlreadyExists(user.email))
+    if (isEmailUniqueConstraintViolation(error)) {
+      return Result.fail(new EmailAlreadyTaken(error))
     }
+    throw error
+  }
+}
 
-    return Result.fail(new UserPersistenceFailed(user.id, error))
+async function postUser(user: User, requestId: string): Promise<Response> {
+  try {
+    const result = await registerUser(user)
+    return Result.match(result, {
+      onSuccess: () => new Response(null, { status: 201 }),
+      onFailure: () => Response.json(
+        {
+          code: "email-already-taken",
+          message: "Choose another email address.",
+        },
+        { status: 409 },
+      ),
+    })
+  } catch (error) {
+    logger.error({ error, requestId }, "registration failed")
+    return Response.json({ code: "internal-error", requestId }, { status: 500 })
   }
 }
 ```
 
-The domain sees the failed operation and user ID. The original driver error
-remains available to a trusted renderer or logger through `cause`.
-
-### map domain errors outward
-
-Weak:
-
-```ts
-const result = await createUser(command)
-
-if (Result.isFailure(result)) {
-  throw result.error
-}
-```
-
-Stronger:
-
-```ts
-const result = await createUser(command)
-
-return Result.match(result, {
-  onSuccess: (user) => Response.json(user, { status: 201 }),
-  onFailure: (error) => {
-    switch (error._tag) {
-      case "DuplicateEmail":
-        return Response.json({ code: "duplicate-email" }, { status: 409 })
-      case "InvalidUser":
-        return Response.json({ code: "invalid-user" }, { status: 400 })
-    }
-  },
-})
-```
-
-Each protocol has its own shape. Translate at the boundary.
-
-### do not catch-log-rethrow
-
-Weak:
-
-```ts
-try {
-  return await createInvoice(command)
-} catch (error) {
-  logger.error(error, "failed to create invoice")
-  throw error
-}
-```
-
-If every layer does this, one failure becomes five log lines.
-
-Stronger:
-
-```ts
-try {
-  return await handleRequest(request)
-} catch (error) {
-  logger.error({ error, requestId }, "request failed")
-  return Response.json(
-    {
-      code: "internal-error",
-      message: "The request could not be completed.",
-      requestId,
-    },
-    { status: 500 },
-  )
-}
-```
-
-Log once at the outermost boundary. Inside the system, either handle the
-failure or let it pass through. The external response omits restricted
-internals but gives support and the caller a request ID that connects it to
-the original logged cause.
-
-### defects are not business errors
-
-Weak:
-
-```ts
-function applyTransition(state: State, event: Event): Result<State, DomainError> {
-  switch (state._tag) {
-    case "Draft":
-      return applyDraftTransition(state, event)
-    case "Published":
-      return applyPublishedTransition(state, event)
-    default:
-      return Result.fail(new InvalidState())
-  }
-}
-```
-
-Stronger:
-
-```ts
-function applyTransition(state: State, event: Event): State {
-  switch (state._tag) {
-    case "Draft":
-      return applyDraftTransition(state, event)
-    case "Published":
-      return applyPublishedTransition(state, event)
-    default:
-      assertNever(state)
-  }
-}
-```
-
-If the type says the state is impossible, treat reaching it as a bug. Do not
-make callers recover from broken program assumptions.
+The constraint check must identify the email constraint, not every duplicate key.
+An email conflict gets a useful 409 response. A database outage or a bug reaches
+the final handler and gets logged once. Neither becomes `EmailAlreadyTaken`.
+The caller handles one real business outcome without knowing the driver.
