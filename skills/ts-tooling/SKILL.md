@@ -26,6 +26,8 @@ Do not read every file. Establish the repository context, then open only the mat
 - Update generated lock files with their owning tools. Do not edit lock files by hand.
 
 Reference configs name only the preferred major line. Before applying one, resolve the latest release in that major.
+When selected tools publish a compatibility matrix, use the newest supported combination instead of resolving each
+tool independently.
 Pin the exact version in dependency, package-manager, and runtime-manager fields. Use the resolved major for support
 ranges such as `engines.node`. Replace every `<latest-...>` placeholder. Update this skill only when the preferred
 major or configuration shape changes.

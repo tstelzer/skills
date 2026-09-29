@@ -22,6 +22,8 @@ Read only the matching tool folders.
 - Use Volta only in work repositories. Never add it to the flake.
 - Use `@effect/tsgo` in Effect projects. The `@effect/language-service` string remains the `tsconfig` plugin name,
   but TypeScript 7 projects do not install that package.
+- When Effect TypeScript tooling and Oxlint are both selected, apply the Oxlint integration from
+  [`effect-tsgo/`](./effect-tsgo/) after the base Effect and Oxc fragments.
 - Use Changesets only when the TypeScript repository publishes packages.
 - Use Vite only when the project needs its development server or build pipeline.
 

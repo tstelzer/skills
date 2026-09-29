@@ -13,3 +13,21 @@ Merge [`reference/package.fragment.jsonc`](./reference/package.fragment.jsonc) i
 TypeScript config.
 
 Append [`reference/just.fragment`](./reference/just.fragment) to the repository `justfile` when it uses Just.
+
+## Oxlint integration
+
+Apply this integration when the repository uses Oxlint.
+
+- Resolve `oxlint` and `oxlint-tsgolint` versions supported by the selected `@effect/tsgo` release.
+- Merge [`reference/oxlint/package.fragment.jsonc`](./reference/oxlint/package.fragment.jsonc) after the base package
+  fragments.
+- Replace the Effect plugin entry with
+  [`reference/oxlint/tsconfig.fragment.jsonc`](./reference/oxlint/tsconfig.fragment.jsonc).
+- Merge [`reference/oxlint/.oxlintrc.json`](./reference/oxlint/.oxlintrc.json) into the root Oxlint configuration.
+- Add `--oxlint` to the `effect-patch` Just recipe.
+
+The reference config disables rules that are too broad for repository-wide enforcement:
+
+- `async-function`: allow async functions at Promise and SDK boundaries.
+- `node-builtin-import`: allow deliberate Node adapters and launchers.
+- `prefer-schema-over-json`: require schemas at unknown boundaries, not for pure serialization or trusted test data.

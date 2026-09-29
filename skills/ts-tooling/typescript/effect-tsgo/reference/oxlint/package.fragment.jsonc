@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "prepare": "effect-tsgo patch --oxlint"
+  },
+  "devDependencies": {
+    "oxlint": "<latest-supported-1.x>",
+    "oxlint-tsgolint": "<latest-supported-7.x>"
+  }
+}
