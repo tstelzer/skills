@@ -1,4 +1,4 @@
 [doc('Find circular imports')]
 [group('Check')]
 find-circular:
-    pnpm run circular
+    pnpm exec madge --extensions ts,mts,tsx --circular --no-spinner --no-color src

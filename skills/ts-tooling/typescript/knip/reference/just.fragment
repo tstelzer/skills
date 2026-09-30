@@ -1,4 +1,4 @@
 [doc('Find unused files, exports, and dependencies')]
 [group('Check')]
 find-unused:
-    pnpm run declutter
+    pnpm exec knip --config knip.jsonc

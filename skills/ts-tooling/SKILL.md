@@ -23,6 +23,7 @@ Do not read every file. Establish the repository context, then open only the mat
 - Support Linux and macOS. Do not add Windows-specific configuration or commands.
 - Select tools from the target repository's needs. There is no universal tool set.
 - Use the reference files as merge sources. Preserve intentional project-specific configuration.
+- When using Just, apply its [command ownership rules](./repository/just/README.md) before merging package scripts.
 - Update generated lock files with their owning tools. Do not edit lock files by hand.
 
 Reference configs name only the preferred major line. Before applying one, resolve the latest release in that major.

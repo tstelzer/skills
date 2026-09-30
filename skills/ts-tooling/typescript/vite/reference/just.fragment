@@ -1,9 +1,9 @@
 [doc('Run the Vite development server')]
 [group('Build')]
 dev:
-    pnpm run dev
+    pnpm exec vite
 
 [doc('Build with Vite')]
 [group('Build')]
 vite-build:
-    pnpm run build:vite
+    pnpm exec vite build

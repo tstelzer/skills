@@ -1,14 +1,20 @@
 [doc('Create a changeset')]
 [group('Release')]
 changeset:
-    pnpm run changeset
+    pnpm exec changeset
 
 [doc('Show changeset status')]
 [group('Release')]
 changeset-status:
-    pnpm run changeset:status
+    pnpm exec changeset status --since=master
 
 [doc('Apply changesets to package versions')]
 [group('Release')]
 changeset-version:
-    pnpm run changeset:version
+    pnpm exec changeset version
+    just check-fix
+
+[doc('Build and publish packages')]
+[group('Release')]
+changeset-publish: build
+    pnpm exec changeset publish

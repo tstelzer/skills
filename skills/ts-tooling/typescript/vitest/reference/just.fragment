@@ -1,9 +1,9 @@
 [doc('Run tests once')]
 [group('Check')]
 test:
-    pnpm run test
+    pnpm exec vitest run --passWithNoTests
 
 [doc('Run tests in watch mode')]
 [group('Check')]
 test-watch:
-    pnpm run test:watch
+    pnpm exec vitest

@@ -30,3 +30,7 @@ Read only the matching tool folders.
 Merge each selected `package.fragment.jsonc` into the root `package.json`. Do not copy fragments as standalone
 project files. Reconcile duplicate `scripts`, `devDependencies`, `engines`, and package-manager fields once at the
 end.
+
+The fragments define developer commands as Just recipes. In repositories without Just, derive package scripts
+from those commands. In repositories with Just, add package scripts only for identified consumers that cannot use
+Just. Retain package-manager lifecycle hooks such as `prepare`.

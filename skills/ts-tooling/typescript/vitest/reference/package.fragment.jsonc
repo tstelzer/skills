@@ -1,8 +1,4 @@
 {
-  "scripts": {
-    "test": "vitest run --passWithNoTests",
-    "test:watch": "vitest"
-  },
   "devDependencies": {
     "vitest": "<latest-5.x>"
   }

@@ -7,12 +7,15 @@ uses Nix.
 
 Treat the `justfile` as a curated command interface, not an inventory of tools and package scripts.
 Do not add a header comment that explains the `justfile` or repeats these rules.
-Do not mirror a Just recipe with an npm script of the same name. Keep the npm script only when another consumer,
-such as a Dockerfile, invokes it.
+Keep npm/pnpm scripts only for consumers that cannot use Just, such as a Dockerfile or GitHub Actions job without it.
+Define commands used only by developers as Just recipes. Do not add corresponding `package.json` scripts,
+even under different names. Keep package-manager lifecycle hooks in `package.json`.
+Invoke package binaries directly with `pnpm exec`. Call a retained package script from Just when both consumers
+need the same command.
 
 Add a recipe when it:
 
-- gives a short name to a useful package-manager script
+- exposes a command shared with a consumer that cannot use Just
 - hides a long workspace or package-filter command
 - captures a complex command that is hard to recall
 - exposes a frequently used development command such as `test`, `lint`, or `dev`
@@ -48,6 +51,6 @@ not require adding its `just.fragment`.
 - Assign every public recipe to one group. Leave private helpers ungrouped.
 - Keep group names and capitalization consistent within a file.
 
-- Keep recipes thin. Put reusable language-specific commands in their native task runner and call them from Just.
+- Keep recipes thin. Compose recipes with Just dependencies or `just <recipe>` calls.
 - Add `verify` after assembling the file. Include only selected, non-interactive checks.
 - Keep mutating and interactive recipes out of `verify`.
