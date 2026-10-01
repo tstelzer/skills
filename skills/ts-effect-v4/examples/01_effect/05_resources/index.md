@@ -5,6 +5,13 @@ Learn how to safely manage resources in Effect using `Scope`s and finalizers.
 Prefer `acquireRelease`, `acquireUseRelease`, `Scope`, and scoped platform
 helpers over manual promise lifecycles or `try` / `finally`.
 
+Use `Scope.Closeable` when closing a scope explicitly. `Scope.make` and
+`Scope.fork` return closeable scopes. `Scope.close` runs finalizers
+uninterruptibly.
+
+`LayerMap` skips preloading keys whose idle TTL is zero, including the default.
+Set a non-zero `idleTimeToLive` when startup must validate preloaded resources.
+
 Choose cleanup semantics as part of the operation contract:
 
 - Preserve cleanup failures when cleanup is part of the result.

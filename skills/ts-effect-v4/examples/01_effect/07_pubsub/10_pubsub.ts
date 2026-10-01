@@ -23,7 +23,7 @@ export class OrderEvents extends Context.Service<OrderEvents, {
       const pubsub = yield* PubSub.bounded<OrderEvent>({
         capacity: 256,
         // Optionally add a replay buffer to let late subscribers catch up on
-        // recent events after restarts.
+        // recent events while this PubSub remains alive. Replay is in-memory.
         replay: 50
       })
 

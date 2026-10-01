@@ -5,7 +5,7 @@
  */
 import { NodeServices } from "@effect/platform-node"
 import { Console, Context, Effect, Layer, PlatformError, Schema, Stream, String } from "effect"
-import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process"
+import { ChildProcess, ChildProcessSpawner } from "effect/process"
 
 export class DevToolsPlatformError extends Schema.TaggedError<DevToolsPlatformError>()(
   "DevToolsPlatformError",

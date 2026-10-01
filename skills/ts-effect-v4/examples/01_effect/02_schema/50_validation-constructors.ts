@@ -32,6 +32,8 @@ export const NonEmptyStrings = Schema.Array(Schema.String).pipe(
   )
 )
 
+// Use one concrete string brand key. Apply brand repeatedly to compose brands.
+// Branding changes the TypeScript type; it adds no validation or AST metadata.
 export const UserId = Schema.String.pipe(Schema.brand("UserId"))
 export type UserId = typeof UserId.Type
 

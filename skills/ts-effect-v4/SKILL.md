@@ -1,6 +1,6 @@
 ---
 name: ts-effect-v4
-description: Effect v4 handbook for effect@4 and effect/unstable/*. Use ts-effect-v3 for v3.
+description: Effect v4 handbook for effect@4 and its platform, SQL, AI, and testing packages. Use ts-effect-v3 for v3.
 ---
 
 # Effect v4
@@ -8,10 +8,12 @@ description: Effect v4 handbook for effect@4 and effect/unstable/*. Use ts-effec
 ## Reference snapshot
 
 - Repository: `Effect-TS/effect`
-- Commit: `14a3f140095fdebbff9162944fe7d4ea83e054e6`
-- Package: `effect@4.0.0-rc.117`
+- Release: `effect@4.0.0`
+- Commit: `67ba4e46a11ccda0b6761578bfd22c04ae00167d`
+- Package: `effect@4.0.0`
 
-Use this commit as the source for this handbook version. A branch name can move to another commit.
+Use this release tag as the source for this handbook version. A branch name can move to another commit.
+Read reference files with `git show effect@4.0.0:<path>` when the checkout is ahead of the release.
 
 ## Where to start
 
@@ -27,14 +29,55 @@ Use this commit as the source for this handbook version. A branch name can move 
 ## Identify the version
 
 Use this skill when the code targets Effect v4:
-- `effect@4` (including `4.0.0-beta.*` and `4.0.0-rc.*`) in `package.json`, with `@effect/*` packages on the same
-  version.
-- Imports from `effect/unstable/*`
-  (`http`, `httpapi`, `cli`, `sql`, `rpc`, `cluster`, `ai`, `observability`, `process`, ...).
+
+- `effect@4` in `package.json`, with `@effect/*` packages on the same version.
+- Imports from `effect/http`, `effect/http-api`, `effect/cli`, `effect/sql`, `effect/rpc`, or other grouped modules.
 - `Context.Service` for services, `Effect.fn(...)` or `Effect.fnUntraced(...)` for effectful functions, and
   `Schema.TaggedError` for errors.
 
-If it's `effect@3` / `@effect/platform@0.x` style, use `ts-effect-v3`.
+For `effect@3` / `@effect/platform@0.x`, use skill: ts-effect-v3.
+
+This handbook targets the stable release. For beta or RC code, check its installed version before applying examples.
+
+## Release requirements
+
+- Use TypeScript 5.9 or newer. The release recommends TypeScript 7.
+- Use Vitest 5 with `@effect/vitest` and `@effect/doctest`.
+- `@effect/sql-sqlite-node` uses `node:sqlite` and requires Node 22.16 or newer.
+- `@effect/platform-deno` requires Deno 2.8.3 or newer. `@effect/atom-react` requires React 19.
+
+## Imports and stability
+
+- Import grouped modules from `effect/<area>` and individual modules from `effect/<area>/<Module>`.
+- Replace prerelease `effect/unstable/*` imports. Those paths have no compatibility exports in 4.0.0.
+- Use `effect/http-api` for HTTP API modules, `effect/Arbitrary` for native property testing, and
+  `effect/encoding` for encoding formats. Primitive helpers live at `effect/encoding/Base64`,
+  `effect/encoding/Base64Url`, `effect/encoding/Hex`, and `effect/encoding/EncodingError`.
+- Read stability annotations on the API being used. `@stability unstable` allows breaking changes in minor releases;
+  `@stability experimental` allows them in patch releases. APIs without a stability tag follow semver.
+- APIs that expose third-party clients, options, or re-exports can be unstable, including parts of platform,
+  SQL driver, AI provider, OpenTelemetry, and Vitest packages.
+
+## Upgrading prerelease code
+
+- Rename Schema range checks to `isBetweenLength`, `isBetweenCodePoints`, `isBetweenSize`, and `isBetweenProperties`.
+  Rename string checks to `isStartingWith`, `isEndingWith`, and `isIncluding`.
+  Update corresponding `SchemaRepresentation.*Reviver` names and persisted `effect/schema/...` check IDs.
+- Pass one concrete string identifier to `Schema.brand`. Brands affect TypeScript types only; they add no AST metadata.
+  Pass the constructor's sole brand key first to `Schema.fromBrand`. Apply either function repeatedly to compose brands.
+  For enum keys, pass the enum member. Reapply brands after rebuilding schemas from representations or generated code.
+- Read partition results as `[passes, fails]` and separated Results as `[successes, failures]`.
+  This applies to `Array`, `Chunk`, `Effect`, `Record`, and `Option.partitionMap`.
+  `Array.partition`, `Chunk.partition`, and `Record.partition` take Result-returning filters;
+  adapt boolean predicates with `Filter.fromPredicate`.
+- Let `Config.withDefault` and `Config.option` handle absent values. Invalid input and source errors still fail.
+  A default on `Config.all` replaces the whole group; put defaults on children to preserve supplied values.
+- Use `Scope.Closeable` for `Scope.close` and `Scope.closeUnsafe`. `Scope.make` and `Scope.fork` create closeable scopes.
+- Replace `effect/httpapi` with `effect/http-api`, including stored TypeIds, service keys, and the reserved
+  `effect/http-api/stream/failure` SSE event name.
+- Follow the [router ownership rules](./examples/51_http-server/index.md)
+  when composing servers or web handlers.
+- For native property tests and `TestSchema` renames, read [Testing](./examples/09_testing/index.md).
 
 ## Examples
 
@@ -144,7 +187,7 @@ Before finishing an Effect implementation or review, check the whole change for:
 ## Migration
 
 Migrating v3 → v4. Start at **`migration/MIGRATION.md`**.
-It explains versions, merged packages, and `effect/unstable/*`. It links to:
+It explains versions, merged packages, release import paths, and API stability. It links to:
 
 - `migration/v3-to-v4.md`: import and API rename maps.
 - `migration/services.md`: `Context.Tag` → `Context.Service`.

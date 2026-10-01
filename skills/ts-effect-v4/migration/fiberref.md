@@ -1,8 +1,10 @@
 # FiberRef: `FiberRef` → `Context.Reference`
 
-In v4, `FiberRef`, `FiberRefs`, `FiberRefsPatch`, and `Differ` have been removed.
-Fiber-local state is now handled by `Context.Reference` — the same mechanism
-used for services with default values.
+In v4, `FiberRef`, `FiberRefs`, and `FiberRefsPatch` have been removed.
+Use `Context.Reference` for fiber-local state and services with default values.
+
+`Differ` still exports the `Differ<T, Patch>` interface. Its v3 constructors and
+combinators are gone. Use `Schema.toDifferJsonPatch` for schema-derived patches.
 
 ## Built-in References
 

@@ -5,7 +5,7 @@
  * comparison, optics, and patches from the same contract.
  */
 import { Effect, Schema, SchemaIssue } from "effect"
-import { Arbitrary } from "effect/unstable/arbitrary"
+import * as Arbitrary from "effect/Arbitrary"
 
 export const Product = Schema.Struct({
   id: Schema.String.annotate({

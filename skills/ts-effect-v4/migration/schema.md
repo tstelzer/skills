@@ -77,7 +77,7 @@ This document maps v3 Schema APIs to their v4 equivalents. Simple renames and ar
 | `rename({ a: "c" })`                            | see [rename](#rename)                                                         | manual            |
 | `format(schema)`                                | see [format](#format)                                                         | manual            |
 | `ParseResult.ArrayFormatter.formatError(error)` | see [ParseResult formatters](#parseresult-formatters)                         | manual            |
-| `declare`                                       | see [declare](#declare)                                                       | manual            |
+| `declare` | see [declarations](../examples/01_effect/02_schema/70_classes-errors.ts) | manual |
 
 ## Additional rename notes
 
@@ -115,13 +115,13 @@ const DateFromIsoString = Schema.DateFromString
 
 All filters have been renamed with an `is` prefix and now use `check(...)` or `pipe(Schema.check(...))`:
 
-`greaterThan` → `isGreaterThan`, `greaterThanOrEqualTo` → `isGreaterThanOrEqualTo`, `lessThan` → `isLessThan`, `lessThanOrEqualTo` → `isLessThanOrEqualTo`, `between` → `isBetween`, `int` → `isInt`, `multipleOf` → `isMultipleOf`, `finite` → `isFinite`, `minLength` → `isMinLength`, `maxLength` → `isMaxLength`, `length` → `isLengthBetween`
+`greaterThan` → `isGreaterThan`, `greaterThanOrEqualTo` → `isGreaterThanOrEqualTo`, `lessThan` → `isLessThan`, `lessThanOrEqualTo` → `isLessThanOrEqualTo`, `between` → `isBetween`, `int` → `isInt`, `multipleOf` → `isMultipleOf`, `finite` → `isFinite`, `minLength` → `isMinLength`, `maxLength` → `isMaxLength`, `length` → `isBetweenLength`
 
 Note: `positive`, `negative`, `nonNegative`, `nonPositive` have been removed in v4.
 
 ### Utility renames
 
-`equivalence` → `toEquivalence`, `arbitrary` → [`Arbitrary.schema`](#migrating-from-the-fast-check-bridge-to-native-arbitrary) from `effect/unstable/arbitrary`, `pretty` → `toFormatter`, `standardSchemaV1` → `toStandardSchemaV1`
+`equivalence` → `toEquivalence`, `arbitrary` → [`Arbitrary.schema`](#migrating-from-the-fast-check-bridge-to-native-arbitrary) from `effect/Arbitrary`, `pretty` → `toFormatter`, `standardSchemaV1` → `toStandardSchemaV1`
 
 ## Detailed migrations
 
@@ -322,11 +322,11 @@ const decode = Schema.decodeUnknownSync(Person)
 try {
   decode({})
 } catch (error) {
-  if (error instanceof Error) {
+  if (Schema.isSchemaError(error)) {
     console.error("Decoding failed:")
-    if (SchemaIssue.isIssue(error.cause)) {
-      console.error(SchemaIssue.makeFormatterStandardSchemaV1()(error.cause).issues)
-    }
+    console.error(SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues)
+  } else {
+    throw error
   }
 }
 /*
@@ -897,13 +897,13 @@ const NumberFromString = Schema.transformOrFail(Schema.String, Schema.Number, {
 v4
 
 ```ts
-import { Effect, Number, Schema, SchemaGetter, SchemaIssue } from "effect"
+import { Effect, Schema, SchemaGetter, SchemaIssue } from "effect"
 
 const NumberFromString = Schema.String.pipe(
   Schema.decodeTo(Schema.Number, {
     decode: SchemaGetter.transformEffect((s) => {
-      const n = Number.parse(s)
-      if (n === undefined) {
+      const n = Number.parseFloat(s)
+      if (Number.isNaN(n)) {
         return Effect.fail(new SchemaIssue.InvalidValue())
       }
       return Effect.succeed(n)
@@ -993,7 +993,11 @@ const schema = Schema.String.pipe(Schema.catchDecoding(() => Effect.succeedSome(
 
 **Migration: manual**
 
-**New imports:** `SchemaTransformation`
+**New imports:** `Struct`
+
+v3 `Schema.rename` changes decoded keys while preserving encoded keys.
+Rename the struct fields, then map the new decoded keys back to the original wire keys with `Schema.encodeKeys`.
+Using `encodeKeys` alone changes the encoded keys and preserves the decoded names.
 
 v3
 
@@ -1009,13 +1013,17 @@ const schema = Schema.Struct({
 v4
 
 ```ts
-import { Schema } from "effect"
+import { Schema, Struct } from "effect"
 
-// experimental API
 const schema = Schema.Struct({
   a: Schema.String,
   b: Schema.Number
-}).pipe(Schema.encodeKeys({ a: "c" }))
+}).mapFields(Struct.renameKeys({ a: "c" })).pipe(
+  Schema.encodeKeys({ c: "a" })
+)
+
+Schema.decodeUnknownSync(schema)({ a: "value", b: 1 }) // { c: "value", b: 1 }
+Schema.encodeSync(schema)({ c: "value", b: 1 }) // { a: "value", b: 1 }
 ```
 
 ### Capitalize / Lowercase / Uppercase / Uncapitalize
@@ -1097,13 +1105,13 @@ function split(separator: string) {
 ## Migrating from the fast-check bridge to native Arbitrary
 
 This section covers migration from the fast-check bridge published in `effect@4.0.0-rc.109` to the native,
-Schema-first module at `effect/unstable/arbitrary`.
+Schema-first module at `effect/Arbitrary`.
 
 The new module removes fast-check from the `effect` package. Applications may still install and use fast-check
 directly, but Effect Schema generation and `@effect/vitest` property tests no longer depend on it.
 
 For the new API and its semantics, see
-[Arbitrary in Effect](https://github.com/Effect-TS/effect/blob/effect@4.0.0-rc.117/packages/effect/ARBITRARY.md).
+[Arbitrary in Effect](https://github.com/Effect-TS/effect/blob/effect@4.0.0/packages/effect/ARBITRARY.md).
 
 ### Import changes
 
@@ -1119,7 +1127,7 @@ The following APIs have been removed:
 Import the native module explicitly:
 
 ```ts
-import { Arbitrary } from "effect/unstable/arbitrary"
+import * as Arbitrary from "effect/Arbitrary"
 ```
 
 If other tests still use fast-check-specific APIs, add fast-check as a direct development dependency and import it
@@ -1146,7 +1154,7 @@ Now derive and sample through the Effect-native module:
 
 ```ts
 import { Effect, Schema } from "effect"
-import { Arbitrary } from "effect/unstable/arbitrary"
+import * as Arbitrary from "effect/Arbitrary"
 
 const Person = Schema.Struct({
   name: Schema.String,
@@ -1185,7 +1193,7 @@ Now `Arbitrary.checkEffect` runs a pure or Effectful property and returns a stru
 
 ```ts
 import { Effect, Schema } from "effect"
-import { Arbitrary } from "effect/unstable/arbitrary"
+import * as Arbitrary from "effect/Arbitrary"
 
 const result = await Effect.runPromise(
   Arbitrary.checkEffect(
@@ -1396,7 +1404,7 @@ it.prop("mixed", [Schema.String, fc.integer()], ([text, value]) => true)
 Replace those inputs with Schemas when they describe a domain supported by Schema, or compose a native Arbitrary:
 
 ```ts
-import { Arbitrary } from "effect/unstable/arbitrary"
+import * as Arbitrary from "effect/Arbitrary"
 
 const integer = Arbitrary.schema(Schema.Int)
 

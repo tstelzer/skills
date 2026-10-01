@@ -8,7 +8,8 @@ import { Schema, SchemaTransformation } from "effect"
 
 export const NormalizedName = Schema.String.pipe(
   Schema.decode(
-    SchemaTransformation.trim().compose(
+    SchemaTransformation.composeTransformation(
+      SchemaTransformation.trim(),
       SchemaTransformation.toLowerCase()
     )
   )

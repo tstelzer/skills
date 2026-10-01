@@ -1,6 +1,6 @@
 ## Working with child processes
 
-Use the `effect/unstable/process` modules to define child processes and run
+Use the `effect/process` modules to define child processes and run
 them with `ChildProcessSpawner`.
 
 Map each spawn, stream, and exit-code failure at that operation. Keep

@@ -49,6 +49,17 @@ not replace a schema with predicates or manual parsing.
   disclosure; it does not authorize `trim()`, case folding, or other changes.
 - A codec may require different services for decoding and encoding. Keep both
   requirements visible until the boundary provides them.
+- Use `isBetweenLength` and `isBetweenSize` for bounded lengths and sizes.
+  Use `isStartingWith`, `isEndingWith`, and `isIncluding` for string checks.
+- Use `isMinCodePoints`, `isMaxCodePoints`, and `isBetweenCodePoints` when the contract counts Unicode code points.
+  `isMinLength` and `isMaxLength` count UTF-16 code units for strings.
+- Brands are type-only. They do not survive a `SchemaRepresentation` round trip;
+  reapply the brand to the rebuilt schema. `Schema.fromBrand` preserves its
+  constructor's runtime checks.
+- `Schema.toJsonSchemaDocument` describes the encoded side of `Schema.toCodecJson(schema)` using draft 2020-12.
+  Decode that JSON with the derived codec. JSON Schema validation can be looser than Effect decoding.
+  A custom filter's `toJsonSchema` callback returns `[fragment, true]` for a safe, looser approximation or
+  `[{}, true]` for an omitted constraint. Approximate branches make `oneOf` export as `anyOf`.
 
 ### Coverage boundary
 

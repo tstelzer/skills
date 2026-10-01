@@ -38,10 +38,10 @@ export const fetchJobsPage = Stream.paginate(
     // Simulate network latency
     yield* Effect.sleep("50 millis")
 
-    const results = Array.range(0, 100).map((i) => `Job ${i + 1 + page * 100}`)
+    const results = Array.range(0, 99).map((i) => `Job ${i + 1 + page * 100}`)
 
     // only return 10 pages of results
-    const nextPage = page <= 10
+    const nextPage = page < 9
       ? Option.some(page + 1)
       : Option.none()
 

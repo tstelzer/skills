@@ -11,7 +11,7 @@ import {
   HttpClientError,
   HttpClientRequest,
   HttpClientResponse
-} from "effect/unstable/http"
+} from "effect/http"
 
 class Todo extends Schema.Class<Todo>("Todo")({
   userId: Schema.Int,
