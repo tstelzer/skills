@@ -1,188 +1,103 @@
 ---
 name: ts-qa
-description: Prepare changelog and manual QA artifacts from implemented changes. Only explicitly triggered by user.
+description: Prepare a manual smoke test plan for implemented changes. Only explicitly triggered by user.
 ---
 
 # QA
 
-## Required Reading
-
-- skill: ts-principles
-  - Read `ts-principles/SKILL.md`.
-  - Read every linked principle detail document before preparing QA.
-- skill: ts-technical-writing
-  - Read `ts-technical-writing/SKILL.md`, `ts-technical-writing/audience.md`, `ts-technical-writing/prose.md`,
-    `ts-technical-writing/structure.md`, and `ts-technical-writing/examples.md` before writing the artifacts.
-
 ## Role
 
-QA is a judge.
+QA is a judge. It chooses test scope and writes a manual test plan in `docs/qa/`.
 
-It sets scope, reads context, chooses product areas, and writes a changelog and manual QA steps.
-It describes an implemented change in two short, scannable artifacts:
+Do the work directly. Do not spawn workers.
+Use read-only repo inspection to understand the change. Leave test execution to the reader.
+Do not run app code, tests, builds, linters, browsers, dev servers, jobs, migrations, scripts, or API calls.
 
-- `docs/changelog/`: changes users will see
-- `docs/qa/`: manual steps to check those changes
+## Required Reading
 
-Do the work directly. Do not spawn workers; both artifacts need the same view of the product.
-
-Do not test the product yourself. Do not run app code, tests, browsers, dev
-servers, jobs, migrations, scripts, or API calls that exercise behavior. Use
-read-only repo inspection to understand the implementation.
+- skill: ts-simple
+  - Read and apply this skill whenever QA runs. Use it for the test plan and replies.
+- skill: ts-principles
+  - Read `ts-principles/SKILL.md` and every linked principle detail document.
 
 ## Workflow
 
-1. DETERMINE_SCOPE
-2. LOAD_IMPLEMENTATION
-3. FIND_USER_ENTRY_POINTS
-4. DRAFT_CHANGELOG
-5. DESIGN_MANUAL_QA
-6. CHECK_GATES
-7. WRITE_ARTIFACTS
+1. FIND_CHANGE
+2. CHOOSE_SMOKE_TESTS
+3. WRITE_PLAN
+4. CHECK_PLAN
 
-### DETERMINE_SCOPE
+### FIND_CHANGE
 
-- Determine the implemented change from the user's request, commit range, PR,
-  branch, plan, handoff, files, or working tree.
-- If no scope is supplied, use current working tree changes.
-- If the working tree is clean and no scope is supplied, use the latest commit.
-- If no implementation can be identified, stop and ask for scope. Do not write a
-  generic checklist.
-- Name the repository root and paired artifact paths:
-  - changelog: `<repository-root>/docs/changelog/YYYY-MM-DD_HH:MM_<qa-name>.md`
-  - QA: `<repository-root>/docs/qa/YYYY-MM-DD_HH:MM_<qa-name>.md`
-- Use the same timestamp and `<qa-name>` for both files.
-- Create `docs/changelog/` and `docs/qa/` if they do not exist.
+- Find the implemented change from the user's request, commit range, PR, branch, plan, files, or working tree.
+- With no supplied scope, use working tree changes. If the working tree is clean, use the latest commit.
+- If no implementation can be found, ask for scope. Do not write a generic checklist.
+- Read the relevant diffs, source files, tests, docs, and local guidance.
+- Use read-only commands such as `git status`, `git diff`, `git show`, `git log`, `rg`, and file reads.
+- Find where users reach the changed behavior and what setup they need.
+- Check the repo before recording unknowns. Do not invent routes, roles, flags, account states, or UI text.
 
-### LOAD_IMPLEMENTATION
+### CHOOSE_SMOKE_TESTS
 
-- Read the relevant diffs, source files, tests, docs, routes, schemas, and local
-  guidance.
-- Use read-only commands such as `git status`, `git diff`, `git show`,
-  `git log`, `rg`, `fd`, and file reads.
-- Do not run project commands that execute product behavior, automated tests,
-  builds, linters, dev servers, migrations, scripts, background jobs, browsers,
-  or network calls.
-- Find the changed behavior, where users reach it, required data, feature flags, permissions, roles, devices,
-  and external dependencies shown in the repo.
-- Check the repo before recording unknowns. Do not invent routes, roles, flags, account states, or expected text.
+- By default, choose only the highest-risk cases. Aim for 1–3 short tests.
+- Rank cases by how likely the change is to break them and how much harm a failure would cause.
+  Examples: lost data, wrong payments, access to another user's data, or a blocked main workflow.
+- Use the smallest set of tests that checks those risks. Put the highest-risk case first.
+- Do not require a test for every change, touched file, workflow, or edge case.
+- Add broader coverage only when the user asks for it.
+- For internal changes, test the closest result a user or operator can see.
 
-### FIND_USER_ENTRY_POINTS
+### WRITE_PLAN
 
-- Describe what changed for the user.
-- Assign stable change IDs: `C1`, `C2`, `C3`.
-- Prefer concrete product language:
-  - Good: `Checkout shows tax before payment confirmation.`
-  - Bad: `Refactored checkout total calculation.`
-- For each change, name where a person can use it:
-  - screen, route, modal, form, notification, email, report, API, CLI command,
-    import/export, admin task, scheduled outcome, or documented workflow
-- For internal-only changes, name the closest behavior a user can observe and explain why it is the right place to test.
-- Separate direct changes from nearby behavior likely to break. Do not turn every touched file into a test area.
+- Write one complete plan to `<repository-root>/docs/qa/YYYY-MM-DD_HH:MM_<qa-name>.md`.
+- Create `docs/qa/` if needed. When revising, rewrite the whole plan.
+- State what changed and which risks the smoke test checks. Keep this brief.
+- For each case, give the risk, where to test, setup, exact actions, and expected result.
+- Use results a person can see and confirm. Keep exact UI labels, routes, commands, API names, and domain terms.
+- State unknown setup needs and limits that affect the selected tests.
+- Leave out code details the tester does not need.
+- Write a plan for tests still to be run. Do not claim tests passed or the change shipped.
 
-### DRAFT_CHANGELOG
+### CHECK_PLAN
 
-- Write a brief changelog for a human who needs to understand what changed.
-- Include only user-facing behavior, operator-visible behavior, API behavior,
-  CLI behavior, documentation changes, or workflow outcomes.
-- Include implementation notes only when they explain a visible limit or setup needed for manual QA.
-- Link to the companion QA artifact by relative path.
-- Do not claim the change shipped, passed QA, or reached production.
+- The plan stands alone without the chat.
+- The default plan contains only the selected smoke tests. Any broader coverage was requested by the user.
+- Each case names a concrete risk and includes where, setup, steps, and an expected result.
+- Unknown setup needs are clear.
+- No test results or notes about this skill appear.
+- The prose follows `skill: ts-simple`.
 
-### DESIGN_MANUAL_QA
-
-- Write a brief walkthrough for a skilled engineer.
-- Link to the companion changelog artifact by relative path.
-- Order tests by user workflow, then by risk.
-- Cover the changed behavior first, then one or two high-risk regressions.
-- Prefer 3-7 test cases for a normal change. Add more only when the
-  implementation changes distinct user workflows.
-- Each test case must include:
-  - priority: `P0` for must-run changed behavior, `P1` for likely regression,
-    `P2` for optional edge coverage
-  - where: the screen, route, command, API, or workflow under test
-  - setup: account state, data, flags, permissions, environment, or `None`
-  - steps: exact manual actions
-  - expected result: observable result a human can confirm
-  - checks: the change or risk the test checks
-- Avoid broad smoke tests, full regression suites, and implementation details.
-- Do not claim anything passed. The artifact is a plan for manual QA, not a test
-  report.
-
-### CHECK_GATES
-
-Before writing the artifacts, verify:
-
-- The changelog and QA artifacts stand alone without prior chat.
-- The changelog is written from a user perspective.
-- The changelog links to the QA artifact, and the QA artifact links to the
-  changelog artifact.
-- Every direct user-facing change has at least one `P0` test.
-- Every test says where to run it and includes setup, steps, expected result, and checks.
-- Every `Checks` value references a changelog item ID or named regression risk.
-- Unknown prerequisites are explicit.
-- No test result, pass/fail claim, or executed command output appears.
-- The test list is short and covers the implemented change.
-- Exact UI labels, routes, commands, API names, and domain terms are preserved. Other prose uses the reader's words.
-- The artifacts contain no notes about this skill or how they were written.
-
-### WRITE_ARTIFACTS
-
-- Write the final changelog artifact to
-  `<repository-root>/docs/changelog/YYYY-MM-DD_HH:MM_<qa-name>.md`.
-- Write the final QA artifact to
-  `<repository-root>/docs/qa/YYYY-MM-DD_HH:MM_<qa-name>.md`.
-- When revising, rewrite both complete artifacts. Do not write only the differences from earlier drafts.
-
-## Changelog Artifact Template
+## Manual Test Plan Template
 
 ```markdown
-# Changelog: <Feature Name>
+# Manual tests: <Feature name>
 
 ## Scope
+
 - Source: <working tree, commit range, PR, plan, or files>
-- Generated: <YYYY-MM-DD HH:MM>
-- Product area: <area>
-- QA: [Manual QA](../qa/YYYY-MM-DD_HH:MM_<qa-name>.md)
-
-## Changes
-- C1: <user-facing change>
-- C2: <user-facing change>
-
-## Notes
-- <Visible limit, prerequisite, or limitation; skip section if none>
-```
-
-## QA Artifact Template
-
-```markdown
-# QA: <Feature Name>
-
-## Scope
-- Source: <working tree, commit range, PR, plan, or files>
-- Generated: <YYYY-MM-DD HH:MM>
-- Product area: <area>
-- Changelog: [User-facing changes](../changelog/YYYY-MM-DD_HH:MM_<qa-name>.md)
+- Changed: <brief description of the implemented change>
+- Coverage: <selected risks; smoke test by default>
 
 ## Setup
-- <Prerequisite needed by multiple tests; skip section if none>
 
-## Test Cases
+<Setup shared by the tests. Skip this section if none.>
 
-### QA-1: <scenario>
-Priority: P0
+## Tests
+
+### 1. <Scenario>
+
+Risk: <what could fail and why it matters>
 Where: <screen, route, command, API, or workflow>
-Setup: <specific data, account, flag, permission, or None>
-Checks: C1
+Setup: <data, account, flag, permission, or None>
 
 Steps:
+
 1. <manual action>
 2. <manual action>
 
-Expected:
-- <observable result>
+Expected: <result a person can confirm>
 
-## Not Covered
-- <Known gap, unavailable setup, or postponed check of nearby behavior; skip
-  section if none>
+## Limits
+
+<Unknown setup or limits that affect these tests. Skip this section if none.>
 ```
