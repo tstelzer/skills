@@ -35,28 +35,10 @@ shows their assumptions no longer hold.
 The judge uses skill: ts-project-context to load and maintain shared context.
 Keep the record and prior rulings with the judge. Do not pass them to workers.
 
-## Sub-Agent Selection
+## Review Workers
 
-Choose sub-agent workers as follows.
-
-- Choose the first available entry for the worker role.
-- If the agent tool cannot set provider, model line, and reasoning separately, choose the closest available model.
-  Record what actually ran.
-- Do not spawn two workers of the same review type on the same provider and
-  model line. Two releases of `sol` are one model class, not two.
-
-### Review Worker
-
-| Priority | Provider | Model line | Reasoning |
-| --- | --- | --- | --- |
-| 1 | Anthropic | `fable` latest | `high` |
-| 2 | OpenAI | `astra` latest | `high` |
-| 3 | OpenRouter | `glm` latest | `xhigh` |
-| 4 | Anthropic | `opus` latest | `high` |
-| 5 | OpenAI | `sol` latest | `high` |
-| 6 | OpenRouter | `gemini flash` latest | `high` |
-| 7 | OpenRouter | `deepseek v4 pro` latest | `high` |
-| 8 | Cursor | `composer` | `high` |
+Use different model classes for workers of the same review type.
+A model class is one provider and model-line pair. Two releases of the same model line count as one class.
 
 ## Workflow
 
@@ -102,8 +84,6 @@ Choose sub-agent workers as follows.
   model availability permits. Use different model classes for the two workers so the judge gets independent
   perspectives. If only one model class is available, spawn one worker for that review type. The `technical-writing`
   direct-edit rule takes priority over this worker-count rule.
-- Choose workers from the `Review Worker` list in `Sub-Agent Selection`.
-- A model class is one provider and model-line pair from the priority list.
 - Workers report findings and direct-edit notes to the judge.
 - Each reviewer prompt must include:
     - The review type.
@@ -145,7 +125,7 @@ Choose sub-agent workers as follows.
 - Assign each finding a document-wide ID: `F001`, `F002`, and so on. Preserve prior IDs in follow-up reviews and give
   new findings the next unused ID. Keep duplicates visible with their own IDs and source attribution.
 - If two workers of the same review type but different model classes directly conflict on a finding, the judge may
-  spawn a third worker for that review type using the next available model class in the priority list. If no third model
+  spawn a third worker for that review type using another available model class. If no third model
   class is available, the judge resolves the conflict directly and records the evidence used.
 - If any worker returned a tooling-escalation note, stop. Do not write the final artifact; surface the failure as the
   review's outcome.

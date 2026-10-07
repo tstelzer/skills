@@ -24,28 +24,9 @@ This applies even to trivial fixes. Invoking this skill does not grant approval.
 After the fix, it may assign reviewers when the change has meaningful risk, touches shared contracts,
 changes behavior across boundaries, or the user asks for review.
 
-## Sub-Agent Selection
+## Review Workers
 
-Choose sub-agent reviewers as follows.
-
-- Choose the first available entry for the reviewer role.
-- If the agent tool cannot set provider, model line, and reasoning separately, choose the closest available model.
-  Record what actually ran.
-- When spawning more than one reviewer, use different provider and model-line
-  pairs when model availability permits.
-
-### Review Worker
-
-| Priority | Provider | Model line | Reasoning |
-| --- | --- | --- | --- |
-| 1 | Anthropic | `fable` latest | `high` |
-| 2 | OpenAI | `astra` latest | `high` |
-| 3 | OpenRouter | `glm` latest | `xhigh` |
-| 4 | Anthropic | `opus` latest | `high` |
-| 5 | OpenAI | `sol` latest | `high` |
-| 6 | OpenRouter | `gemini flash` latest | `high` |
-| 7 | OpenRouter | `deepseek v4 pro` latest | `high` |
-| 8 | Cursor | `composer` | `high` |
+When spawning more than one reviewer, use different provider and model-line pairs when available.
 
 ## Workflow
 
@@ -142,8 +123,6 @@ Treat these as suspect until proven necessary:
 Dispatch reviewers when the fix touches auth, persistence, public APIs,
 migrations, shared tooling, build behavior, dependency resolution, concurrency,
 or cross-module contracts.
-
-Choose reviewers from the `Review Worker` list.
 
 Reviewer prompts must include:
 

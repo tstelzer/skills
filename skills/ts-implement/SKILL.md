@@ -25,25 +25,10 @@ Workers return changes and check results. The judge checks and combines them.
 When the change adds or edits technical writing, always spawn a sub-agent with `skill: ts-technical-writing`
 to edit it directly. The editor returns edited writing, not review findings.
 
-## Sub-Agent Selection
+## Implementation Workers
 
-Choose sub-agent workers as follows.
-
-- Choose the first available entry for the worker role.
-- If the agent tool cannot set provider, model line, and reasoning separately, choose the closest available model.
-  Record what actually ran.
-- Do not spawn extra workers just to use every entry.
-- Spawn workers only when their patches do not overlap and the judge can check and combine them with little effort.
-- Keep architecture that spans modules, decisions about shared ownership, and final integration with the judge.
-
-### Implementation Worker
-
-| Priority | Provider | Model line | Reasoning |
-| --- | --- | --- | --- |
-| 1 | OpenAI | `terra` latest | `medium` |
-| 2 | Anthropic | `sonnet` latest | `medium` |
-| 3 | OpenAI | `sol` latest | `high` |
-| 4 | Cursor | `composer` | `high` |
+Spawn workers only when their patches do not overlap and the judge can check and combine them with little effort.
+Keep architecture that spans modules, decisions about shared ownership, and final integration with the judge.
 
 Good worker tasks:
 
@@ -52,17 +37,6 @@ Good worker tasks:
 - one test file or test suite
 - one docs update before the final technical-writing edit
 - one mechanical part of a refactor
-
-### Technical-Writing Editor
-
-Use the first available entry.
-
-| Priority | Provider | Model line | Reasoning |
-| --- | --- | --- | --- |
-| 1 | OpenAI | `terra` latest | `medium` |
-| 2 | Anthropic | `sonnet` latest | `medium` |
-| 3 | OpenAI | `sol` latest | `high` |
-| 4 | Cursor | `composer` | `high` |
 
 ## Workflow
 

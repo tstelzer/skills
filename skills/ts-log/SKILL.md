@@ -1,72 +1,118 @@
 ---
 name: ts-log
-description: Keep a shared work log. Only explicitly triggered by user.
+description: Keep a compact work log. Only explicitly triggered by user.
 ---
 
 # Log
 
-## Purpose
+## Role
 
-Maintain a shared work log that lets another agent continue without reading chat history.
+Keep a short record of major work done. Use this skill when the user or another skill asks for a log or gives its path.
+Write for someone who has the repository and linked documents, but not the chat.
 
-Use it when the user, another skill, or a workflow asks for a log or provides a log path.
-Record major developments and link to durable work artifacts. Do not copy those artifacts into the log.
+## Content
 
-## Location
+Record major completed actions. Use one short sentence per entry: what was done.
+Add a blocker only when it stops further work. Name what is blocked and what is missing.
 
-Create logs under:
+Keep decisions, reasons, alternatives, and open design questions out of the log.
+Use skill: ts-design-document for those.
+Put future tasks in a plan. The log records that work happened; those documents hold its substance.
+
+Skip routine steps, repeated checks, command output, and summaries of linked documents.
+Do not list changed files. Git already records them.
+Keep only document links needed to continue in `## Artifacts`. Do not list every document read or changed.
+
+## Writing
+
+Read the existing log first. Append entries in time order under `## Log`. Do not rewrite past entries.
+Use section names supplied by the calling workflow. Preserve sections it owns and any concurrent edits.
+
+Use the supplied path. For a new log without a supplied path, use:
 
 ```text
 docs/work-logs/YYYY-MM-DD_HH:MM_<short-name>.md
 ```
 
-Create `docs/work-logs/` if it does not exist.
-
-## Rules
-
-- Read an existing log before contributing to it.
-- Append entries in time order. Do not rewrite old entries. Use `## Log` unless the caller defines another section.
-- Keep `## Artifacts` to artifact links only.
-- Link every durable work artifact created or used.
-- Record major developments that affect later work. This includes completed work, decisions, discoveries, changed
-  assumptions, blockers, and handoffs.
-- Say how a linked artifact affects later work. Do not summarize or copy its contents.
-- Do not paste command output. Record a command and its result only when they affect later work.
-- Do not repeat information that is already clear from a linked artifact or the repository.
-- Write for an agent that has the repository and log, but no chat history.
-- Let calling skills and workflows add any sections and entry fields they need.
-- Follow rules defined by the calling skill or workflow for the sections it owns.
-- Preserve sections and conventions you do not own.
-- Do not require all work to share one current state, next action, work type, or work sequence.
-
-## What Belongs Here
-
-Add a log entry when work changes what another agent needs to know. Keep it brief and link the supporting artifact when
-one exists.
-
-Do not add:
-
-- Routine progress with no effect on later work.
-- File lists that the repository already shows.
-- Generic summaries of linked artifacts.
-- Raw command output.
-
-## Structure
+Create the parent directory if needed. Omit `## Artifacts` when there are no needed links.
 
 ```markdown
-# Work Log: <Name>
+# Work Log: Imports
 
 ## Artifacts
-- `<artifact-name>`: [Artifact title](../path/to/artifact.md)
+
+- [Import design](../designs/imports.md)
 
 ## Log
-### YYYY-MM-DD HH:MM - <short description>
-<what happened and how it affects later work>
+
+- 2026-10-07 14:30: Added import retries.
+- 2026-10-07 15:00: Blocked restart checks: test database unavailable.
 ```
 
-Calling skills and workflows may add sections or choose another section or format for entries in time order.
+Before saving, check that each entry marks major completed work or an essential blocker.
+Cut explanations, copied details, and file lists.
 
 ## Examples
 
-- "Create a work log for this effort."
-- "Use this work log while continuing: `docs/work-logs/...md`."
+### Completed Work
+
+Bad:
+
+> Implemented retries to handle transient failures. This makes imports more robust
+> and keeps users from retrying manually.
+
+Good:
+
+> Added import retries.
+
+### Design Update
+
+Bad:
+
+> Chose stored progress over memory because imports must survive restarts.
+
+Good:
+
+> Updated the import design.
+
+Keep the choice and its reason in the linked design.
+
+### Changed Files
+
+Bad:
+
+> Changed worker.ts, progress.ts, repository.ts, and worker.test.ts.
+
+Good:
+
+> Added restart recovery.
+
+### Routine Steps
+
+Bad:
+
+> Read the plan, ran the formatter, checked Git status, and started reviewing.
+
+Omit the entry. These steps do not mark completed work.
+
+### Verification
+
+Bad:
+
+> Ran 42 tests, fixed a fixture, reran them, and checked the output. All tests pass.
+
+Good:
+
+> Verified restart recovery.
+
+Record a useful check's final result. Skip routine reruns and test counts.
+
+### Blocker
+
+Bad:
+
+> Tried several times to run restart checks, but the database seems to be down, so further testing will have to wait.
+
+Good:
+
+> Blocked restart checks: test database unavailable.

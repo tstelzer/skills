@@ -36,24 +36,9 @@ This skill can work within three levels:
 
 Default to direct execution.
 
-## Sub-Agent Selection
+## Planning Workers
 
-Choose sub-agent workers as follows.
-
-- Choose the first available entry for the worker role.
-- If the agent tool cannot set provider, model line, and reasoning separately, choose the closest available model.
-  Record what actually ran.
-- Do not spawn extra workers just to use every entry.
-- Spawn workers only when they can gather separate evidence that the judge can check and use with little effort.
-
-### Planning Worker
-
-| Priority | Provider | Model line | Reasoning |
-| --- | --- | --- | --- |
-| 1 | OpenAI | `terra` latest | `medium` |
-| 2 | Anthropic | `sonnet` latest | `medium` |
-| 3 | OpenAI | `sol` latest | `high` |
-| 4 | Cursor | `composer` | `high` |
+Spawn workers only when they can gather separate evidence that the judge can check and use with little effort.
 
 Good worker tasks:
 
@@ -62,17 +47,6 @@ Good worker tasks:
 - find migration and deployment limits
 - find commands to check the work
 - map dependencies and their owners
-
-### Technical-Writing Editor
-
-Use the first available entry.
-
-| Priority | Provider | Model line | Reasoning |
-| --- | --- | --- | --- |
-| 1 | OpenAI | `terra` latest | `medium` |
-| 2 | Anthropic | `sonnet` latest | `medium` |
-| 3 | OpenAI | `sol` latest | `high` |
-| 4 | Cursor | `composer` | `high` |
 
 ## Workflow
 
