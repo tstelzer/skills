@@ -25,12 +25,14 @@ ships everywhere. Inline values that have never varied and probably never
 will. A config key adds documentation, an ops surface, and a chance of
 misconfiguration.
 
-Function extraction is an abstraction over local control flow. Extract only
-when the new function earns its name: reuse, isolated testing, a meaningful
-domain operation, or a clearer caller. If the extracted body is a tiny object
-literal, a parameter reshuffle, or a pass-through wrapper, keep it inline.
-Both sides must improve. A readable body hidden behind a worse call site is
-not an improvement.
+Keep temporary shapes in the smallest useful scope. Prefer inference or short
+inline types. Name private types and schemas when they make the code clearer.
+A private schema can live at module scope to avoid rebuilding it on each call.
+Export it only when callers need the declaration. Several workflows using an
+operation do not need access to its internal shapes.
+
+Extract a function only when both its caller and body become clearer. Keep
+tiny object builders and pass-through wrappers inline.
 
 ## examples
 
@@ -208,6 +210,80 @@ return {
 
 Inline code is clearest when the operation is local, one-use, and already
 named by its surrounding context.
+
+### keep query schemas private
+
+Weak:
+
+```ts
+// order-matching.ts
+export const OrderMatchingRecordSchema = OrderDtoSchema.pick({
+  id: true,
+  trackingNumber: true,
+})
+
+export type OrderMatchingRecord =
+  z.output<typeof OrderMatchingRecordSchema>
+```
+
+Stronger:
+
+```ts
+// orders.api.ts
+const orderForShipmentSchema = OrderDtoSchema.pick({
+  id: true,
+  trackingNumber: true,
+})
+
+export async function findOrderForShipment(trackingNumber: string) {
+  const rows = z.array(orderForShipmentSchema).parse(
+    await ordersApi.findByTrackingNumber(trackingNumber),
+  )
+  return rows.find(row => row.trackingNumber === trackingNumber)
+}
+```
+
+The response needs parsing. Its schema belongs with the API operation, and
+parsed values get their types from it. Live processing and historical imports
+can call the same operation without importing its internal schema or naming
+another record type.
+
+### infer intermediate results
+
+Weak:
+
+```ts
+export type OrderPriceCalculation = {
+  subtotal: number
+  discount: number
+  total: number
+}
+
+function priceOrder(order: Order) {
+  const subtotal = sumPrices(order.lines)
+  const discount = discountFor(order)
+  const calculation: OrderPriceCalculation = {
+    subtotal,
+    discount,
+    total: subtotal - discount,
+  }
+  return calculation
+}
+```
+
+Stronger:
+
+```ts
+function priceOrder(order: Order) {
+  const subtotal = sumPrices(order.lines)
+  const discount = discountFor(order)
+  return { subtotal, discount, total: subtotal - discount }
+}
+```
+
+The fields and their types are clear where the value is built. Let the result
+type follow the implementation. A named `Quote` would earn its place if the
+system needed an offer with its own terms or expiry rules.
 
 ### configuration is an abstraction
 

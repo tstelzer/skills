@@ -33,7 +33,7 @@ Follow this repo's skill structure. Do not add formalities from generic skill gu
 - "Local docs" means docs nested inside the same skill folder. It does not mean every doc in this repository.
 - Use `skill: <name>` only for another skill, such as `skill: ts-principles`.
 - For software engineering skills other than routers, consider making `ts-principles` required reading.
-- Prefer rewriting an unclear rule in simpler words over adding exceptions, fallbacks, or chains of `unless`.
+- Rewrite an unclear rule in simpler words over adding exceptions, fallbacks, or chains of `unless`.
 - Delete exceptions when one clear rule covers the same behavior.
 
 ## Voice

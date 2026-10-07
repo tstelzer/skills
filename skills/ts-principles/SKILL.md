@@ -22,7 +22,9 @@ Always read ALL the details.
 - Prefer a few cohesive files. Use a one-function file only when no broader grouping is clearer.
 - Keep one concept together instead of splitting it across `.types.ts`, `.schema.ts`, `.constants.ts`, or `.errors.ts`.
 - Avoid generic names in broad scopes: `data`, `entity`, `item`, `manager`, `helper`.
-- Check existing naming before introducing new terms.
+- Check existing names and types first. Give domain and DTO types names for distinct concepts or boundary contracts.
+  A workflow step or selection of fields does not by itself establish a new concept.
+  Describe those shapes through their existing owner.
 - Translate external names, legacy names, UI labels, and synonyms at boundaries.
 - Use abbreviations when they improve local readability.
 - Avoid mixed-purpose `utils`. Put code that could be a separate library in `lib`. Keep other code with its domain.
@@ -100,11 +102,14 @@ error mapping, error presentation, recovery, catching, or logging.
 - Share code only after repetition shows what belongs together.
 - Make a value configurable only when it actually varies.
 - Inline values that are not shared and unlikely to change.
-- Keep one-use code inline unless moving it to a function makes both the caller and the body clearer.
+- Keep temporary shapes in the smallest useful scope. Prefer inference or short inline types.
+  Name private types and schemas when they make the code clearer.
+  Export them only when callers need the declaration.
+- Extract a function only when both its caller and body become clearer.
 - Do not extract tiny object builders or pass-through wrappers just to name them.
 
 You must read [details](avoid-hasty-abstractions.md) when the work designs, changes, or reviews abstractions,
-extraction, duplication, shared code, helpers, or configuration.
+extraction, duplication, shared code, helpers, types, schemas, or configuration.
 
 ### performance is not optional
 

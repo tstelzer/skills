@@ -15,9 +15,11 @@ database table, or a legacy screen uses another word, translate that word at
 the boundary. Do not let `customer`, `client`, `account`, and `user` spread
 through the same core model unless they mean different things.
 
-Good names make illegal abstractions harder to hide. If everything is an
-`entity` or a `manager`, the code can drift without friction. If the code says
-`subscription` or `workOrder`, the reader can ask domain questions.
+Check existing names and types before adding a domain or DTO name. A new name
+should describe a distinct concept or boundary contract. A workflow step or
+selection of fields does not by itself establish a new concept. Describe those
+shapes through their existing owner. Names like `subscription` and `workOrder`
+give readers domain facts to reason about; `entity` and `manager` hide them.
 
 Structure should follow the same rule. Put code near the domain it serves. Use
 mechanism words only when they clarify a role inside that domain. A
@@ -112,6 +114,69 @@ function toAccount(customer: CustomerDto): Account {
 
 Internal code should not preserve every synonym it receives. It should preserve
 the domain distinction.
+
+### field subsets stay with their owner
+
+Weak:
+
+```ts
+export type OrderRescheduleData = {
+  deliveryDate: Order["deliveryDate"]
+  deliveryAddress: Order["deliveryAddress"]
+}
+
+function rescheduleOrder(id: Order["id"], changes: OrderRescheduleData) {
+  return orders.update(id, changes)
+}
+```
+
+Stronger:
+
+```ts
+function rescheduleOrder(
+  id: Order["id"],
+  changes: Pick<Order, "deliveryDate" | "deliveryAddress">,
+) {
+  return orders.update(id, changes)
+}
+```
+
+The operation needs two order fields. Their meaning has not changed.
+Keep that selection in the signature. `Partial<Order>` would allow unrelated
+fields and make required fields optional.
+
+### names can carry useful guarantees
+
+Weak:
+
+```ts
+type Job = {
+  id: string
+  status: "pending" | "finished"
+  result?: string
+}
+
+function archiveJob(job: Job) {
+  // Must check that the job finished and has a result.
+}
+```
+
+Stronger:
+
+```ts
+type Job =
+  | { id: string; status: "pending" }
+  | { id: string; status: "finished"; result: string }
+
+type FinishedJob = Extract<Job, { status: "finished" }>
+
+function archiveJob(job: FinishedJob) {
+  return archive.write(job.id, job.result)
+}
+```
+
+`FinishedJob` names a real state and guarantees a result. Callers must prove
+that state before archiving. That guarantee earns the name on its first use.
 
 ### structure by domain
 
