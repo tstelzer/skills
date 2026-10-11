@@ -1,9 +1,19 @@
-[doc('Type-check all TypeScript project references')]
-[group('Check')]
+[doc('Type-check source, tests, tooling, and workspace project references')]
+[group('Checks')]
 typecheck:
-    pnpm exec tsc --build
+    pnpm exec tsc --build tsconfig.json tsconfig.typecheck.json
 
-[doc('Build all TypeScript project references')]
-[group('Build')]
+[doc('Watch source, tests, tooling, and workspace project references')]
+[group('Development')]
+typecheck-watch:
+    pnpm exec tsc --build tsconfig.json tsconfig.typecheck.json --watch
+
+[doc('Build all project artifacts')]
+[group('Core')]
 build:
     pnpm exec tsc --build
+
+[doc('Watch and rebuild all project artifacts')]
+[group('Development')]
+build-watch:
+    pnpm exec tsc --build --watch

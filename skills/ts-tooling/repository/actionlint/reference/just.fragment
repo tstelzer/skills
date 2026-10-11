@@ -1,4 +1,4 @@
 [doc('Check GitHub Actions workflows')]
-[group('Check')]
-actionlint:
+[group('Checks')]
+check:
     actionlint

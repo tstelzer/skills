@@ -24,6 +24,11 @@ Do not read every file. Establish the repository context, then open only the mat
 - Select tools from the target repository's needs. There is no universal tool set.
 - Use the reference files as merge sources. Preserve intentional project-specific configuration.
 - When using Just, apply its [command ownership rules](./repository/just/README.md) before merging package scripts.
+- Use `check` for lint and format checks and `check-fix` to apply fixes. Merge selected tools into those recipes.
+- In pnpm workspaces, keep shared, build, tooling, and type-check configs separate. Follow the
+  [TypeScript config layout](./typescript/typescript/README.md).
+- Watch `package.json` in `.envrc` when the development shell reads it. Follow the
+  [direnv setup](./repository/direnv/README.md).
 - Update generated lock files with their owning tools. Do not edit lock files by hand.
 
 Reference configs name only the preferred major line. Before applying one, resolve the latest release in that major.

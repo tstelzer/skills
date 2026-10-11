@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "outDir": ".cache/typescript",
+    "tsBuildInfoFile": ".cache/typescript/tools.tsbuildinfo"
+  },
+  "include": [
+    "*.ts",
+    "workspaces/*/test/**/*.ts",
+    "workspaces/*/src/**/*.test.ts",
+    "workspaces/*/src/**/*.spec.ts"
+  ],
+  "references": [{ "path": "./workspaces/example" }]
+}

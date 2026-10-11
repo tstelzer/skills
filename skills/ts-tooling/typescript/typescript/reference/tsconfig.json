@@ -1,5 +1,8 @@
 {
   "extends": "./tsconfig.base.json",
   "files": [],
-  "references": [{ "path": "./packages/example" }]
+  "references": [
+    { "path": "./workspaces/example" },
+    { "path": "./tsconfig.tools.json" }
+  ]
 }

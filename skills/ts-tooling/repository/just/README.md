@@ -18,7 +18,7 @@ Add a recipe when it:
 - exposes a command shared with a consumer that cannot use Just
 - hides a long workspace or package-filter command
 - captures a complex command that is hard to recall
-- exposes a frequently used development command such as `test`, `lint`, or `dev`
+- exposes a frequently used development command such as `test`, `check`, or `dev`
 
 Do not add recipes for version checks, dependency installation or updates, environment reloads, Nix commands, or
 commands already handled by installation and lifecycle hooks. Select recipes by command value. Selecting a tool does
@@ -27,7 +27,7 @@ not require adding its `just.fragment`.
 ## Names
 
 - Use lowercase kebab-case.
-- Use conventional names for common repository workflows, such as `build`, `check`, `clean`, `dev`, `lint`, `test`,
+- Use conventional names for common repository workflows, such as `build`, `check`, `clean`, `dev`, `test`,
   `typecheck`, and `verify`.
 - Name a variation `<command>-<variant>`, such as `build-watch`, `check-fix`, or `test-ci`.
 - Name a related family `<scope>-<action>[-<variant>]`, such as `benchmark-seed`, `integration-test-setup`, or
@@ -52,5 +52,11 @@ not require adding its `just.fragment`.
 - Keep group names and capitalization consistent within a file.
 
 - Keep recipes thin. Compose recipes with Just dependencies or `just <recipe>` calls.
+- Use `check` for lint and format checks. Add Actionlint to `check` when selected.
+- Use `check-fix` to apply lint and format fixes. Do not add separate `format*` or `lint*` recipes.
+- Merge commands from selected check fragments into one recipe body. Do not append duplicate recipe definitions.
+- Make `build` produce all project artifacts. Include bundling, code generation, and assets when the project needs
+  them.
+- Make `build-watch` watch and rebuild the same artifacts.
 - Add `verify` after assembling the file. Include only selected, non-interactive checks.
 - Keep mutating and interactive recipes out of `verify`.

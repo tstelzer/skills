@@ -1,27 +1,11 @@
-[doc('Check formatting')]
-[group('Check')]
-format-check:
+[doc('Check lint and formatting')]
+[group('Checks')]
+check:
+    pnpm exec oxlint --deny-warnings
     pnpm exec oxfmt --check
 
-[doc('Format files')]
-[group('Check')]
-format:
-    pnpm exec oxfmt
-
-[doc('Lint source files')]
-[group('Check')]
-lint:
-    pnpm exec oxlint
-
-[doc('Apply safe lint fixes')]
-[group('Check')]
-lint-fix:
-    pnpm exec oxlint --fix
-
-[doc('Check lint and formatting')]
-[group('Check')]
-check: lint format-check
-
 [doc('Apply lint and format fixes')]
-[group('Check')]
-check-fix: lint-fix format
+[group('Development')]
+check-fix:
+    pnpm exec oxlint --fix
+    pnpm exec oxfmt

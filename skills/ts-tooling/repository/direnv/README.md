@@ -1,8 +1,11 @@
 # direnv
 
-Copy [`reference/.envrc`](./reference/.envrc) to the repository root.
+Merge [`reference/.envrc`](./reference/.envrc) into the repository root `.envrc`.
 
-Append [`reference/just.fragment`](./reference/just.fragment) to the repository `justfile` when it uses Just.
+Use `watch_file package.json` before `use flake` when the shell reads runtime or package-manager versions from
+`package.json`. This reloads the environment when those versions change.
+
+Run project commands through `direnv exec . <command>` from the repository root.
 
 `use flake` loads the Nix development shell. `dotenv` loads the repository's local `.env` when present. Do not
 commit secrets or inspect an existing `.env` without explicit user authorization.
