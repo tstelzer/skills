@@ -1,21 +1,30 @@
 ---
 name: ts-design-document
-description: Create and maintain design documents. Only explicitly triggered by user.
+description: Create and revise design documents. Only explicitly triggered by user.
 ---
 
 # Design Document
 
 ## Role
 
+Describe the intended system and why it solves the problem. Write that vision in present tense.
+The design remains valid when implemented. It does not track progress toward that vision.
+
 Prepare design documents for user approval. Use this skill on its own or from another skill.
-Explain what the system should do and why. Keep the document useful without the chat.
+Keep the document useful without the chat.
+
+| Artifact | Responsibility |
+| --- | --- |
+| Design | Intended behavior, constraints, decisions, and reasons |
+| Plan | Changes needed to reach the design and their order |
+| Work log | What happened, results, and blockers |
+| Git | Source code and its change history |
 
 ## Approval
 
 - Create or edit a design only through this skill and at the user's request.
   Reading, referencing, or implementing a design does not authorize edits.
-- Invoking this skill does not authorize saving a design. Get explicit user approval of the exact proposed text
-  before creating a document or making any change in meaning.
+- Invoking this skill does not authorize saving a design. Get explicit user approval of exact changes before creating a document or making any change in meaning.
 - Approval covers only the proposed changes. Approval of a decision or another task does not authorize document edits.
 - Additions, deletions, and rewording require approval. This includes facts, reasons, and open questions.
 - Formatting needs no signoff. Limit it to whitespace, line wrapping, and Markdown layout that preserve meaning.
@@ -28,6 +37,19 @@ Follow its approval rules before changing shared project context.
 For software designs, use skill: ts-principles. Read the skill and the principles that apply.
 Read the examples below before editing.
 
+## Relationship To Code
+
+Implementation progress never triggers a design update. Do not mark requirements as implemented, complete, or pending.
+Do not recast agreed decisions as proposals because they have not been built.
+
+Code shows what exists; it does not prove agreement.
+A difference between code and design does not make the design stale.
+Use code as evidence about feasibility and constraints. Bring evidence that challenges a design decision to chat.
+Follow the approval process for any resulting design change.
+
+Code that implements an open proposal can justify asking whether the user accepts that choice.
+Ask in chat. Do not infer acceptance from implementation or resolve the question in the document without approval.
+
 ## Content
 
 Start every design with this exact line, before its title:
@@ -38,25 +60,27 @@ Before editing, read and follow skill: ts-design-document. Get user approval for
 
 Include a missing notice in the proposed changes to an existing design.
 
-Explain the problem, intended result, and scope. Include the facts and limits that shape the design.
-Describe the current direction, who owns each part, and what the system must guarantee.
+Explain the problem, intended result, and scope. Describe responsibilities and guarantees.
+Include facts and constraints only when they explain a design choice. Do not inventory the current implementation.
 
 Put reasons beside decisions. Explain what each choice gains and costs, and why real alternatives were rejected
-or deferred. Cover risks, failure behavior, and limits on operation or migration when they affect the choice.
+or deferred. Describe failure behavior, risks, and constraints on operation or migration when they shape the design.
 Keep assumptions clear. Do not invent options or reasons to fill sections.
 
 Collect open decisions, their proposals, and unresolved conflicts in one `## Open Questions` section.
-Give each question only the context needed to answer it. Do not scatter open choices through other sections.
-Move answers into the relevant sections and remove resolved questions. Omit the section when none remain.
+Give each question only the context needed to answer it. A proposal is an undecided choice, not an unbuilt requirement.
+After approval, move accepted decisions into the relevant sections and remove resolved questions.
+Omit the section when none remain.
 
 Keep technical detail at the level needed to judge the design. Recovery after a restart belongs here;
-worker methods and field lists do not. Link to the source that defines a contract, with useful line references.
-Summarize only the promise the design relies on.
+worker methods and field lists do not. Explain responsibilities and contracts in prose.
+Use source references only to illustrate a decision. Keep the explanation understandable without opening the source.
+Avoid line numbers and details tied to file layout or symbol names. Code movement does not require a design rewrite.
 Keep code snippets, pseudocode, diffs, schemas, and command output out.
 
-Keep work history and execution status out. Use skill: ts-log for major completed actions and essential blockers.
-Omit routine updates and changed-file lists; Git already shows file changes. Put task order and commands in a plan.
-Do not add session notes, dated updates, or notes about writing the document.
+Keep implementation status, work history, and next steps out. Put task order and commands in a plan.
+Use skill: ts-log for requested work logs. Git holds code changes.
+Do not add implementation checklists, session notes, or dated updates.
 Link to other documents when needed; do not copy their contents.
 
 ## Editing
@@ -67,29 +91,29 @@ Use the scope, reader, and path from the request or calling skill.
 Read the whole existing document and the findings behind the change.
 Check sources needed to support changed claims. Keep research limited to what the document needs.
 
-Separate facts, agreed decisions, proposals, and assumptions. Code shows what exists; it does not prove agreement.
-A design states intended behavior; it does not prove that behavior has shipped.
+Identify what changes about the intended behavior, constraints, reasons, or open choices.
+For a request that only reports implementation progress, say no design change is needed and stop.
 
 ### Propose
 
 Draft changes in chat. Do not write the document before approval.
-Propose replacements for affected sections and those that depend on them, including stale claims.
+Explain why the design needs each change. Propose replacements for affected sections and those that depend on them.
 Keep valid decisions and their reasons, including reasons for rejected options.
 Preserve unaffected text and concurrent edits.
 
 Put missing reasons and unresolved choices in `## Open Questions`.
 Ask a focused question when its answer changes the design.
-For an update that only reports progress or implementation details, say no design change is needed and stop.
 
-Open the body with the problem and current direction. Use headings that name the topic or decision.
+Open the body with the problem and intended solution. Use headings that name the topic or decision.
 Write short paragraphs. Give each decision only the reason and consequences needed to judge it.
-Keep examples brief. Include ordering only when the system requires it, such as supporting old and new records.
+Keep examples brief. Describe required system behavior; put the work needed to build it in a plan.
 
 ### Check And Approve
 
 Check that the proposed document stands alone and its sections agree. Decisions must have reasons supported by evidence.
 Check that its first line is the required editing notice.
-Keep all open choices in `## Open Questions`. Remove work history, implementation steps, and code.
+Check that implementing the design would leave its statements valid without status updates.
+Keep all open choices in `## Open Questions`. Remove implementation status, work history, task steps, and code.
 
 Show the exact proposed text or diff in chat, including changes to related sections. Wait for explicit user approval.
 Leave the document unchanged while waiting. Get approval again for any revision to the proposed changes.
@@ -111,110 +135,56 @@ Create the parent directory if needed. Report the path and any open design quest
 
 The good examples show proposed text. Check that findings support each claim and get approval before saving it.
 
-### Choice And Cost
+### Implemented Decision
 
-Bad:
+The design says:
 
-> Use a queue because it is robust and scalable.
+> Imports survive restarts. Saved progress prevents a restart from losing hours of work.
 
-Good:
+The code now implements restart recovery. Leave the design unchanged.
+Do not add an implementation note or mark the decision complete. Completion belongs in a work log.
 
-> Background jobs avoid request timeouts but require stored state.
+### Plan And Design
 
-### Work History
-
-Bad:
-
-> Added the worker. All 42 tests pass. Next, build the progress screen.
-
-Leave the design unchanged. Log only the major completed action.
-
-A finding from that work may justify a proposed change:
-
-> A retry must not duplicate records. The import service owns that guarantee.
-
-### Implementation Details
-
-Bad:
-
-> Add `ImportWorker.runBatch()`, inject `ImportRepository`, and call `saveCheckpoint()` after the loop.
-
-Good:
-
-> Batch data and its checkpoint are saved together so a restart cannot skip records.
-
-### Code
-
-Bad:
-
-```ts
-await db.transaction(async (tx) => {
-  await tx.insert(rows)
-  await tx.saveCheckpoint(batch.end)
-})
-```
-
-Good:
-
-> A failed batch leaves data and checkpoint unchanged, making retries safe.
-
-### Changed Decision
-
-Old claim: memory is enough because imports are short.
-New requirement: long imports must survive restarts.
-
-Bad:
-
-> Update, 2026-10-07: The earlier section is outdated. Add saved progress next.
-
-Propose replacing the old claim:
-
-> Import progress survives restarts. Keeping it only in memory would lose hours of work.
-
-Include related sections in the proposal. Apply it only after approval. Do not explain stale claims in a later note.
-
-### Proposal
-
-An agent suggests keeping imports for 30 days. No requirement has been agreed.
-
-Bad:
-
-> Completed imports are kept for 30 days.
-
-Propose adding an open question and get approval before saving it:
-
-> ## Open Questions
->
-> - **Retention:** Is the proposed 30-day limit enough for support and acceptable for customer data?
-
-### Evidence
-
-Bad:
-
-> Two restart tests failed. Added a test and handed off the fix.
-
-Good:
-
-> Separate writes can lose records on restart. Batch data and progress must be saved together.
-
-Link to the evidence. Keep the test history out.
-
-### Migration
-
-Bad:
+Plan:
 
 > Add the reader, deploy the writer, run the migration script, then remove the fallback.
 
-Good:
+Design:
 
 > Readers accept both formats during migration. Writers use only the new format so migration can finish.
 
-### Open Question
+The design states compatibility requirements. The plan orders the work.
+
+### Source References
 
 Bad:
 
-> Next: implement cancellation, add tests, and ask about partial imports.
+> `ImportWorker.runBatch()` calls `saveCheckpoint()` in `src/import/worker.ts:84`.
 
-Good, in `## Open Questions`:
+Good:
 
-> - **Cancellation:** Can users keep partial imports, or must cancellation undo all changes?
+> Batch data and its checkpoint commit together so a restart cannot skip records.
+
+Moving or renaming the worker does not change that design decision.
+
+### Changed Decision
+
+Existing decision: memory is enough because imports are short.
+New requirement: long imports must survive restarts.
+
+Propose replacing the decision:
+
+> Import progress survives restarts. Keeping it only in memory would lose hours of work.
+
+Include related sections in the proposal. Apply it only after approval.
+The new requirement justifies the change; implementation progress does not.
+
+### Implemented Proposal
+
+The design has an open question:
+
+> - **Retention:** Is the proposed 30-day limit enough for support and acceptable for customer data?
+
+The code deletes imports after 30 days. Ask in chat whether the user accepts that retention policy.
+Keep the document unchanged until the user approves the exact edit that records the decision and removes the question.
