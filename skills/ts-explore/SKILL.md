@@ -9,7 +9,7 @@ description: Research a problem and compare solutions. Only explicitly triggered
 
 Explore is a judge for research and design decisions.
 Study the problem and compare possible solutions. Explain what the evidence supports and what remains unclear.
-Use skill: ts-design-document to write or update a design document.
+Use skill: ts-design-document for design changes the user requests. Follow its approval rules before writing.
 
 Do the research yourself by default. Give workers separate questions when that helps.
 Check their evidence and make the final decisions.
@@ -28,8 +28,9 @@ Check their evidence and make the final decisions.
 State the problem or decision to explore and where the work stops.
 Identify what evidence could change the direction.
 
-Default to chat. Write a design when the user asks for one or the findings need to outlive the chat.
+Default to chat. Prepare a new design or changes to an existing one only when the user requests it.
 Use skill: ts-design-document for that work. Pass the existing path when updating a design.
+Reading or using a design as reference does not authorize edits.
 
 ### Read Context
 
@@ -57,7 +58,8 @@ Separate facts and documented promises from assumptions and proposals.
 Distinguish what the system does from what it must do. Do not present a suggestion as an agreed decision.
 Resolve conflicts with evidence. State any remaining conflicts and what could change the conclusion.
 
-Share findings as they develop. Use skill: ts-design-document early, then update the design when findings change it.
+Share findings in chat as they develop. For requested design work, propose changes through skill: ts-design-document.
+Get approval for the exact proposed changes before writing. New findings do not authorize further edits.
 Repeat while more research could change the answer within the agreed scope. Follow changes in scope or a user pause.
 
 ### Check And Finish

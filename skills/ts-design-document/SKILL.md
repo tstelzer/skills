@@ -7,8 +7,18 @@ description: Create and maintain design documents. Only explicitly triggered by 
 
 ## Role
 
-Create or edit the design document directly. Use this skill on its own or from another skill.
+Prepare design documents for user approval. Use this skill on its own or from another skill.
 Explain what the system should do and why. Keep the document useful without the chat.
+
+## Approval
+
+- Create or edit a design only through this skill and at the user's request.
+  Reading, referencing, or implementing a design does not authorize edits.
+- Invoking this skill does not authorize saving a design. Get explicit user approval of the exact proposed text
+  before creating a document or making any change in meaning.
+- Approval covers only the proposed changes. Approval of a decision or another task does not authorize document edits.
+- Additions, deletions, and rewording require approval. This includes facts, reasons, and open questions.
+- Formatting needs no signoff. Limit it to whitespace, line wrapping, and Markdown layout that preserve meaning.
 
 ## Required Reading
 
@@ -19,6 +29,14 @@ For software designs, use skill: ts-principles. Read the skill and the principle
 Read the examples below before editing.
 
 ## Content
+
+Start every design with this exact line, before its title:
+
+```text
+Before editing, read and follow skill: ts-design-document. Get user approval for every change in meaning.
+```
+
+Include a missing notice in the proposed changes to an existing design.
 
 Explain the problem, intended result, and scope. Include the facts and limits that shape the design.
 Describe the current direction, who owns each part, and what the system must guarantee.
@@ -52,9 +70,10 @@ Check sources needed to support changed claims. Keep research limited to what th
 Separate facts, agreed decisions, proposals, and assumptions. Code shows what exists; it does not prove agreement.
 A design states intended behavior; it does not prove that behavior has shipped.
 
-### Update
+### Propose
 
-Rewrite affected sections and those that depend on them. Replace stale claims.
+Draft changes in chat. Do not write the document before approval.
+Propose replacements for affected sections and those that depend on them, including stale claims.
 Keep valid decisions and their reasons, including reasons for rejected options.
 Preserve unaffected text and concurrent edits.
 
@@ -62,14 +81,23 @@ Put missing reasons and unresolved choices in `## Open Questions`.
 Ask a focused question when its answer changes the design.
 For an update that only reports progress or implementation details, say no design change is needed and stop.
 
-Open with the problem and current direction. Use headings that name the topic or decision.
+Open the body with the problem and current direction. Use headings that name the topic or decision.
 Write short paragraphs. Give each decision only the reason and consequences needed to judge it.
 Keep examples brief. Include ordering only when the system requires it, such as supporting old and new records.
 
-### Check And Save
+### Check And Approve
 
-Check that the document stands alone and its sections agree. Decisions must have reasons supported by evidence.
+Check that the proposed document stands alone and its sections agree. Decisions must have reasons supported by evidence.
+Check that its first line is the required editing notice.
 Keep all open choices in `## Open Questions`. Remove work history, implementation steps, and code.
+
+Show the exact proposed text or diff in chat, including changes to related sections. Wait for explicit user approval.
+Leave the document unchanged while waiting. Get approval again for any revision to the proposed changes.
+
+### Save
+
+Apply only the approved changes. Re-read the document before writing and preserve concurrent edits.
+Formatting-only edits need no approval.
 
 Use the supplied path. Update an existing design in place. For a new design without a supplied path, use:
 
@@ -81,7 +109,7 @@ Create the parent directory if needed. Report the path and any open design quest
 
 ## Examples
 
-The good examples assume the findings support their claims.
+The good examples show proposed text. Check that findings support each claim and get approval before saving it.
 
 ### Choice And Cost
 
@@ -101,7 +129,7 @@ Bad:
 
 Leave the design unchanged. Log only the major completed action.
 
-A finding from that work may belong:
+A finding from that work may justify a proposed change:
 
 > A retry must not duplicate records. The import service owns that guarantee.
 
@@ -139,11 +167,11 @@ Bad:
 
 > Update, 2026-10-07: The earlier section is outdated. Add saved progress next.
 
-Replace the old claim:
+Propose replacing the old claim:
 
 > Import progress survives restarts. Keeping it only in memory would lose hours of work.
 
-Update related sections too. Do not explain stale claims in a later note.
+Include related sections in the proposal. Apply it only after approval. Do not explain stale claims in a later note.
 
 ### Proposal
 
@@ -153,7 +181,7 @@ Bad:
 
 > Completed imports are kept for 30 days.
 
-Good:
+Propose adding an open question and get approval before saving it:
 
 > ## Open Questions
 >
