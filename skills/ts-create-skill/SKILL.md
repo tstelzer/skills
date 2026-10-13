@@ -33,8 +33,6 @@ Follow this repo's skill structure. Do not add formalities from generic skill gu
 - "Local docs" means docs nested inside the same skill folder. It does not mean every doc in this repository.
 - Use `skill: <name>` only for another skill, such as `skill: ts-principles`.
 - For software engineering skills other than routers, consider making `ts-principles` required reading.
-- Rewrite an unclear rule in simpler words over adding exceptions, fallbacks, or chains of `unless`.
-- Delete exceptions when one clear rule covers the same behavior.
 
 ## Voice
 
@@ -94,13 +92,21 @@ Use guidance where judgment is needed: risks, context, tools, depth, and relevan
 
 - State the role before the workflow.
 - Artifacts must stand alone without the chat.
-- Rewrite unclear text directly. Do not patch around it with exceptions.
+
+Choose edits in this strict order. Stop at the first option that meets the request and preserves required behavior.
+
+1. Remove text. Delete rules, exceptions, or repetition that cause the problem or no longer serve a purpose.
+2. Replace or rephrase existing text. Fix the rule where it lives. Fold needed clarification into that rule.
+3. Add only when a required idea is missing from the skill and its references.
+   Before adding, identify the missing idea and explain why editing existing text cannot cover it.
+   More emphasis, another example of the same rule, or different wording does not count as a missing idea.
 
 ### CHECK
 
 - The skill can be read without prior conversation.
 - The name starts with `ts-`.
 - Action and workflow skill descriptions say whether they are explicit-only.
-- Rules are direct commands, not chains of exceptions.
+- Rules are direct commands. Clarifications replace unclear wording.
+- Every addition supplies a required idea that was missing. Remove additions that restate existing guidance.
 - Local paths and `skill: <name>` references are correct.
 - The edit touched only source skills under `tstelzer/skills`, not installed artifacts.
