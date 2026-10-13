@@ -105,7 +105,8 @@ Put missing reasons and unresolved choices in `## Open Questions`.
 Ask a focused question when its answer changes the design.
 
 Open the body with the problem and intended solution. Use headings that name the topic or decision.
-Write short paragraphs. Give each decision only the reason and consequences needed to judge it.
+Use bullet points as the main format. Put each idea, decision, or note in its own bullet so it can be edited on its own.
+Give each decision only the reason and consequences needed to judge it.
 Keep examples brief. Describe required system behavior; put the work needed to build it in a plan.
 
 ### Check And Approve
@@ -139,7 +140,8 @@ The good examples show proposed text. Check that findings support each claim and
 
 The design says:
 
-> Imports survive restarts. Saved progress prevents a restart from losing hours of work.
+> - Imports survive restarts.
+> - Saved progress prevents a restart from losing hours of work.
 
 The code now implements restart recovery. Leave the design unchanged.
 Do not add an implementation note or mark the decision complete. Completion belongs in a work log.
@@ -152,7 +154,8 @@ Plan:
 
 Design:
 
-> Readers accept both formats during migration. Writers use only the new format so migration can finish.
+> - Readers accept both formats during migration.
+> - Writers use only the new format so migration can finish.
 
 The design states compatibility requirements. The plan orders the work.
 
@@ -164,7 +167,7 @@ Bad:
 
 Good:
 
-> Batch data and its checkpoint commit together so a restart cannot skip records.
+> - Batch data and its checkpoint commit together so a restart cannot skip records.
 
 Moving or renaming the worker does not change that design decision.
 
@@ -175,7 +178,8 @@ New requirement: long imports must survive restarts.
 
 Propose replacing the decision:
 
-> Import progress survives restarts. Keeping it only in memory would lose hours of work.
+> - Import progress survives restarts.
+> - Keeping progress only in memory would lose hours of work.
 
 Include related sections in the proposal. Apply it only after approval.
 The new requirement justifies the change; implementation progress does not.
