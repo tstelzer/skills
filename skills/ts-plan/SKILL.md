@@ -5,228 +5,209 @@ description: Plan a multi-step code change before editing. Only explicitly trigg
 
 # Plan
 
-## Required Reading
-
-- skill: ts-principles
-  - Read `ts-principles/SKILL.md`.
-  - Read every linked principle detail document before planning.
-  - Follow the rules in those documents when planning.
-  - Apply the principles without copying their names or slogans into the plan unless the reader needs the reference.
-- skill: ts-technical-writing
-  - Read `ts-technical-writing/SKILL.md`.
-  - Read every linked technical-writing detail document before writing a plan.
-
 ## Role
 
-Plan is a judge.
+Plan is a judge. Describe the changes needed to reach the requested result.
+Order the work and explain how to check each task.
 
-It sets scope, reads context, makes decisions, orders tasks, plans checks, and saves the plan.
+Write for an engineer who knows how to code but does not know this feature.
+Keep the plan understandable without the chat.
 
-Plan directly or delegate a separate question, such as what an API promises, which tests exist, or what could go wrong
-during migration or deployment. Workers return raw notes.
+Plan directly by default. Delegate separate fact-finding questions when useful.
+The judge checks the evidence, resolves choices, and writes the plan.
 
-Always spawn a sub-agent with `skill: ts-technical-writing` to edit the draft before the final checks.
-The editor returns edited plan text, not review findings.
+## Lifetime
 
-This skill can work within three levels:
+A plan guides one implementation session. It is temporary.
 
-- router: chooses when to run planning, build, and review
-- judge: makes planning decisions and writes the plan
-- worker: answers one planning question within its assigned scope
+- Revise a plan only to change work still ahead in that session.
+- Keep progress, completed work, and actual check results out. Use skill: ts-log for requested work logs.
+- Never update a plan after implementation. Differences between finished code and the plan do not justify edits.
+- When finding an old plan, confirm whether its implementation is complete.
+  Delete completed plans without rewriting them.
+- Do not archive completed plans, turn them into documentation, or reuse them for another implementation session.
 
-Default to direct execution.
+## Approval
 
-## Planning Workers
+- Create or revise a plan only at the user's request.
+  Reading, reviewing, or implementing a plan does not authorize revisions.
+- Get explicit user approval of exact changes before creating a plan or changing its meaning.
+  Approval covers only the proposed changes.
+- Rewording requires approval. Formatting needs no signoff when limited to whitespace, line wrapping,
+  and Markdown layout that preserve meaning.
 
-Spawn workers only when they can gather separate evidence that the judge can check and use with little effort.
+## Required Reading
 
-Good worker tasks:
-
-- list automated tests
-- list affected contracts
-- find migration and deployment limits
-- find commands to check the work
-- map dependencies and their owners
+- skill: ts-simple. Apply it to all prose, including drafts and replies.
+- skill: ts-principles. Read the skill and every linked principle.
+- skill: ts-technical-writing. Read the skill and every linked local detail document.
+- skill: ts-project-context. Read relevant project facts and decisions.
+  Follow its approval rules before changing shared context.
 
 ## Workflow
 
-1. DETERMINE_SCOPE
-2. LOAD_CONTEXT
-3. DELEGATE_INVESTIGATIONS
-4. RESOLVE_DECISIONS
-5. PLAN_TESTS
-6. DRAFT_PLAN
-7. EDIT_TECHNICAL_WRITING
-8. CHECK_GATES
-9. WRITE_ARTIFACT
+### Read Context
 
-### DETERMINE_SCOPE
+Identify the requested result and scope. Use the supplied artifact path when one exists.
 
-- Identify the requested change, affected product behavior, and detail the plan needs.
-  Name nearby work a reader might expect that the plan rejects or postpones.
-- Name the repository root and planned artifact path:
-  `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
-- If the request revises an existing plan, use that existing plan path as the
-  artifact path.
-- Create `docs/plans/` if it does not exist.
+For an existing plan, read the whole document and establish whether implementation is complete.
+Apply the lifetime rules before proposing revisions.
 
-### LOAD_CONTEXT
+Read relevant source, tests, docs, and repository guidance.
+Find current behavior, affected files, dependencies, and interface promises.
+Use the agreed design when one exists.
 
-- Use skill: ts-project-context to load shared facts and decisions.
-- Read relevant source, tests, docs, configs, `AGENTS.md`, and local guidance.
-- Find the current behavior, affected files, rules that must hold, dependencies, interface promises,
-  places to test, and commands to check the work.
-- Use semantic skill names for external skills, e.g. `skill: ts-principles`.
-- Use paths for local files. Do not copy reference material into the plan unless
-  the implementer needs the exact snippet.
-- If a required read or repo command still fails after the obvious fix, stop and report the failure.
-  Do not plan without the required context.
+Follow the repository's tool and environment rules.
+If required context or tooling is unavailable, stop and report what the user must provide.
+Do not repair unavailable tooling or bypass restrictions.
 
-### DELEGATE_INVESTIGATIONS
+### Resolve Choices
 
-- Skip when direct planning is cheaper.
-- Delegate only separate fact-finding questions with a clear scope.
-- Give each worker the question, exact scope, files or skills to read, provider, model line, reasoning level,
-  and required response format. Tell workers not to write the plan and to report tool failures to the judge
-  instead of silently doing less work.
-- Check worker notes, remove duplicates, and resolve conflicts before planning.
+Use evidence to establish current behavior and constraints. Code does not prove agreement.
+Keep facts, accepted requirements, and proposals distinct.
 
-### RESOLVE_DECISIONS
+Resolve factual questions from the repository and shared context.
+Ask focused questions when evidence cannot settle a choice that changes the work.
 
-- Answer unknowns from the repo and shared project context. Save conclusions useful to later tasks in project context.
-- Keep unresolved decisions only in `Open Questions`.
-- Do not place alternatives inside implementation tasks.
-- If a task depends on an unresolved question, mark that task blocked and name
-  the dependency.
+Collect unresolved choices and their proposals in `## Open Questions`.
+Mark affected tasks blocked and name the question they depend on.
+Do not ask the implementer to choose between alternatives inside a task.
 
-### PLAN_TESTS
+Bring conflicts with an agreed design to chat.
+Use skill: ts-design-document for design changes the user requests. Follow its approval rules.
 
-- Re-read the `tests are code` principle detail before planning test changes.
-- Before drafting tasks, decide how automated tests will check each non-trivial behavior change.
-- Each planned test change must name:
-  - the behavior or rule it proves
-  - the interface or user action it exercises
-  - the bug it would catch
-- If no tests are added, name the existing automated check or explain why no lasting automated check is practical.
+### Plan Work And Checks
 
-### DRAFT_PLAN
+Order tasks so dependencies come first.
+Each task must leave the repo working after its dependencies are done.
+Merge tasks when one cannot be checked until a task that depends on it is complete.
 
-- Write instructions for a skilled engineer who has not read the chat. Use review findings, user feedback,
-  and handoffs to write the plan. Do not recount them in it.
-- Use exact file paths and useful line numbers. Order tasks so dependencies come first.
-- Each task must leave the repo working after its dependencies are done. Do not split a refactor so an earlier task
-  breaks imports, types, tests, or behavior and a later task repairs them.
-- Merge tasks when one cannot be checked until a task that depends on it is done.
-- Put tests in the same task as the behavior change or in a dependent test
-  task. For each test task, include the test description from PLAN_TESTS.
-- Use exact paths, symbols, commands, and contract names. Explain what the change does and why in plain words.
-- Use `Details` for purpose, rules that must hold, and task order. Put the code in `Code Changes`;
-  do not repeat the patch in prose.
+Decide how to check each non-trivial behavior change before drafting its tasks.
+Name a planned automated test or an existing automated check.
+Explain when no lasting automated check is practical.
 
-Code in the plan:
+For each planned test, name the behavior it proves, the interface or action it exercises, and the bug it catches.
+Put tests with the behavior change or in a dependent test task.
 
-- Default to diffs. For a small change to a preexisting file, show only the
-  changed lines as a patch-style hunk with a few lines of surrounding context.
-- Use larger code blocks only for new files, or when extra context is needed to
-  understand the change. New files, new functions, new components, new types,
-  and heavily rewritten units need full or near-full code.
-- Do not dump whole existing files for small edits.
-- Do not include generated artifacts, lockfiles, snapshots, or build output
-  unless they are the subject of the change.
-- Do not hide important logic behind `...`.
-- Plan `/** ... */` or comments where exported interfaces, rules that must hold, edge cases, error handling,
-  concurrency, performance, security, or domain rules need explanation.
-- Do not plan comments that repeat names, types, schemas, tests, or obvious
-  code.
+Give exact check commands, their working directories, and expected results.
+Confirm each check tool runs in the prescribed project environment using a harmless no-op.
+For code not yet written, confirming the tool is enough. Do not claim the future check passed.
 
-### EDIT_TECHNICAL_WRITING
+Plan documentation changes where interfaces or behavior need an explanation the code cannot give.
+Put lasting explanations in source documentation or approved designs so they survive deletion of the plan.
+Do not plan comments that repeat names, types, tests, or obvious code.
 
-- Always spawn a technical-writing editor sub-agent after drafting the plan and
-  before running gates.
-- Include `skill: ts-technical-writing` in the editor prompt.
-- The editor rewrites abstract phrases as concrete actions and gives independent rules separate bullets.
-  It edits structure, headings, and examples, and removes llm-isms.
-- The editor edits the plan draft directly. It must return the complete edited
-  plan text, not review findings or suggestions.
-- The editor must preserve meaning, exact code and interface names, scope, task order, file paths, code hunks,
-  verification commands, open questions, blockers, planned tests, and technical facts. Rewrite descriptive phrases
-  and workflow terms in plain words.
-- Tell the editor to write for a skilled engineer who has not read the chat. The plan must make clear what to build
-  and how to check it.
-- The judge must not perform the technical-writing edit itself. The judge may
-  make factual corrections after the edit.
-- Run the editor again if factual corrections substantially change the plan text.
+### Draft
 
-### CHECK_GATES
+Start every plan with the editing and deletion notice shown in the template.
 
-Before writing the artifact, verify:
+Open with the problem and intended result.
+Link to the agreed design when one exists. Include only the context needed to carry out the work.
 
-- The technical-writing editor edited the plan after the latest material draft
-  change.
-- The plan stands alone without prior chat.
-- Every non-trivial task lists exact files.
-- No task asks the implementer to choose between alternatives.
-- Each task's `Verify` section works as soon as that task and its dependencies are done.
-- `Open Questions` contains only unresolved decisions.
-- Optional sections marked `skip if none` are omitted when empty.
-- No answered question remains as an open question.
-- Blocked tasks name their blocker.
-- Check commands and expected results are stated.
-- Every tool used by a check command runs in this repo. Confirm with a no-op such as `--help`, a dry-run,
-  a version check, or a call with no target. For checks of code not yet written, confirming the tool is enough.
-  If a tool still cannot run after the obvious fix, report the failure.
-- Every non-trivial behavior change has a planned automated test, an existing automated check, or an explicit reason no
-  lasting automated check is practical.
-- Task file lists match the snippets or hunks in that task.
-- The plan has no notes about the planning, review, handoff, or revision process.
+Use numbered tasks with headings that name the action.
+Use bullets as the main format. Give each action, constraint, or reason its own bullet.
+Put reasons beside the changes they explain.
 
-### WRITE_ARTIFACT
+Describe changes in prose. Name exact affected files and relevant interfaces.
+Use symbols when they help locate the work. Omit line numbers.
+Keep implementation code, diffs, pseudocode, and command output out of the plan.
 
-- Write the final plan to the artifact path chosen in `DETERMINE_SCOPE`.
-- New plans use `<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md`.
-- Revisions overwrite the existing plan path. Do not create a revised copy or
-  write a delta.
-- Use accepted feedback to rewrite the affected sections: summary, overview,
-  tasks, planned tests, code changes, verification, open questions, or scope.
-- Delete scope that no longer applies. Do not describe its removal.
+Include prerequisites and nearby excluded work only when they affect the reader's actions.
+Omit empty sections. Remove answered questions and move their answers into the affected tasks.
+
+Use feedback to rewrite affected sections. Preserve valid decisions and their reasons.
+Keep planning history, review discussions, and revision notes out of the artifact.
+
+### Edit And Check
+
+Always spawn a technical-writing editor after the latest material draft change.
+Give it the complete draft, skill: ts-simple, and skill: ts-technical-writing.
+
+The editor returns the complete edited draft in chat. It does not write the artifact.
+It must preserve technical facts, scope, task order, file paths, checks, and unresolved choices.
+The judge checks the edit and makes factual corrections.
+Run the editor again when those corrections materially change the draft.
+
+Before requesting approval, check:
+
+- The plan stands alone and follows skill: ts-simple.
+- Each task names the affected files and clearly states the work.
+- Tasks preserve a working repo and can be checked after their dependencies.
+- Non-trivial behavior changes have meaningful checks.
+- Commands and expected results are stated.
+- Unresolved choices appear only in `## Open Questions`; affected tasks name their blockers.
+- The plan contains no implementation code, progress reports, or work history.
+- Information needed after implementation has a lasting home outside the plan.
+- The first line contains the required notice.
+
+### Approve And Save
+
+Show the exact proposed text or diff in chat, including changes to related sections.
+Wait for explicit approval. Get approval again for revisions to the proposed changes.
+
+Before saving, re-read the existing document and preserve concurrent edits.
+Apply only the approved changes. Update an existing plan in place.
+
+Use the supplied path. For a new plan without one, use:
+
+```text
+<repository-root>/docs/plans/YYYY-MM-DD_HH:MM_<plan-name>.md
+```
+
+Create the parent directory when saving.
+Report the path and any unresolved questions.
+
+## Research Workers
+
+Give each worker one question, its scope, required sources or skills, and a response format.
+Require evidence, unresolved questions, and tool failures in the response.
+
+Workers must not spawn workers, widen scope, edit files, or write the plan.
+Check their findings and resolve conflicts before using them.
 
 ## Artifact Template
 
-````markdown
-# Plan: <Feature Name>
+Omit sections and fields that do not apply.
 
-## Summary
-<1-3 sentences describing what this builds and why>
+```markdown
+Before revising, follow skill: ts-plan and get user approval. Delete this plan after implementation.
+
+# Plan: <Change>
+
+## Goal
+
+- <Problem>
+- <Intended result>
+- Design: <link, when one exists>
 
 ## Prerequisites
-<Task-specific setup, dependencies, or docs; skip if none>
+
+- <Required setup, dependency, or document>
 
 ## Open Questions
-<Unresolved decisions only; skip if none>
 
-## Out of Scope
-<Nearby work the reader might reasonably expect from this plan, but this plan rejects or defers; skip if none>
+- <Unresolved choice, context needed to answer it, and affected tasks>
 
-## Overview
-<1-2 short paragraphs about the main parts, approach, limits, and task order>
+## Out Of Scope
 
-## Task <n>: <name>
-**Files:** `path/to/file.ts:42`, `path/to/test.ts`
-**Depends on:** Task <m>; omit when the task has no dependency
-**Blocked by:** <open question or external dependency; omit if unblocked>
+- <Nearby work a reader might reasonably expect>
 
-**Details:**
-- <Purpose, rule that must hold, or task-order note not obvious from the code>
-- <Concrete step only when no code hunk carries it>
+## Task <n>: <Action>
 
-**Tests:** <For test tasks only: behavior proved, interface or user action exercised, and bug caught; omit otherwise>
+Files: `path/to/source`, `path/to/test`
+Depends on: <earlier task>
+Blocked by: <open question or external dependency>
 
-**Code Changes:**
-```ts
-// Patch-style hunk for small edits; full definition only for new/rewritten code.
-```
+- <Change to make>
+- <Required behavior or constraint>
+- <Reason needed to understand the work>
 
-**Verify:**
-- `<command>`
+Tests:
+
+- <Case, interface or action exercised, and expected behavior that catches the bug>
+
+Verify:
+
+- Run `<command>` from `<directory>`.
 - Expected: <observable result>
-````
+```

@@ -50,6 +50,7 @@ Good worker tasks:
 ### DETERMINE_SCOPE
 
 - Identify the task input: a request, plan, design, or open findings.
+  Follow skill: ts-plan or skill: ts-design-document for changes to those documents.
 - Treat every supplied finding as in scope unless impossible or unsafe. Do not drop findings silently.
 
 ### DETERMINE_DELEGATION

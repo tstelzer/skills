@@ -6,8 +6,9 @@
 - Put docs where readers look.
 - Document what the code cannot carry.
 - Keep one source of truth.
-- Update docs with behavior.
-- Delete or archive stale docs.
+- Update documentation of current behavior when that behavior changes.
+- Delete or archive obsolete reference and usage docs.
+- Follow skill: ts-design-document for designs and skill: ts-plan for plans.
 
 ## examples
 
@@ -109,7 +110,7 @@ pnpm dev
 
 A setup command that writes the wrong lockfile is a documentation bug.
 
-### separate history from current docs
+### separate current behavior from design reasons
 
 Weak:
 
@@ -126,11 +127,11 @@ Stronger:
 
 Current field: `totalCents`.
 
-For the completed migration from `total`, see
-`docs/archive/2025-03-billing-total-migration.md`.
+For the reasons behind this format, see
+[Billing storage design](../designs/billing-storage.md).
 ```
 
-Current docs should describe current behavior. History should be marked as history.
+The reference describes current storage. The linked design explains why that format was chosen.
 
 ### delete docs without a reader
 

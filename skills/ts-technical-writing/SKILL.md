@@ -100,8 +100,9 @@ description: Technical writing reference for docs, plans, reviews, prompts, and 
 - Keep docs next to what readers use.
 - Explain reasons and limits that affect the reader's task. Put detailed contracts where readers look them up.
 - Do not repeat what names, types, schemas, and tests already say.
-- Update docs with behavior.
-- Delete stale docs.
+- Update documentation of current behavior when that behavior changes.
+- Delete obsolete reference and usage docs.
+- Follow skill: ts-design-document for designs and skill: ts-plan for plans.
 
 [Details](maintenance.md)
 

@@ -156,8 +156,9 @@ You must read [details](tests-are-code.md) when adding, changing, or reviewing t
 - Prioritize `/** ... */` docs on interfaces.
 - Avoid redundant docs covered by names, types, schemas, or tests.
 - Prefer one source of truth with links over copied prose.
-- Update docs in the same diff as behavior.
-- Delete stale docs.
+- Update documentation of current behavior in the same diff as behavior.
+- Delete obsolete reference and usage docs.
+- Follow skill: ts-design-document for designs and skill: ts-plan for plans.
 
 You must read [details](integrated-documentation.md) when adding, changing, or reviewing documentation, comments,
 examples, or public contracts.

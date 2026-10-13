@@ -41,9 +41,9 @@ Prefer one source of truth. Duplicate tables, copied config schemas, copied API
 fields, and hand-written generated output drift. Link to the owner, generate
 the derived doc, or move the prose next to the source.
 
-Keep docs alive or delete them. Stale docs are worse than missing docs because
-they create false confidence. Change docs in the same diff as behavior. If a
-doc no longer has an owner or a reader, remove it or mark it as historical.
+Update documentation of current behavior in the same diff as behavior.
+Remove or archive obsolete reference and usage docs.
+Follow skill: ts-design-document for designs and skill: ts-plan for plans.
 
 ## examples
 
@@ -264,18 +264,18 @@ async function onUserRegistered(user: User): Promise<void> {
 
 Update the doc in the diff that changes the behavior.
 
-### separate history from current docs
+### separate current behavior from design reasons
 
 Weak:
 
 ```md
-# Billing migration design
+# Billing storage
 
 The system writes both `total` and `totalCents`.
 ```
 
 The migration ended months ago. Current code writes only `totalCents`, but the
-old design doc is still linked from the billing README as current behavior.
+reference page still describes the old storage format.
 
 Stronger:
 
@@ -284,11 +284,11 @@ Stronger:
 
 Current storage field: `totalCents`.
 
-For the completed migration from `total`, see
-`docs/archive/2025-03-billing-total-migration.md`.
+For the reasons behind this format, see
+[Billing storage design](../designs/billing-storage.md).
 ```
 
-Current docs state the current contract. History stays available as history.
+The reference describes current storage. The linked design explains why that format was chosen.
 
 ### annotate schemas for generated docs
 

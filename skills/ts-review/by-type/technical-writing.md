@@ -32,7 +32,7 @@ Read details for:
 - Public API reference, CLI help, OpenAPI, generated schema docs, config docs,
   and exported type docs.
 - Setup, upgrade, deployment, rollback, debugging, and operations instructions.
-- Stale docs that should be deleted, archived, or linked elsewhere.
+- Obsolete reference and usage docs that should be deleted, archived, or linked elsewhere.
 - Docs missing from the location where the reader will look.
 - Prose, structure, examples, lists, headings, and llm-isms when they can
   mislead, slow, or block a real reader.
@@ -52,7 +52,7 @@ architecture, security, or implementation decision.
 
 Allowed direct edits:
 
-- documentation, plans, designs, prompts, workflow artifacts, comments, examples, and instructions readers must follow
+- documentation, prompts, workflow artifacts, comments, examples, and instructions readers must follow
 - prose, headings, lists, stale wording, duplicated text, missing local context, and llm-isms
 - incorrect commands, snippets, or claims when the implementation or source request makes the repair clear
 
@@ -60,7 +60,7 @@ Do not directly edit:
 
 - code behavior, tests, migrations, schemas, generated files, dependency files, or configuration
 - workflow log routing state, finding dispositions, or status lines owned by the router or judge
-- plan or design decisions that require a product, security, implementation, or architecture choice
+- plans or designs; route revisions and cleanup through skill: ts-plan or skill: ts-design-document
 
 If a direct edit fully resolves the issue, report it under `## Direct Edits` and do not file an open finding. If risk or
 decision work remains, leave the file unchanged for that point and return a finding.
@@ -71,8 +71,8 @@ decision work remains, leave the file unchanged for that point and return a find
 2. Identify changed behavior, changed contracts, changed commands, and changed
    operational steps.
 3. Find the docs a reader would use for those tasks.
-4. Compare each relevant doc claim, command, sample, config snippet, and API
-   description against the implementation.
+4. Compare documentation of current behavior against the implementation.
+   Check plans and designs against agreed requirements.
 5. Check missing docs for new behavior, breaking changes, migrations,
    operations, deprecations, or sharp edges.
 6. Check whether examples are still valid and safe to run.
