@@ -108,9 +108,12 @@ Use numbered tasks with headings that name the action.
 Use bullets as the main format. Give each action, constraint, or reason its own bullet.
 Put reasons beside the changes they explain.
 
-Describe changes in prose. Name exact affected files and relevant interfaces.
-Use symbols when they help locate the work. Omit line numbers.
-Keep implementation code, diffs, pseudocode, and command output out of the plan.
+Explain changes in plain words and code. Name exact affected files and relevant interfaces. Omit line numbers.
+Show code for contracts and logic the implementer would otherwise have to design, such as a type or database query.
+Use focused snippets or small diffs with real project names and APIs.
+Prefer code when it explains a change more clearly than prose. Show the essential logic and leave out boilerplate.
+Put snippets beside the action they explain. Use prose for reasons and constraints the code does not show.
+Keep command output out of the plan.
 
 Include prerequisites and nearby excluded work only when they affect the reader's actions.
 Omit empty sections. Remove answered questions and move their answers into the affected tasks.
@@ -124,7 +127,7 @@ Always spawn a technical-writing editor after the latest material draft change.
 Give it the complete draft, skill: ts-simple, and skill: ts-technical-writing.
 
 The editor returns the complete edited draft in chat. It does not write the artifact.
-It must preserve technical facts, scope, task order, file paths, checks, and unresolved choices.
+It must preserve technical facts, scope, task order, code, file paths, checks, and unresolved choices.
 The judge checks the edit and makes factual corrections.
 Run the editor again when those corrections materially change the draft.
 
@@ -136,7 +139,8 @@ Before requesting approval, check:
 - Non-trivial behavior changes have meaningful checks.
 - Commands and expected results are stated.
 - Unresolved choices appear only in `## Open Questions`; affected tasks name their blockers.
-- The plan contains no implementation code, progress reports, or work history.
+- The snippets show the chosen contracts and non-obvious logic in enough detail to implement them.
+- The plan contains no progress reports or work history.
 - Information needed after implementation has a lasting home outside the plan.
 - The first line contains the required notice.
 
@@ -169,7 +173,7 @@ Check their findings and resolve conflicts before using them.
 
 Omit sections and fields that do not apply.
 
-```markdown
+````markdown
 Before revising, follow skill: ts-plan and get user approval. Delete this plan after implementation.
 
 # Plan: <Change>
@@ -202,6 +206,10 @@ Blocked by: <open question or external dependency>
 - <Required behavior or constraint>
 - <Reason needed to understand the work>
 
+```<language>
+<Focused snippet or small diff showing the chosen contract or logic>
+```
+
 Tests:
 
 - <Case, interface or action exercised, and expected behavior that catches the bug>
@@ -210,4 +218,4 @@ Verify:
 
 - Run `<command>` from `<directory>`.
 - Expected: <observable result>
-```
+````
