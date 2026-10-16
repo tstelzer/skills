@@ -18,11 +18,11 @@ Read reference files with `git show effect@4.0.0:<path>` when the checkout is ah
 ## Where to start
 
 - Do not read this file in order. Pick one topic.
-- Match the task to a folder below.
+- Match the task to a topic folder containing `.ts` examples below.
 - For API lookup, open the file whose title fits.
-- For implementation or review, read that folder's `index.md` and relevant examples.
+- For implementation or review, read that topic folder's `index.md` and relevant examples.
   The index states rules the examples may not repeat.
-- In each folder, the lowest-numbered file is the main example. Higher numbers show variations.
+- In each topic folder, the lowest-numbered file is the main example. Higher numbers show variations.
 - `fixtures/` folders hold modules used by examples. They are not separate topics.
 - Migrating existing v3 code? Go to [Migration](#migration) first.
 
@@ -83,13 +83,12 @@ This handbook targets the stable release. For beta or RC code, check its install
 
 Paths are relative to this file.
 
-- **`examples/01_effect/`**: core Effect: writing effects, Schema, services,
-  errors, resources, running, and pubsub.
-  - `01_basics/`: writing Effect code.
+- **`examples/01_effect/`**: core Effect topics. Choose a subfolder:
+  - [01_basics/](./examples/01_effect/01_basics/index.md): writing Effect code.
     - `01_effect-gen.ts`: using `Effect.gen`.
     - `02_effect-fn.ts`: using `Effect.fn` and `Effect.fnUntraced`.
     - `10_creating-effects.ts`: creating effects from values, sync, Promises, nullables, callbacks.
-  - `02_schema/`: runtime schemas and domain models.
+  - [02_schema/](./examples/01_effect/02_schema/index.md): runtime schemas and domain models.
     - `10_schema-basics.ts`: decoded and encoded types, decoding, encoding, and boundary errors.
     - `20_primitives-composition.ts`: primitives, structs, collections, records, and template literals.
     - `25_deriving-schemas.ts`: deriving structs, tuples, and unions without copying definitions.
@@ -102,23 +101,23 @@ Paths are relative to this file.
     - `80_serialization-sensitive.ts`: serialization, external formats, and redacted values.
     - `90_tooling-errors.ts`: error formatting, JSON Schema, native arbitrary generation, equivalence, optics, and
       patches.
-  - `03_services/`: writing Effect services.
+  - [03_services/](./examples/01_effect/03_services/index.md): writing Effect services.
     - `01_service.ts`: `Context.Service`.
     - `10_reference.ts`: `Context.Reference` for config / defaults.
     - `20_layer-composition.ts`: composing services with the `Layer` module.
     - `20_layer-unwrap.ts`: building layers from config / effects with `Layer.unwrap`.
-  - `04_errors/`: error handling.
+  - [04_errors/](./examples/01_effect/04_errors/index.md): error handling.
     - `01_error-handling.ts`: custom errors, `Effect.catch` / `Effect.catchTag`.
     - `10_catch-tags.ts`: handle several tagged errors with `Effect.catchTags`.
     - `20_reason-errors.ts`: tagged `reason` fields, `catchReason` / `unwrapReason`.
-  - `05_resources/`: resources and `Scope`s.
+  - [05_resources/](./examples/01_effect/05_resources/index.md): resources and `Scope`s.
     - `10_acquire-release.ts`: `Effect.acquireRelease` lifecycles.
     - `20_layer-side-effects.ts`: background tasks via `Layer.effectDiscard`.
     - `30_layer-map.ts`: keyed dynamic resources with `LayerMap.Service`.
-  - `06_running/`: running programs.
+  - [06_running/](./examples/01_effect/06_running/index.md): running programs.
     - `10_run-main.ts`: `NodeRuntime` / `BunRuntime` entrypoints.
     - `20_layer-launch.ts`: long-running apps with `Layer.launch`.
-  - `07_pubsub/`: broadcasting.
+  - [07_pubsub/](./examples/01_effect/07_pubsub/index.md): broadcasting.
     - `10_pubsub.ts`: in-process event bus with `PubSub`.
 - **`examples/03_stream/`**: Streams: effectful, pull-based sequences.
   - `10_creating-streams.ts`: streams from iterables, effects, pagination, async iterables, events, callbacks,
@@ -161,8 +160,6 @@ Paths are relative to this file.
   - `fixtures/`: supporting domain module.
 - **`examples/80_cluster/`**: distributed applications.
   - `10_entities.ts`: define entity RPCs and run them in a cluster.
-
-Each folder also has an `index.md` with the section intro.
 
 ## Final consistency audit
 
