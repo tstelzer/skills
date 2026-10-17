@@ -1,0 +1,11 @@
+[doc('Check lint and formatting')]
+[group('Checks')]
+check:
+    ruff check src tests
+    ruff format --check src tests
+
+[doc('Apply lint and format fixes')]
+[group('Development')]
+check-fix:
+    ruff check --fix src tests
+    ruff format src tests

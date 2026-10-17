@@ -1,0 +1,4 @@
+[doc('Run Python tests')]
+[group('Checks')]
+test:
+    python -m pytest

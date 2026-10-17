@@ -1,0 +1,9 @@
+[dependency-groups]
+dev = ["pytest==<latest-9.x>"]
+
+[tool.pytest]
+minversion = "9.0"
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib", "-ra"]
+strict_markers = true
+strict_config = true

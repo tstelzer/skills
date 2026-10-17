@@ -2,8 +2,11 @@
 
 Merge [`reference/.envrc`](./reference/.envrc) into the repository root `.envrc`.
 
-Use `watch_file package.json` before `use flake` when the shell reads runtime or package-manager versions from
-`package.json`. This reloads the environment when those versions change.
+Add `watch_file` before `use flake` for each non-Nix file the development shell reads:
+
+- Watch `package.json` when it supplies runtime or package-manager versions.
+- For uv2nix, watch `pyproject.toml`, `uv.lock`, and workspace members' `pyproject.toml` files.
+- Watch `.python-version` when it selects the shell's interpreter.
 
 Run project commands through `direnv exec . <command>` from the repository root.
 

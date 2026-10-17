@@ -1,0 +1,4 @@
+[doc('Check Python types')]
+[group('Checks')]
+typecheck:
+    python -m mypy

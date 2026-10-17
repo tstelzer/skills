@@ -10,7 +10,8 @@ Do not add a header comment that explains the `justfile` or repeats these rules.
 Keep npm/pnpm scripts only for consumers that cannot use Just, such as a Dockerfile or GitHub Actions job without it.
 Define commands used only by developers as Just recipes. Do not add corresponding `package.json` scripts,
 even under different names. Keep package-manager lifecycle hooks in `package.json`.
-Invoke package binaries directly with `pnpm exec`. Call a retained package script from Just when both consumers
+For TypeScript, invoke package binaries directly with `pnpm exec`. Python commands follow the selected
+[environment owner](../../python/index.md#environment). Call a retained package script from Just when both consumers
 need the same command.
 
 Add a recipe when it:
@@ -54,9 +55,9 @@ not require adding its `just.fragment`.
 - Keep recipes thin. Compose recipes with Just dependencies or `just <recipe>` calls.
 - Use `check` for lint and format checks. Add Actionlint to `check` when selected.
 - Use `check-fix` to apply lint and format fixes. Do not add separate `format*` or `lint*` recipes.
-- Merge commands from selected check fragments into one recipe body. Do not append duplicate recipe definitions.
+- Merge commands from selected fragments into existing recipes. Do not append duplicate recipe definitions.
 - Make `build` produce all project artifacts. Include bundling, code generation, and assets when the project needs
   them.
 - Make `build-watch` watch and rebuild the same artifacts.
-- Add `verify` after assembling the file. Include only selected, non-interactive checks.
+- Add `verify` after assembling the file. Include selected, non-interactive checks for every language in use.
 - Keep mutating and interactive recipes out of `verify`.

@@ -1,0 +1,2 @@
+[dependency-groups]
+dev = ["ruff==<latest-0.x>"]

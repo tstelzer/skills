@@ -1,0 +1,1 @@
+pkgs."<python-nix-attribute>"
