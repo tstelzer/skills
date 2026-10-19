@@ -72,11 +72,12 @@ Give each question only the context needed to answer it. A proposal is an undeci
 After approval, move accepted decisions into the relevant sections and remove resolved questions.
 Omit the section when none remain.
 
-Keep technical detail at the level needed to judge the design. Recovery after a restart belongs here;
-worker methods and field lists do not. Explain responsibilities and contracts in prose.
+Keep technical detail at the level needed to judge the design.
+Show domain models and contracts with type declarations. Include fields and variants that express design decisions.
+Explain responsibilities and reasons in prose. Keep implementation details such as worker methods out.
 Use source references only to illustrate a decision. Keep the explanation understandable without opening the source.
-Avoid line numbers and details tied to file layout or symbol names. Code movement does not require a design rewrite.
-Keep code snippets, pseudocode, diffs, schemas, and command output out.
+Avoid line numbers and details tied to file layout. Code movement does not require a design rewrite.
+Keep executable code, pseudocode, diffs, database schemas, and command output out.
 
 Keep implementation status, work history, and next steps out. Put task order and commands in a plan.
 Use skill: ts-log for requested work logs. Git holds code changes.
@@ -114,7 +115,7 @@ Keep examples brief. Describe required system behavior; put the work needed to b
 Check that the proposed document stands alone and its sections agree. Decisions must have reasons supported by evidence.
 Check that its first line is the required editing notice.
 Check that implementing the design would leave its statements valid without status updates.
-Keep all open choices in `## Open Questions`. Remove implementation status, work history, task steps, and code.
+Keep all open choices in `## Open Questions`. Remove implementation status, work history, task steps, and executable code.
 
 Show the exact proposed text or diff in chat, including changes to related sections. Wait for explicit user approval.
 Leave the document unchanged while waiting. Get approval again for any revision to the proposed changes.
