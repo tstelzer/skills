@@ -18,7 +18,7 @@ The judge checks the evidence, resolves choices, and writes the plan.
 
 ## Lifetime
 
-A plan guides one implementation session. It is temporary.
+Scope every plan to one implementation session. The plan is temporary.
 
 - Revise a plan only to change work still ahead in that session.
 - Keep progress, completed work, and actual check results out. Use skill: ts-log for requested work logs.
@@ -78,9 +78,10 @@ Use skill: ts-design-document for design changes the user requests. Follow its a
 
 ### Plan Work And Checks
 
-Order tasks so dependencies come first.
-Each task must leave the repo working after its dependencies are done.
-Merge tasks when one cannot be checked until a task that depends on it is complete.
+Order tasks by dependency within the same implementation session.
+Describe only the final implementation. Do not plan temporary code or behavior that a later task replaces.
+Run each check once all changes it needs are in place.
+The repo must work after all tasks are implemented.
 
 Decide how to check each non-trivial behavior change before drafting its tasks.
 Name a planned automated test or an existing automated check.
@@ -135,7 +136,7 @@ Before requesting approval, check:
 
 - The plan stands alone and follows skill: ts-simple.
 - Each task names the affected files and clearly states the work.
-- Tasks preserve a working repo and can be checked after their dependencies.
+- Tasks reach the final implementation in one session without temporary states between tasks.
 - Non-trivial behavior changes have meaningful checks.
 - Commands and expected results are stated.
 - Unresolved choices appear only in `## Open Questions`; affected tasks name their blockers.
