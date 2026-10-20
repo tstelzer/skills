@@ -8,22 +8,32 @@ uses Nix.
 Treat the `justfile` as a curated command interface, not an inventory of tools and package scripts.
 Do not add a header comment that explains the `justfile` or repeats these rules.
 Keep npm/pnpm scripts only for consumers that cannot use Just, such as a Dockerfile or GitHub Actions job without it.
-Define commands used only by developers as Just recipes. Do not add corresponding `package.json` scripts,
+Define recurring developer workflows as Just recipes. Do not add corresponding `package.json` scripts,
 even under different names. Keep package-manager lifecycle hooks in `package.json`.
 For TypeScript, invoke package binaries directly with `pnpm exec`. Python commands follow the selected
 [environment owner](../../python/index.md#environment). Call a retained package script from Just when both consumers
 need the same command.
 
-Add a recipe when it:
+Add a recipe only for a recurring repository workflow that:
 
 - exposes a command shared with a consumer that cannot use Just
 - hides a long workspace or package-filter command
 - captures a complex command that is hard to recall
 - exposes a frequently used development command such as `test`, `check`, or `dev`
 
+Never add Just recipes for one-off implementation or setup steps, including:
+
+- adding a dependency, such as `pnpm add foobar`
+- signing in to a service, such as `<service-cli> login`
+- downloading or installing a tool binary
+- creating a service account or project
+- applying a one-time data fix
+
+When a one-off step remains for the user, give the exact command in the handoff.
+
 Do not add recipes for version checks, dependency installation or updates, environment reloads, Nix commands, or
-commands already handled by installation and lifecycle hooks. Select recipes by command value. Selecting a tool does
-not require adding its `just.fragment`.
+commands already handled by installation and lifecycle hooks. Selecting a tool does not require adding its
+`just.fragment`.
 
 ## Names
 
