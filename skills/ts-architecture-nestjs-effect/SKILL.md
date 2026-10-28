@@ -1,9 +1,9 @@
 ---
 name: ts-architecture-nestjs-effect
-description: Use this guidance when using Effect in a Nest application.
+description: Use this guidance when integrating Nest and Effect.
 ---
 
-## Give Nest one Effect runtime to own
+## Give Nest one Effect runtime when Nest owns the process
 
 Nest creates providers and defines their shutdown lifecycle. A runtime inside each service gives each Layer its own
 scope and finalizers. Logging and tracing can diverge across those runtimes. Register one `ManagedRuntime` as a Nest
@@ -28,6 +28,48 @@ Scheduler        -> EffectRunner
 
 The application Layer connects Effect to the logger, tracing, metrics, and platform services used by that Nest
 application. A service that only returns Effects does not need `EffectRunner`.
+
+## Start Nest adapters on demand
+
+Defer Nest startup when only some operations need its providers. Build the adapter Layer inside the operation or
+workflow branch that uses it. For example, returning cached results or showing CLI help should not start Nest.
+Start Nest eagerly when its availability is a startup requirement.
+
+When Effect creates the Nest application context, let an enclosing Effect scope own its lifetime. Use a small root
+module containing only the needed Nest dependencies. Acquire the context with `Effect.acquireRelease` and release
+it with `app.close()`.
+
+Bad:
+
+```ts
+program.pipe(Effect.provide(nestLayer))
+```
+
+Good:
+
+```ts
+const nestLayer = Layer.suspend(() =>
+  makeNestApplicationContextLayer(makeReportsModule()),
+)
+
+const program = Effect.gen(function* () {
+  const cached = yield* readCachedReport
+  if (cached !== undefined) return cached
+  return yield* buildReport.pipe(Effect.provide(nestLayer))
+})
+```
+
+Here, `makeReportsModule` returns the small root module. `makeNestApplicationContextLayer` is an application helper
+that owns the acquire/release pair above.
+
+For repeated calls, get `scope` with `yield* Effect.scope` inside the owning `Effect.scoped`.
+Create one loader with `yield* Effect.cached(Layer.buildWithScope(nestLayer, scope))`. Run that loader only when
+Nest is needed and provide its resulting context to each call. Concurrent callers share startup.
+Closing the owning scope closes Nest.
+
+`Layer.suspend` delays the factory until the Layer is built. Providing it around the whole program still builds
+it before choosing a branch. Static imports still run eagerly; use `import()` inside a deferred Effect when loading
+the JavaScript module must also wait.
 
 ## Use Nest injection for Nest services
 
