@@ -12,5 +12,9 @@ checks. Do not wrap an entire workflow when each operation has a narrower error
 boundary. Do not convert defects into expected failures to make an error union
 uniform.
 
+Typed recovery skips causes that contain defects. Use `catchCause` when the
+contract needs the full cause. `mapError` maps every typed failure and keeps
+defects and interruption reasons intact.
+
 Keep the error channel intact until the application boundary chooses the
 process or protocol outcome.

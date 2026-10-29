@@ -19,7 +19,7 @@ This document maps v3 Schema APIs to their v4 equivalents. Simple renames and ar
 | `compose(schemaB)`                              | `decodeTo(schemaB)`                                                           | rename            |
 | `annotations(ann)`                              | `annotate(ann)`                                                               | rename            |
 | `decodingFallback` annotation                   | `catchDecoding(...)`                                                          | rename            |
-| `parseJson()`                                   | `UnknownFromJsonString`                                                       | rename            |
+| `parseJson()` | `fromJsonString(Unknown)` | rename |
 | `parseJson(schema)`                             | `fromJsonString(schema)`                                                      | rename            |
 | `pattern(regex)`                                | `check(isPattern(regex))`                                                     | rename            |
 | `nonEmptyString`                                | `isNonEmpty`                                                                  | rename            |
@@ -768,8 +768,8 @@ const schema = Schema.Struct({ password: Schema.String, confirmPassword: Schema.
 )
 
 console.log(String(Schema.decodeUnknownExit(schema)({ password: "123456", confirmPassword: "1234567" })))
-// Failure(Cause([Fail(SchemaError: password and confirmPassword must match
-//   at ["password"])]))
+// Failure(Cause([Fail(SchemaError(password and confirmPassword must match
+//   at ["password"]))]))
 ```
 
 **Example** (Reporting multiple failures at once)
@@ -789,10 +789,10 @@ const schema = Schema.Struct({ a: Schema.Finite, b: Schema.Finite, c: Schema.Fin
 )
 
 console.log(String(Schema.decodeUnknownExit(schema)({ a: 1, b: 0, c: 0 })))
-// Failure(Cause([Fail(SchemaError: b must be greater than 0
+// Failure(Cause([Fail(SchemaError(b must be greater than 0
 //   at ["b"]
 // c must be greater than 0
-//   at ["c"])]))
+//   at ["c"]))]))
 ```
 
 ### filterEffect
@@ -1111,7 +1111,7 @@ The new module removes fast-check from the `effect` package. Applications may st
 directly, but Effect Schema generation and `@effect/vitest` property tests no longer depend on it.
 
 For the new API and its semantics, see
-[Arbitrary in Effect](https://github.com/Effect-TS/effect/blob/effect@4.0.0/packages/effect/ARBITRARY.md).
+[Arbitrary in Effect](https://github.com/Effect-TS/effect/blob/effect@4.1.0/packages/effect/ARBITRARY.md).
 
 ### Import changes
 

@@ -1,6 +1,6 @@
 ---
 name: ts-effect-v4
-description: Effect v4 handbook for effect@4 and its platform, SQL, AI, and testing packages. Use ts-effect-v3 for v3.
+description: Effect v4 handbook for effect@4.1 and platform, SQL, AI, and testing packages. Use ts-effect-v3 for v3.
 ---
 
 # Effect v4
@@ -8,12 +8,12 @@ description: Effect v4 handbook for effect@4 and its platform, SQL, AI, and test
 ## Reference snapshot
 
 - Repository: `Effect-TS/effect`
-- Release: `effect@4.0.0`
-- Commit: `67ba4e46a11ccda0b6761578bfd22c04ae00167d`
-- Package: `effect@4.0.0`
+- Release: `effect@4.1.0`
+- Commit: `9a91b1926a5fbfaffd302a7a41a94d4d53a1154e`
+- Package: `effect@4.1.0`
 
 Use this release tag as the source for this handbook version. A branch name can move to another commit.
-Read reference files with `git show effect@4.0.0:<path>` when the checkout is ahead of the release.
+Read reference files with `git show effect@4.1.0:<path>` when the checkout is ahead of the release.
 
 ## Where to start
 
@@ -28,56 +28,33 @@ Read reference files with `git show effect@4.0.0:<path>` when the checkout is ah
 
 ## Identify the version
 
-Use this skill when the code targets Effect v4:
+Use this handbook for Effect 4.1:
 
-- `effect@4` in `package.json`, with `@effect/*` packages on the same version.
+- `effect@4.1` in `package.json`, with `@effect/*` packages on the same version.
 - Imports from `effect/http`, `effect/http-api`, `effect/cli`, `effect/sql`, `effect/rpc`, or other grouped modules.
 - `Context.Service` for services, `Effect.fn(...)` or `Effect.fnUntraced(...)` for effectful functions, and
   `Schema.TaggedError` for errors.
 
 For `effect@3` / `@effect/platform@0.x`, use skill: ts-effect-v3.
 
-This handbook targets the stable release. For beta or RC code, check its installed version before applying examples.
-
 ## Release requirements
 
-- Use TypeScript 5.9 or newer. The release recommends TypeScript 7.
-- Use Vitest 5 with `@effect/vitest` and `@effect/doctest`.
-- `@effect/sql-sqlite-node` uses `node:sqlite` and requires Node 22.16 or newer.
-- `@effect/platform-deno` requires Deno 2.8.3 or newer. `@effect/atom-react` requires React 19.
+- Use TypeScript 5.9 or newer with `strict` enabled. TypeScript 7 is recommended.
+- Use Node 22.19 or newer for Node applications.
+- Use Vitest 5 with `@effect/vitest` and `@effect/doctest`. Doctest also requires Vite `>=8.1.5 <9`.
+- `@effect/sql-sqlite-node` uses `node:sqlite`.
+- `@effect/platform-deno` requires Deno 2.9.3 or newer. `@effect/atom-react` requires React 19.
 
 ## Imports and stability
 
 - Import grouped modules from `effect/<area>` and individual modules from `effect/<area>/<Module>`.
-- Replace prerelease `effect/unstable/*` imports. Those paths have no compatibility exports in 4.0.0.
+- Use the published paths below. There are no `effect/unstable/*` compatibility exports.
 - Use `effect/http-api` for HTTP API modules, `effect/Arbitrary` for native property testing, and
   `effect/encoding` for encoding formats. Primitive helpers live at `effect/encoding/Base64`,
   `effect/encoding/Base64Url`, `effect/encoding/Hex`, and `effect/encoding/EncodingError`.
-- Read stability annotations on the API being used. `@stability unstable` allows breaking changes in minor releases;
-  `@stability experimental` allows them in patch releases. APIs without a stability tag follow semver.
-- APIs that expose third-party clients, options, or re-exports can be unstable, including parts of platform,
-  SQL driver, AI provider, OpenTelemetry, and Vitest packages.
-
-## Upgrading prerelease code
-
-- Rename Schema range checks to `isBetweenLength`, `isBetweenCodePoints`, `isBetweenSize`, and `isBetweenProperties`.
-  Rename string checks to `isStartingWith`, `isEndingWith`, and `isIncluding`.
-  Update corresponding `SchemaRepresentation.*Reviver` names and persisted `effect/schema/...` check IDs.
-- Pass one concrete string identifier to `Schema.brand`. Brands affect TypeScript types only; they add no AST metadata.
-  Pass the constructor's sole brand key first to `Schema.fromBrand`. Apply either function repeatedly to compose brands.
-  For enum keys, pass the enum member. Reapply brands after rebuilding schemas from representations or generated code.
-- Read partition results as `[passes, fails]` and separated Results as `[successes, failures]`.
-  This applies to `Array`, `Chunk`, `Effect`, `Record`, and `Option.partitionMap`.
-  `Array.partition`, `Chunk.partition`, and `Record.partition` take Result-returning filters;
-  adapt boolean predicates with `Filter.fromPredicate`.
-- Let `Config.withDefault` and `Config.option` handle absent values. Invalid input and source errors still fail.
-  A default on `Config.all` replaces the whole group; put defaults on children to preserve supplied values.
-- Use `Scope.Closeable` for `Scope.close` and `Scope.closeUnsafe`. `Scope.make` and `Scope.fork` create closeable scopes.
-- Replace `effect/httpapi` with `effect/http-api`, including stored TypeIds, service keys, and the reserved
-  `effect/http-api/stream/failure` SSE event name.
-- Follow the [router ownership rules](./examples/51_http-server/index.md)
-  when composing servers or web handlers.
-- For native property tests and `TestSchema` renames, read [Testing](./examples/09_testing/index.md).
+- Read each module's and export's explicit stability annotation. `@stability stable` follows semver;
+  `@stability unstable` allows breaking changes in minor releases and `@stability experimental` in patch releases.
+- Treat packages outside `effect`, including platform, SQL drivers, AI providers, and Vitest, as unstable.
 
 ## Examples
 
@@ -101,7 +78,7 @@ Paths are relative to this file.
     - `80_serialization-sensitive.ts`: serialization, external formats, and redacted values.
     - `90_tooling-errors.ts`: error formatting, JSON Schema, native arbitrary generation, equivalence, optics, and
       patches.
-  - [03_services/](./examples/01_effect/03_services/index.md): writing Effect services.
+  - [03_services/](./examples/01_effect/03_services/index.md): services, config, platform, and crypto dependencies.
     - `01_service.ts`: `Context.Service`.
     - `10_reference.ts`: `Context.Reference` for config / defaults.
     - `20_layer-composition.ts`: composing services with the `Layer` module.
@@ -124,12 +101,14 @@ Paths are relative to this file.
     Node readables.
   - `20_consuming-streams.ts`: transform and run streams (`map`, `flatMap`, `mapEffect`, `run*`).
   - `30_encoding.ts`: decode / encode with `Ndjson` and `SchemaBinary` channels.
+    See [stream guidance](./examples/03_stream/index.md) for CSV, JSON arrays, XML, and archives.
 - **`examples/04_integration/`**: bridging Effect into non-Effect code.
   - `10_managed-runtime.ts`: `ManagedRuntime` with Hono.
 - **`examples/05_batching/`**: batching external requests.
   - `10_request-resolver.ts`: `Request.Class` + `RequestResolver`.
 - **`examples/06_schedule/`**: retries, repeats, polling.
   - `10_schedules.ts`: build and compose `Schedule`s for `retry` / `repeat`.
+    See [schedule guidance](./examples/06_schedule/index.md) for cron overlap policies.
 - **`examples/07_datetime/`**: `DateTime` parsing, formatting, calendar math, and time zones.
   - `10_creating-and-formatting.ts`: parse inputs, use Clock-backed current time, format ISO values.
   - `20_time-zones.ts`: attach IANA zones, use `CurrentTimeZone`, and build zoned date values.
@@ -149,6 +128,13 @@ Paths are relative to this file.
   - `10_basics.ts`: define `HttpApi`, implement handlers, secure with middleware, serve, derive a typed client.
   - `20_testing.ts`: test handlers through an in-memory typed client with `HttpApiTest`.
   - `fixtures/`: api / domain / server modules backing the example.
+- **`examples/52_graphql/`**: experimental GraphQL clients.
+  Start with the [topic index](./examples/52_graphql/index.md).
+  - `10_basics.ts`: generated operations, HTTP transport, and cursor pagination.
+  - `20_testing.ts`: replace client operations with typed test handlers.
+  - `30_batching.ts`: batch entity lookups with `GraphQLResolver`.
+  - `40_aliased-batching.ts`: batch lookups through aliased fields.
+  - `50_errors-and-retries.ts`: errors, rate limits, and retry policies.
 - **`examples/60_child-process/`**: child processes.
   - `10_working-with-child-processes.ts`: collect output, compose pipelines, stream long-running commands.
 - **`examples/70_cli/`**: CLI applications.
@@ -191,7 +177,7 @@ It explains versions, merged packages, release import paths, and API stability. 
 - `migration/cause.md`: flattened `Cause` structure.
 - `migration/error-handling.md`: `catch*` renamings.
 - `migration/forking.md`: renamed fork combinators and new options.
-- `migration/yieldable.md`: Effect subtyping → Yieldable.
+- `migration/yieldable.md`: explicit conversions for values that no longer implement Effect.
 - `migration/generators.md`: `Effect.gen` passing `this`.
 - `migration/fiber-keep-alive.md`: automatic process lifetime management.
 - `migration/layer-memoization.md`: layer memoization across `Effect.provide`.

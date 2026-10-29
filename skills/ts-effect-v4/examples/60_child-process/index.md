@@ -3,6 +3,16 @@
 Use the `effect/process` modules to define child processes and run
 them with `ChildProcessSpawner`.
 
+Pass an argument array for ordinary commands. Templates keep quoted words
+together but reject unquoted shell operators, expansions, and globs.
+For a shell command, pass the whole script as the command with no extra arguments;
+quote inserted values with `CommandLine.quote` or `CommandLine.join` from
+`effect/process`. Shell templates do not accept interpolated values.
+
+Keep secret arguments and environment values as `Redacted` strings. Use
+`CommandLine.display` for logs. Consume both output streams when using a raw
+process handle; output sinks run only while their handle stream is consumed.
+
 Map each spawn, stream, and exit-code failure at that operation. Keep
 `PlatformError` typed until the mapping and inspect `reason` when behavior
 depends on `NotFound`, permissions, or another platform condition.

@@ -33,6 +33,9 @@ export const decodeProduct = (input: unknown) =>
 // Standard Schema integrates with consumers that implement Standard Schema V1.
 export const ProductStandardSchema = Schema.toStandardSchemaV1(Product)
 
+// Use the Standard JSON Schema interface when a consumer needs JSON schemas.
+export const ProductStandardJsonSchema = Schema.toStandardJSONSchemaV1(Product)
+
 // JSON Schema generation is best effort. Transformations and custom
 // declarations need an explicit representable encoding.
 export const ProductJsonSchema = Schema.toJsonSchemaDocument(Product)

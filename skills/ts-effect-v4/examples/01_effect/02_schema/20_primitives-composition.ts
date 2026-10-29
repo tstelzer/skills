@@ -51,6 +51,9 @@ export const UniqueAliases = Schema.UniqueArray(Schema.NonEmptyString)
 export const MaybeAlias = Schema.Option(Schema.String)
 export const LoadResult = Schema.Result(Schema.String, Schema.NonEmptyString)
 export const CacheDuration = Schema.DurationFromString
+// This codec accepts fixed-length ISO 8601 units, such as PT30S.
+// Months and years fail.
+export const CacheDurationIso = Schema.DurationFromIsoString
 
 export const User = Schema.Struct({
   id: UserId,

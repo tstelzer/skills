@@ -17,7 +17,11 @@ cleanup, and exact-value-preservation cases that affect callers.
 
 For property tests, pass Schemas or native `Arbitrary` values to `it.prop` or
 `it.effect.prop`. Set run options under `arbitrary`, not `fastCheck`. See the
-[4.0.0 Arbitrary guide](https://github.com/Effect-TS/effect/blob/effect@4.0.0/packages/effect/ARBITRARY.md).
+[4.1.0 Arbitrary guide](https://github.com/Effect-TS/effect/blob/effect@4.1.0/packages/effect/ARBITRARY.md).
+
+Use `arbitrary: { concurrency: n }` for independent, repeatable Effect properties.
+The default is `1`; shrinking and replay stay sequential. Synchronous `it.prop`
+callbacks return `boolean | void`. Use `it.effect.prop` for Effect callbacks.
 
 Import native generators from `effect/Arbitrary` or the `effect` barrel.
 Use `Arbitrary.configureGlobal` for shared run and sampling defaults. Per-call options take precedence;

@@ -16,8 +16,8 @@ and imported has changed significantly.
 All Effect ecosystem packages now share a **single version number** and are
 released together. In v3, packages were versioned independently (e.g.
 `effect@3.x`, `@effect/platform@0.x`, `@effect/sql@0.x`), making compatibility
-between packages difficult to track. In v4, if you use `effect@4.0.0`,
-the matching SQL package is `@effect/sql-pg@4.0.0`.
+between packages difficult to track. In v4, if you use `effect@4.1.0`,
+the matching SQL package is `@effect/sql-pg@4.1.0`.
 
 ### Package Consolidation
 
@@ -45,7 +45,10 @@ with `@stability unstable`.
 
 `@stability unstable` means an API may receive breaking changes in minor
 releases. `@stability experimental` means it may receive breaking changes
-across patch versions. APIs without a stability tag follow strict semver.
+across patch versions. `@stability stable` and APIs without a stability tag
+follow strict semver. Every module and directly importable export declares its
+stability explicitly. Modules in packages other than `effect` are currently
+`@stability unstable`.
 
 APIs that expose a third-party dependency are also marked `@stability
 unstable`, because that dependency's own releases can change them. This covers
@@ -59,8 +62,8 @@ For example, replace `effect/unstable/http` with `effect/http` and
 `effect/unstable/ai/LanguageModel` with `effect/ai/LanguageModel`. There
 are no compatibility exports for the old paths.
 
-Unstable modules include: `ai`, `cli`, `cluster`, `devtools`, `encoding`, `eventlog`,
-`http`, `http-api`, `observability`, `persistence`, `process`,
+Unstable or experimental groups: `ai`, `cli`, `cluster`, `crypto`, `devtools`, `encoding`, `eventlog`, `graphql`,
+`http`, `http-api`, `net`, `observability`, `persistence`, `process`,
 `reactivity`, `rpc`, `schema`, `socket`, `sql`, `workflow`, `workers`.
 
 Moving these modules does not stabilize their APIs.
@@ -68,9 +71,8 @@ Moving these modules does not stabilize their APIs.
 ### Performance and Bundle Size
 
 The fiber runtime has been rewritten for reduced memory overhead and faster
-execution. The core `effect` package supports aggressive tree-shaking — a
-minimal Effect program bundles to ~6.3 KB (minified + gzipped). With Schema,
-~15 KB.
+execution. The core `effect` package supports aggressive tree-shaking. A
+minimal Effect program bundles to 7.1 kB (minified + gzipped).
 
 ---
 
@@ -86,7 +88,7 @@ minimal Effect program bundles to ~6.3 KB (minified + gzipped). With Schema,
 - [Cause: Flattened Structure](./cause.md)
 - [Error Handling: `catch*` Renamings](./error-handling.md)
 - [Forking: Renamed Combinators and New Options](./forking.md)
-- [Effect Subtyping → Yieldable](./yieldable.md)
+- [Effect Subtyping Changes](./yieldable.md)
 - [Generators: `Effect.gen` Passing `this`](./generators.md)
 - [Fiber Keep-Alive: Automatic Process Lifetime Management](./fiber-keep-alive.md)
 - [Layer Memoization Across `Effect.provide` Calls](./layer-memoization.md)

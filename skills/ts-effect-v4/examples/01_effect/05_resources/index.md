@@ -9,6 +9,9 @@ Use `Scope.Closeable` when closing a scope explicitly. `Scope.make` and
 `Scope.fork` return closeable scopes. `Scope.close` runs finalizers
 uninterruptibly.
 
+Use `Semaphore.takeScoped` to hold permits until the current scope closes.
+Waiting can be interrupted; acquired permits are released with the scope.
+
 `LayerMap` skips preloading keys whose idle TTL is zero, including the default.
 Set a non-zero `idleTimeToLive` when startup must validate preloaded resources.
 

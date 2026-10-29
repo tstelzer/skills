@@ -53,13 +53,22 @@ not replace a schema with predicates or manual parsing.
   Use `isStartingWith`, `isEndingWith`, and `isIncluding` for string checks.
 - Use `isMinCodePoints`, `isMaxCodePoints`, and `isBetweenCodePoints` when the contract counts Unicode code points.
   `isMinLength` and `isMaxLength` count UTF-16 code units for strings.
+- Use `Schema.isAscii()` when the input contract permits only ASCII characters.
+- Use `Schema.DurationFromIsoString` for ISO 8601 durations. It accepts fixed-length units, not months or years.
 - Brands are type-only. They do not survive a `SchemaRepresentation` round trip;
   reapply the brand to the rebuilt schema. `Schema.fromBrand` preserves its
   constructor's runtime checks.
+- Pass one concrete string key to `Schema.brand` and the constructor's sole brand key first to `Schema.fromBrand`.
+  For enum keys, pass the member. Apply branding repeatedly to compose brands.
+- Use `Schema.UndefinedOr` for record values that may be `undefined`. Do not use `optionalKey` or `optional` there.
 - `Schema.toJsonSchemaDocument` describes the encoded side of `Schema.toCodecJson(schema)` using draft 2020-12.
   Decode that JSON with the derived codec. JSON Schema validation can be looser than Effect decoding.
   A custom filter's `toJsonSchema` callback returns `[fragment, true]` for a safe, looser approximation or
   `[{}, true]` for an omitted constraint. Approximate branches make `oneOf` export as `anyOf`.
+- Use `Schema.toStandardJSONSchemaV1` when a consumer expects the Standard JSON Schema interface.
+- Use `Schema.toCodecGoJson` for Go responses whose `null` arrays and records mean empty collections.
+  It drops optional-key `null` values and preserves fields that already accept `null`.
+  Keep `Schema.toCodecJson` when those states must remain distinct.
 
 ### Coverage boundary
 

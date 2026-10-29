@@ -24,3 +24,19 @@ Use `HttpApi` annotations to set parse options per slot: `ParamsParseOptions`,
 `SuccessParseOptions`, and `ErrorParseOptions`. Each falls back to `ParseOptions`.
 Set `HeadersParseOptions` to `{}` when strict body parsing must still accept
 transport headers.
+
+Declare streaming payloads and responses with `HttpApiSchema.StreamUint8Array`
+or `StreamNdjson({ schema })`. Set `maxBytes` on request payloads; it has no
+default and does not inherit `MaxBodySize`. NDJSON also has `maxElementBytes`
+with a 1 MiB default. A response failure mid-stream aborts the connection;
+use `StreamSse` when the response needs typed failures after streaming starts.
+
+Use `HttpApiError.Problem<Self>()(tag, { type, status, title }, fields?)` for
+typed RFC 9457 errors rendered as `application/problem+json`. Add
+`HttpApiMiddleware.ProblemDetails` to the API and provide
+`HttpApiMiddleware.layerProblemDetails()` to render schema failures as problems.
+Set `includeDetails: true` only when the response should expose field errors.
+
+Use `HttpApiClient.decodeResponse` to decode a raw response returned by
+`responseMode: "response-only"`. For endpoints that can accept or decline an
+HTTP upgrade, narrow the result with `HttpApiClient.isUpgraded`.

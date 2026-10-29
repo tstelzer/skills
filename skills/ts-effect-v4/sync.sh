@@ -41,6 +41,7 @@ rsync -a --delete \
   --exclude=/01_effect/04_errors/index.md \
   --exclude=/01_effect/05_resources/index.md \
   --exclude=/01_effect/07_pubsub/10_pubsub.ts \
+  --exclude=/03_stream/index.md \
   --exclude=/03_stream/10_creating-streams.ts \
   --exclude=/03_stream/20_consuming-streams.ts \
   --exclude=/04_integration/10_managed-runtime.ts \
@@ -49,6 +50,9 @@ rsync -a --delete \
   --exclude=/09_testing/20_layer-tests.ts \
   --exclude=/09_testing/index.md \
   --exclude=/06_schedule/10_schedules.ts \
+  --exclude=/06_schedule/index.md \
+  --exclude=/07_datetime/index.md \
+  --exclude=/08_observability/index.md \
   --exclude=/40_sql/10_basics.ts \
   --exclude=/40_sql/index.md \
   --exclude=/50_http-client/10_basics.ts \
@@ -60,6 +64,9 @@ rsync -a --delete \
   --exclude=/51_http-server/index.md \
   --exclude=/60_child-process/10_working-with-child-processes.ts \
   --exclude=/60_child-process/index.md \
+  --exclude=/70_cli/index.md \
+  --exclude=/71_ai/index.md \
+  --exclude=/80_cluster/index.md \
   "$snapshot/ai-docs/src/" "$here/examples/"
 
 # 2. migration: preserve guides with local corrections to the upstream API map.
@@ -84,13 +91,16 @@ sed -i 's#](\./migration/#](./#g' "$mig"
 
 # Keep the module list aligned with the tagged exports and stability annotations.
 sed -i \
-  -e 's/`devtools`, `eventlog`/`devtools`, `encoding`, `eventlog`/' \
+  -e "s/@4\.0\.0/@$version/g" \
+  -e 's/Unstable modules include:/Unstable or experimental groups:/' \
+  -e 's/`cluster`, `devtools`, `eventlog`/`cluster`, `crypto`, `devtools`, `encoding`, `eventlog`, `graphql`/' \
   -e 's/, `jsonschema`//' \
+  -e 's/`http-api`, `observability`/`http-api`, `net`, `observability`/' \
   "$mig"
 
 # 4. index generators.md (orphaned upstream) unless it's already linked
 if ! grep -q '(\./generators\.md)' "$mig"; then
-  pattern='\(- \[Effect Subtyping → Yieldable\](\./yieldable\.md)\)'
+  pattern='\(- \[Effect Subtyping Changes\](\./yieldable\.md)\)'
   replacement='\1\n- [Generators: `Effect.gen` Passing `this`](./generators.md)'
   sed -i "s#${pattern}#${replacement}#" "$mig"
 fi
