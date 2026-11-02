@@ -43,7 +43,6 @@ entries while preserving entries from other sources.
 - ts-plan: mature
 - ts-chat: mature
 - ts-debug: mature
-- ts-implement: mature
 - ts-log: draft
 - ts-qa: draft
 - ts-effect-v4: mature
@@ -55,6 +54,7 @@ entries while preserving entries from other sources.
 
 These skills are in `archive/` and are removed on the next sync:
 
+- ts-implement
 - ts-explain-skill
 - ts-workflow-explore-plan-review
 - ts-workflow-implement-review
@@ -69,7 +69,6 @@ Most local workflow skills are explicit-only. Invoke them by name:
 - `$ts-debug`
 - `$ts-explore`
 - `$ts-plan`
-- `$ts-implement`
 - `$ts-qa`
 - `$ts-review`
 
