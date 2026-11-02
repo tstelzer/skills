@@ -1,0 +1,4 @@
+[doc('Check Rust dependency advisories and policies')]
+[group('Checks')]
+check:
+    cargo deny --workspace --locked check

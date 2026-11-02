@@ -1,0 +1,3 @@
+[package]
+edition.workspace = true
+rust-version.workspace = true

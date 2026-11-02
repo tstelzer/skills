@@ -1,0 +1,4 @@
+[doc('Check for unused Rust dependencies')]
+[group('Checks')]
+check:
+    cargo machete

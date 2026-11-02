@@ -1,0 +1,9 @@
+[doc('Check Rust lints')]
+[group('Checks')]
+check:
+    CARGO_BUILD_WARNINGS=deny cargo clippy --workspace --all-targets --locked
+
+[doc('Apply Rust lint fixes')]
+[group('Development')]
+check-fix:
+    cargo clippy --fix --workspace --all-targets --locked

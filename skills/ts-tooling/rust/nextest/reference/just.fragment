@@ -1,0 +1,5 @@
+[doc('Run Rust tests and doctests')]
+[group('Checks')]
+test:
+    cargo nextest run --workspace --locked
+    cargo test --workspace --doc --locked

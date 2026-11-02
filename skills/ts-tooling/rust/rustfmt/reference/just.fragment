@@ -1,0 +1,9 @@
+[doc('Check Rust formatting')]
+[group('Checks')]
+check:
+    cargo fmt --all -- --check
+
+[doc('Apply Rust formatting')]
+[group('Development')]
+check-fix:
+    cargo fmt --all

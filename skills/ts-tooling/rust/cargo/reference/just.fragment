@@ -1,0 +1,14 @@
+[doc('Build Rust workspace artifacts')]
+[group('Core')]
+build:
+    cargo build --workspace --locked
+
+[doc('Check Rust source, tests, and examples')]
+[group('Checks')]
+typecheck:
+    cargo check --workspace --all-targets --locked
+
+[doc('Run Rust tests and doctests')]
+[group('Checks')]
+test:
+    cargo test --workspace --locked

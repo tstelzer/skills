@@ -14,8 +14,8 @@ Use this skill as the source of truth when setting up or updating repository too
 Do not read every file. Establish the repository context, then open only the matching indexes and tool folders.
 
 1. Read [`repository/index.md`](./repository/index.md) for repository-wide tools.
-2. Read the index for each language in use: [`typescript/index.md`](./typescript/index.md) or
-   [`python/index.md`](./python/index.md).
+2. Read the index for each language in use: [`typescript/index.md`](./typescript/index.md),
+   [`python/index.md`](./python/index.md), or [`rust/index.md`](./rust/index.md).
 3. Read a tool's `README.md` before using anything under its `reference/` folder.
 
 ## Rules

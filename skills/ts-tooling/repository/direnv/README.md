@@ -7,6 +7,7 @@ Add `watch_file` before `use flake` for each non-Nix file the development shell 
 - Watch `package.json` when it supplies runtime or package-manager versions.
 - For uv2nix, watch `pyproject.toml`, `uv.lock`, and workspace members' `pyproject.toml` files.
 - Watch `.python-version` when it selects the shell's interpreter.
+- Watch `rust-toolchain.toml` when rust-overlay reads it to select the Rust toolchain.
 
 Run project commands through `direnv exec . <command>` from the repository root.
 

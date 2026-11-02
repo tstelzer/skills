@@ -1,0 +1,21 @@
+default_job = "check"
+
+[jobs.check]
+command = ["cargo", "check", "--workspace", "--all-targets", "--locked"]
+need_stdout = false
+
+[jobs.clippy]
+command = ["cargo", "clippy", "--workspace", "--all-targets", "--locked"]
+need_stdout = false
+
+[jobs.test]
+command = ["cargo", "test", "--workspace", "--locked"]
+need_stdout = true
+
+[jobs.nextest]
+command = [
+    "cargo", "nextest", "run", "--workspace", "--locked",
+    "--hide-progress-bar", "--failure-output", "final",
+]
+need_stdout = true
+analyzer = "nextest"

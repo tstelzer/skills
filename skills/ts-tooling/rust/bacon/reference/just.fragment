@@ -1,0 +1,9 @@
+[doc('Watch Rust compiler checks')]
+[group('Development')]
+typecheck-watch:
+    bacon check
+
+[doc('Watch Rust tests')]
+[group('Development')]
+test-watch:
+    bacon test
