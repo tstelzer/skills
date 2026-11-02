@@ -46,6 +46,7 @@ entries while preserving entries from other sources.
 - ts-log: draft
 - ts-qa: draft
 - ts-effect-v4: mature
+- ts-bevy: draft
 - ts-create-skill: mature
 - ts-performance-browser: draft
 - ts-tooling: draft
@@ -87,6 +88,7 @@ Reference skills may trigger by topic:
 - `ts-zod-v4`
 - `ts-effect-v3`
 - `ts-effect-v4`
+- `ts-bevy`
 
 Explicit-only reference skills:
 
