@@ -81,26 +81,27 @@ export class GitHub extends Context.Service<
     ) => Effect.Effect<GraphQL.Result<typeof PullRequest>, GraphQL.Error<typeof PullRequest>>
   }
 >()("app/GitHub") {
-  static readonly layer = Layer.effect(
-    GitHub,
-    Effect.gen(function*() {
-      const client = yield* GraphQLClient.make(GitHubGraphQLGroup)
+  static readonly make = Effect.gen(function*() {
+    const client = yield* GraphQLClient.make(GitHubGraphQLGroup)
 
-      // Concurrent calls go out as one POST whose root fields are aliased
-      // `_0_repository`, `_1_repository`, and so on. Each slice is decoded
-      // with the generated result Schema, and a GraphQL error under
-      // `_1_repository` fails only that call.
-      //
-      // A batch holds 10 slices by default, because GitHub's query cost and
-      // timeouts grow with the size of the query. Pipe
-      // `RequestResolver.batchN` to change it.
-      const PullRequests = GraphQLResolver.aliased(client.PullRequest)
+    // Concurrent calls go out as one POST whose root fields are aliased
+    // `_0_repository`, `_1_repository`, and so on. Each slice is decoded
+    // with the generated result Schema, and a GraphQL error under
+    // `_1_repository` fails only that call.
+    //
+    // A batch holds 10 slices by default, because GitHub's query cost and
+    // timeouts grow with the size of the query. Pipe
+    // `RequestResolver.batchN` to change it.
+    const PullRequests = GraphQLResolver.aliased(client.PullRequest)
 
-      // `request` turns the resolver into a lookup by the operation's
-      // variables, as for `ordered` and `findById`.
-      return { ...client, getPullRequest: GraphQLResolver.request(PullRequests) }
-    })
-  ).pipe(
+    // `request` turns the resolver into a lookup by the operation's
+    // variables, as for `ordered` and `findById`.
+    return { ...client, getPullRequest: GraphQLResolver.request(PullRequests) }
+  })
+
+  static readonly layerNoDeps = Layer.effect(this, this.make)
+
+  static readonly layer = this.layerNoDeps.pipe(
     Layer.provide(GitHubAuth.layer),
     Layer.provide(GraphQLProtocol.layerHttp({ url: "https://api.github.com/graphql" })),
     Layer.provide(FetchHttpClient.layer)

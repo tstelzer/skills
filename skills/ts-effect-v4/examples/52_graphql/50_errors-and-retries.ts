@@ -13,7 +13,7 @@ import { GitHub } from "./10_basics.ts"
 // keeps them, and `GraphQLClientError` exposes them as `headers` and
 // `status`. Attach it with `GraphQLGroup.make(...).middleware(RateLimit)`.
 export class RateLimit extends GraphQLMiddleware.Service<RateLimit>()("app/RateLimit") {
-  static readonly layer = Layer.succeed(RateLimit, {
+  static readonly make = Effect.succeed(RateLimit.of({
     execute: ({ next, request }) =>
       Effect.tap(next(request), (result) => {
         const remaining = Number(result.headers?.["x-ratelimit-remaining"])
@@ -22,7 +22,9 @@ export class RateLimit extends GraphQLMiddleware.Service<RateLimit>()("app/RateL
           : Effect.void
       }),
     subscribe: ({ next, request }) => next(request)
-  })
+  }))
+
+  static readonly layer = Layer.effect(this, this.make)
 }
 
 // GraphQL errors keep fields the specification doesn't define as JSON, such

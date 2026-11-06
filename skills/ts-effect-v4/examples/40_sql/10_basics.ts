@@ -90,69 +90,68 @@ export class Groups extends Context.Service<Groups, {
 }>()("app/Groups") {
   // Keep the SqlClient requirement visible. Select the driver and migrations
   // at the runtime composition edge below.
-  static readonly layerNoDeps = Layer.effect(
-    Groups,
-    Effect.gen(function*() {
-      const sql = yield* SqlClient.SqlClient
+  static readonly make = Effect.gen(function*() {
+    const sql = yield* SqlClient.SqlClient
 
-      // `SqlModel.makeRepository` derives insert / update / findById / delete
-      // operations from the model, using the matching variant schema for each
-      // operation.
-      const repo = yield* SqlModel.makeRepository(Group, {
-        tableName: "groups",
-        spanPrefix: "Groups",
-        idColumn: "id"
-      })
-
-      // For queries the repository does not cover, combine the `sql` tag with
-      // `SqlSchema` to decode the rows using the model schema.
-      const listAll = SqlSchema.findAll({
-        Request: Schema.Void,
-        Result: Group,
-        execute: () => sql`SELECT * FROM groups ORDER BY createdAt`
-      })
-
-      // Use `Effect.fn` to give each method a named span for observability.
-      const create = Effect.fn("Groups.create")((name: string, slug: string) =>
-        // `Group.insert.makeEffect` fills in the generated id and timestamps
-        // using the Effect clock, so tests can control them with `TestClock`.
-        Group.insert.makeEffect({ name, slug, notes: null }).pipe(
-          Effect.flatMap(repo.insert),
-          // Database and encoding failures are unexpected here, so treat
-          // them as defects to keep the service interface focused on domain
-          // errors.
-          Effect.orDie
-        )
-      )
-
-      const findById = Effect.fn("Groups.findById")((id: GroupId) =>
-        repo.findById(id).pipe(
-          Effect.catchTags({
-            NoSuchElementError: () => new GroupNotFound({ id }),
-            SchemaError: Effect.die,
-            SqlError: Effect.die
-          })
-        )
-      )
-
-      const rename = Effect.fn("Groups.rename")(function*(id: GroupId, name: string) {
-        // Preserve the missing-row outcome promised by the service contract.
-        // Repository update treats a missing row as a defect, so check first.
-        yield* findById(id)
-        return yield* Group.update.makeEffect({ id, name }).pipe(
-          Effect.flatMap(repo.update),
-          Effect.orDie
-        )
-      })
-
-      const list = listAll().pipe(
-        Effect.orDie,
-        Effect.withSpan("Groups.list")
-      )
-
-      return Groups.of({ create, rename, findById, list })
+    // `SqlModel.makeRepository` derives insert / update / findById / delete
+    // operations from the model, using the matching variant schema for each
+    // operation.
+    const repo = yield* SqlModel.makeRepository(Group, {
+      tableName: "groups",
+      spanPrefix: "Groups",
+      idColumn: "id"
     })
-  )
+
+    // For queries the repository does not cover, combine the `sql` tag with
+    // `SqlSchema` to decode the rows using the model schema.
+    const listAll = SqlSchema.findAll({
+      Request: Schema.Void,
+      Result: Group,
+      execute: () => sql`SELECT * FROM groups ORDER BY createdAt`
+    })
+
+    // Use `Effect.fn` to give each method a named span for observability.
+    const create = Effect.fn("Groups.create")((name: string, slug: string) =>
+      // `Group.insert.makeEffect` fills in the generated id and timestamps
+      // using the Effect clock, so tests can control them with `TestClock`.
+      Group.insert.makeEffect({ name, slug, notes: null }).pipe(
+        Effect.flatMap(repo.insert),
+        // Database and encoding failures are unexpected here, so treat
+        // them as defects to keep the service interface focused on domain
+        // errors.
+        Effect.orDie
+      )
+    )
+
+    const findById = Effect.fn("Groups.findById")((id: GroupId) =>
+      repo.findById(id).pipe(
+        Effect.catchTags({
+          NoSuchElementError: () => new GroupNotFound({ id }),
+          SchemaError: Effect.die,
+          SqlError: Effect.die
+        })
+      )
+    )
+
+    const rename = Effect.fn("Groups.rename")(function*(id: GroupId, name: string) {
+      // Preserve the missing-row outcome promised by the service contract.
+      // Repository update treats a missing row as a defect, so check first.
+      yield* findById(id)
+      return yield* Group.update.makeEffect({ id, name }).pipe(
+        Effect.flatMap(repo.update),
+        Effect.orDie
+      )
+    })
+
+    const list = listAll().pipe(
+      Effect.orDie,
+      Effect.withSpan("Groups.list")
+    )
+
+    return Groups.of({ create, rename, findById, list })
+  })
+
+  static readonly layerNoDeps = Layer.effect(this, this.make)
 }
 
 const GroupsLive = Groups.layerNoDeps.pipe(

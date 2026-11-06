@@ -79,28 +79,29 @@ export class GitHub extends Context.Service<
     >
   }
 >()("app/GitHub") {
-  static readonly layer = Layer.effect(
-    GitHub,
-    Effect.gen(function*() {
-      const client = yield* GraphQLClient.make(GitHubGraphQLGroup)
+  static readonly make = Effect.gen(function*() {
+    const client = yield* GraphQLClient.make(GitHubGraphQLGroup)
 
-      // Null entries and non-Repository nodes fail with NoSuchElementError.
-      // GitHub accepts at most 100 ids per request.
-      //
-      // GitHubAuth reads one token from config, so every lookup can share a
-      // batch. If a middleware `requires` a per-request service, such as the
-      // signed-in user, `batchKey` is required and keeps lookups for different
-      // users in separate calls:
-      //
-      //   batchKey: (context) => Context.get(context, CurrentUser).id
-      const RepoById = GraphQLResolver.ordered(client.RepoNodes, {
-        variables: (ids: ReadonlyArray<string>) => ({ ids }),
-        path: ["nodes"],
-        typename: "Repository"
-      }).pipe(RequestResolver.batchN(100))
-      return { ...client, getRepo: GraphQLResolver.request(RepoById) }
-    })
-  ).pipe(
+    // Null entries and non-Repository nodes fail with NoSuchElementError.
+    // GitHub accepts at most 100 ids per request.
+    //
+    // GitHubAuth reads one token from config, so every lookup can share a
+    // batch. If a middleware `requires` a per-request service, such as the
+    // signed-in user, `batchKey` is required and keeps lookups for different
+    // users in separate calls:
+    //
+    //   batchKey: (context) => Context.get(context, CurrentUser).id
+    const RepoById = GraphQLResolver.ordered(client.RepoNodes, {
+      variables: (ids: ReadonlyArray<string>) => ({ ids }),
+      path: ["nodes"],
+      typename: "Repository"
+    }).pipe(RequestResolver.batchN(100))
+    return { ...client, getRepo: GraphQLResolver.request(RepoById) }
+  })
+
+  static readonly layerNoDeps = Layer.effect(this, this.make)
+
+  static readonly layer = this.layerNoDeps.pipe(
     Layer.provide(GitHubAuth.layer),
     Layer.provide(GraphQLProtocol.layerHttp({ url: "https://api.github.com/graphql" })),
     Layer.provide(FetchHttpClient.layer)

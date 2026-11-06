@@ -183,8 +183,9 @@ class Logger extends Context.Service<Logger>()("Logger", {
     return { log: (msg: string) => Effect.log(`[${config.prefix}] ${msg}`) }
   })
 }) {
-  // Build the layer yourself from the make effect
-  static readonly layer = Layer.effect(this, this.make).pipe(
+  static readonly layerNoDeps = Layer.effect(this, this.make)
+
+  static readonly layer = this.layerNoDeps.pipe(
     Layer.provide(Config.layer)
   )
 }

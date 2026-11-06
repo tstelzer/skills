@@ -80,23 +80,22 @@ export const AuthorizationClient = HttpApiMiddleware.layerClient(
 // Define the HttpApiClient service, which will be used to make requests to the
 // API.
 export class ApiClient extends Context.Service<ApiClient, HttpApiClient.ForApi<typeof Api>>()("acme/ApiClient") {
-  static readonly layerNoDeps = Layer.effect(
-    ApiClient,
-    HttpApiClient.make(Api, {
-      // Use transformClient to apply middleware to the generated client. This
-      // is useful for settings the base url and applying retry policies.
-      transformClient: (client) =>
-        client.pipe(
-          HttpClient.mapRequest(flow(
-            HttpClientRequest.prependUrl("http://localhost:3000")
-          )),
-          HttpClient.retryTransient({
-            schedule: Schedule.exponential(100),
-            times: 3
-          })
-        )
-    })
-  )
+  static readonly make = HttpApiClient.make(Api, {
+    // Use transformClient to apply middleware to the generated client. This
+    // is useful for settings the base url and applying retry policies.
+    transformClient: (client) =>
+      client.pipe(
+        HttpClient.mapRequest(flow(
+          HttpClientRequest.prependUrl("http://localhost:3000")
+        )),
+        HttpClient.retryTransient({
+          schedule: Schedule.exponential(100),
+          times: 3
+        })
+      )
+  })
+
+  static readonly layerNoDeps = Layer.effect(this, this.make)
 }
 
 // Keep the service requirements visible above. Choose the authorization and

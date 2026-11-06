@@ -23,28 +23,28 @@ export class DatabasePool extends Context.Service<DatabasePool, {
   readonly connectionId: number
   readonly query: (sql: string) => Effect.Effect<ReadonlyArray<UserRecord>, DatabaseQueryError>
 }>()("app/DatabasePool") {
-  // A layer factory that builds one pool per tenant.
-  static readonly layer = (tenantId: string) =>
-    Layer.effect(
-      DatabasePool,
-      Effect.acquireRelease(
-        Effect.sync(() => {
-          const connectionId = ++nextConnectionId
+  static readonly make = (tenantId: string) =>
+    Effect.acquireRelease(
+      Effect.sync(() => {
+        const connectionId = ++nextConnectionId
 
-          return DatabasePool.of({
-            tenantId,
-            connectionId,
-            query: Effect.fn("DatabasePool.query")((_sql: string) =>
-              Effect.succeed([
-                { id: 1, email: `admin@${tenantId}.example.com` },
-                { id: 2, email: `ops@${tenantId}.example.com` }
-              ])
-            )
-          })
-        }),
-        (pool) => Effect.logInfo(`Closing tenant pool ${pool.tenantId}#${pool.connectionId}`)
-      )
+        return DatabasePool.of({
+          tenantId,
+          connectionId,
+          query: Effect.fn("DatabasePool.query")((_sql: string) =>
+            Effect.succeed([
+              { id: 1, email: `admin@${tenantId}.example.com` },
+              { id: 2, email: `ops@${tenantId}.example.com` }
+            ])
+          )
+        })
+      }),
+      (pool) => Effect.logInfo(`Closing tenant pool ${pool.tenantId}#${pool.connectionId}`)
     )
+
+  // Build one pool per tenant and let the layer manage its scope.
+  static readonly layer = (tenantId: string) =>
+    Layer.effect(this, this.make(tenantId))
 }
 
 // extend `LayerMap.Service` to create a `LayerMap` service

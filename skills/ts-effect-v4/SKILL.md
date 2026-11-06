@@ -21,7 +21,8 @@ Read reference files with `git show effect@4.1.0:<path>` when the checkout is ah
 - Match the task to a topic folder containing `.ts` examples below.
 - For API lookup, open the file whose title fits.
 - For implementation or review, read that topic folder's `index.md` and relevant examples.
-  The index states rules the examples may not repeat.
+  For service definitions, also read the [service rules](./examples/01_effect/03_services/index.md).
+  These indexes state rules the examples may not repeat.
 - In each topic folder, the lowest-numbered file is the main example. Higher numbers show variations.
 - `fixtures/` folders hold modules used by examples. They are not separate topics.
 - Migrating existing v3 code? Go to [Migration](#migration) first.
@@ -79,9 +80,9 @@ Paths are relative to this file.
     - `90_tooling-errors.ts`: error formatting, JSON Schema, native arbitrary generation, equivalence, optics, and
       patches.
   - [03_services/](./examples/01_effect/03_services/index.md): services, config, platform, and crypto dependencies.
-    - `01_service.ts`: `Context.Service`.
+    - `01_service.ts`: `Context.Service` with `make` and a simple layer.
     - `10_reference.ts`: `Context.Reference` for config / defaults.
-    - `20_layer-composition.ts`: composing services with the `Layer` module.
+    - `20_layer-composition.ts`: `make`, `layerNoDeps`, and dependency wiring with `layer`.
     - `20_layer-unwrap.ts`: building layers from config / effects with `Layer.unwrap`.
   - [04_errors/](./examples/01_effect/04_errors/index.md): error handling.
     - `01_error-handling.ts`: custom errors, `Effect.catch` / `Effect.catchTag`.

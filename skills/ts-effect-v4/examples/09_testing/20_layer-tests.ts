@@ -14,33 +14,34 @@ export interface Todo {
 // Create a test ref service that can be used to store and manipulate test data
 // in layers.
 export class TodoRepoTestRef extends Context.Service<TodoRepoTestRef, Ref.Ref<Array<Todo>>>()("app/TodoRepoTestRef") {
-  static readonly layer = Layer.effect(TodoRepoTestRef, Ref.make(Array.empty()))
+  static readonly make = Ref.make(Array.empty<Todo>())
+
+  static readonly layer = Layer.effect(this, this.make)
 }
 
 class TodoRepo extends Context.Service<TodoRepo, {
   create(title: string): Effect.Effect<Todo>
   readonly list: Effect.Effect<ReadonlyArray<Todo>>
 }>()("app/TodoRepo") {
-  static readonly layerTest = Layer.effect(
-    TodoRepo,
-    Effect.gen(function*() {
-      const store = yield* TodoRepoTestRef
+  static readonly makeTest = Effect.gen(function*() {
+    const store = yield* TodoRepoTestRef
 
-      const create = Effect.fn("TodoRepo.create")(function*(title: string) {
-        const todos = yield* Ref.get(store)
-        const todo = { id: todos.length + 1, title }
-        yield* Ref.set(store, [...todos, todo])
-        return todo
-      })
-
-      const list = Ref.get(store)
-
-      return TodoRepo.of({
-        create,
-        list
-      })
+    const create = Effect.fn("TodoRepo.create")(function*(title: string) {
+      const todos = yield* Ref.get(store)
+      const todo = { id: todos.length + 1, title }
+      yield* Ref.set(store, [...todos, todo])
+      return todo
     })
-  ).pipe(
+
+    const list = Ref.get(store)
+
+    return TodoRepo.of({
+      create,
+      list
+    })
+  })
+
+  static readonly layerTest = Layer.effect(this, this.makeTest).pipe(
     // Provide the test ref layer as a dependency for the test repo layer.
     // Use Layer.provideMerge so the tests can also access the test ref directly
     // if needed.
@@ -52,32 +53,31 @@ class TodoService extends Context.Service<TodoService, {
   addAndCount(title: string): Effect.Effect<number>
   readonly titles: Effect.Effect<ReadonlyArray<string>>
 }>()("app/TodoService") {
-  static readonly layerNoDeps = Layer.effect(
-    TodoService,
-    Effect.gen(function*() {
-      const repo = yield* TodoRepo
+  static readonly make = Effect.gen(function*() {
+    const repo = yield* TodoRepo
 
-      const addAndCount = Effect.fn("TodoService.addAndCount")(function*(title: string) {
-        yield* repo.create(title)
-        const todos = yield* repo.list
-        return todos.length
-      })
-
-      const titles = repo.list.pipe(
-        Effect.map((todos) => todos.map((todo) => todo.title))
-      )
-
-      return TodoService.of({
-        addAndCount,
-        titles
-      })
+    const addAndCount = Effect.fn("TodoService.addAndCount")(function*(title: string) {
+      yield* repo.create(title)
+      const todos = yield* repo.list
+      return todos.length
     })
-  )
+
+    const titles = repo.list.pipe(
+      Effect.map((todos) => todos.map((todo) => todo.title))
+    )
+
+    return TodoService.of({
+      addAndCount,
+      titles
+    })
+  })
+
+  static readonly layerNoDeps = Layer.effect(this, this.make)
 
   // You would also add a live layer here that provides real dependencies for
   // production code.
   //
-  // static readonly layer = Layer.effect(TodoService, ...).pipe(
+  // static readonly layer = this.layerNoDeps.pipe(
   //   Layer.provide(TodoRepo.layer)
   // )
 

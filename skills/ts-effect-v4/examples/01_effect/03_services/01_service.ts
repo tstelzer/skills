@@ -1,8 +1,7 @@
 /**
  * @title Context.Service
  *
- * The default way to define a service is to extend `Context.Service`,
- * passing in the service interface as a type parameter.
+ * Define service construction with `make`. Keep the layer declaration short.
  */
 
 // file: src/db/Database.ts
@@ -15,26 +14,21 @@ export class Database extends Context.Service<Database, {
 }>()(
   // The string identifier for the service, which should include the package
   // name and the subdirectory path to the service file.
-  "myapp/db/Database"
-) {
-  // Attach a static layer to the service, which will be used to provide an
-  // implementation of the service.
-  static readonly layer = Layer.effect(
-    Database,
-    Effect.gen(function*() {
+  "myapp/db/Database",
+  {
+    make: Effect.gen(function*() {
       // Define the service methods using Effect.fn
       const query = Effect.fn("Database.query")(function*(sql: string) {
         yield* Effect.log("Executing SQL query:", sql)
         return [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }]
       })
 
-      // Return an instance of the service using Database.of, passing in an
-      // object that implements the service interface.
-      return Database.of({
-        query
-      })
+      return { query }
     })
-  )
+  }
+) {
+  // No dependencies need wiring, so expose the construction layer directly.
+  static readonly layer = Layer.effect(this, this.make)
 }
 
 export class DatabaseError extends Schema.TaggedError<DatabaseError>()("DatabaseError", {

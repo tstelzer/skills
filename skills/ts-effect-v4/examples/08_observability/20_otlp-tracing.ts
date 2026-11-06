@@ -41,32 +41,31 @@ export const ObservabilityLayer = Layer.merge(OtlpTracingLayer, OtlpLoggingLayer
 export class Checkout extends Context.Service<Checkout, {
   processCheckout(orderId: string): Effect.Effect<void>
 }>()("acme/Checkout") {
-  static readonly layer = Layer.effect(
-    Checkout,
-    Effect.gen(function*() {
-      yield* Effect.logInfo("setting up checkout service")
+  static readonly make = Effect.gen(function*() {
+    yield* Effect.logInfo("setting up checkout service")
 
-      return Checkout.of({
-        processCheckout: Effect.fn("Checkout.processCheckout")(function*(orderId: string) {
-          yield* Effect.logInfo("starting checkout", { orderId })
+    return Checkout.of({
+      processCheckout: Effect.fn("Checkout.processCheckout")(function*(orderId: string) {
+        yield* Effect.logInfo("starting checkout", { orderId })
 
-          yield* Effect.sleep("50 millis").pipe(
-            Effect.withSpan("checkout.charge-card"),
-            Effect.annotateSpans({
-              "checkout.order_id": orderId,
-              "checkout.provider": "acme-pay"
-            })
-          )
+        yield* Effect.sleep("50 millis").pipe(
+          Effect.withSpan("checkout.charge-card"),
+          Effect.annotateSpans({
+            "checkout.order_id": orderId,
+            "checkout.provider": "acme-pay"
+          })
+        )
 
-          yield* Effect.sleep("20 millis").pipe(
-            Effect.withSpan("checkout.persist-order")
-          )
+        yield* Effect.sleep("20 millis").pipe(
+          Effect.withSpan("checkout.persist-order")
+        )
 
-          yield* Effect.logInfo("checkout completed", { orderId })
-        })
+        yield* Effect.logInfo("checkout completed", { orderId })
       })
     })
-  )
+  })
+
+  static readonly layer = Layer.effect(this, this.make)
 }
 
 // Example usage of the Checkout service.

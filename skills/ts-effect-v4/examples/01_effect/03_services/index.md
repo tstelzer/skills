@@ -2,14 +2,25 @@
 
 Use services to expose effectful behavior and its dependencies.
 
+Put service construction in `make`. Prefer the `Context.Service` `make` option;
+a static `make` effect or a named module export also keeps construction separate.
+Keep dependency access, resource setup, and service methods in `make`.
+Keep `layerNoDeps` to `Layer.effect(this, this.make)` and use `layer` to provide
+dependency layers. When no dependencies need wiring, name the construction
+layer `layer` directly.
+
+Inline construction in `layerNoDeps` only for a tiny service that takes a
+couple of simple lines. Anything more complex must use a separate `make`.
+Apply the same split to variants such as `makeMemory` and `layerMemory`.
+
 `Context.Service` does not make dependencies explicit by itself. Do not read
 or mutate `process.env`, time, randomness, platform state, or other globals
 inside a service implementation or test. Put ambient inputs in a service
 requirement, `Context.Reference`, `Config`, or explicit layer options.
 
 Before using `node:*` or a runtime global, check for an Effect capability such
-as `FileSystem`, `Path`, `Clock`, `SecureRandom`, `Random`, or `Config`. Use
-`layerNoDeps` for the implementation so its requirements remain visible. Add
+as `FileSystem`, `Path`, `Clock`, `SecureRandom`, `Random`, or `Config`. Leave
+these requirements visible on `layerNoDeps`. Add
 `NodeServices.layer` or another platform layer at the application boundary.
 
 Use a native API when the Effect capability cannot provide required semantics,

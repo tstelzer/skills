@@ -60,18 +60,17 @@ export const RepoIssues = GraphQL.query("RepoIssues", {
 // A middleware is a service that wraps every operation it is attached to.
 // `mapRequest` builds one from a single request transform.
 export class GitHubAuth extends GraphQLMiddleware.Service<GitHubAuth>()("app/GitHubAuth") {
-  static readonly layer = Layer.effect(
-    GitHubAuth,
-    Effect.gen(function*() {
-      const token = yield* Config.Redacted("GITHUB_TOKEN")
-      return GraphQLMiddleware.mapRequest((request) =>
-        Effect.succeed({
-          ...request,
-          headers: { ...request.headers, authorization: `Bearer ${Redacted.value(token)}` }
-        })
-      )
-    })
-  )
+  static readonly make = Effect.gen(function*() {
+    const token = yield* Config.Redacted("GITHUB_TOKEN")
+    return GraphQLMiddleware.mapRequest((request) =>
+      Effect.succeed({
+        ...request,
+        headers: { ...request.headers, authorization: `Bearer ${Redacted.value(token)}` }
+      })
+    )
+  })
+
+  static readonly layer = Layer.effect(this, this.make)
 }
 
 // A group is the set of operations a client exposes; the generator emits one
@@ -85,7 +84,13 @@ export class GitHub extends Context.Service<
 >()("app/GitHub") {
   static readonly layerTest = GraphQLClient.layerTest(GitHub, GitHubGraphQLGroup)
 
-  static readonly layer = Layer.effect(GitHub, GraphQLClient.make(GitHubGraphQLGroup)).pipe(
+  // This one-line constructor is small enough to keep inline.
+  static readonly layerNoDeps = Layer.effect(
+    this,
+    GraphQLClient.make(GitHubGraphQLGroup)
+  )
+
+  static readonly layer = this.layerNoDeps.pipe(
     Layer.provide(GitHubAuth.layer),
     // Queries and mutations are sent as `POST`. Subscriptions use graphql-sse
     // here, or graphql-ws with `GraphQLProtocol.layerWebSocket`.

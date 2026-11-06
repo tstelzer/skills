@@ -35,17 +35,22 @@ rsync -a --delete \
   --exclude=/01_effect/01_basics/10_creating-effects.ts \
   --exclude=/01_effect/01_basics/index.md \
   --exclude=/01_effect/02_schema/ \
+  --exclude=/01_effect/03_services/01_service.ts \
   --exclude=/01_effect/03_services/index.md \
   --exclude=/01_effect/03_services/20_layer-composition.ts \
+  --exclude=/01_effect/03_services/20_layer-unwrap.ts \
   --exclude=/01_effect/04_errors/01_error-handling.ts \
   --exclude=/01_effect/04_errors/index.md \
   --exclude=/01_effect/05_resources/index.md \
+  --exclude=/01_effect/05_resources/10_acquire-release.ts \
+  --exclude=/01_effect/05_resources/30_layer-map.ts \
   --exclude=/01_effect/07_pubsub/10_pubsub.ts \
   --exclude=/03_stream/index.md \
   --exclude=/03_stream/10_creating-streams.ts \
   --exclude=/03_stream/20_consuming-streams.ts \
   --exclude=/04_integration/10_managed-runtime.ts \
   --exclude=/04_integration/index.md \
+  --exclude=/05_batching/10_request-resolver.ts \
   --exclude=/09_testing/10_effect-tests.ts \
   --exclude=/09_testing/20_layer-tests.ts \
   --exclude=/09_testing/index.md \
@@ -53,6 +58,7 @@ rsync -a --delete \
   --exclude=/06_schedule/index.md \
   --exclude=/07_datetime/index.md \
   --exclude=/08_observability/index.md \
+  --exclude=/08_observability/20_otlp-tracing.ts \
   --exclude=/40_sql/10_basics.ts \
   --exclude=/40_sql/index.md \
   --exclude=/50_http-client/10_basics.ts \
@@ -60,12 +66,21 @@ rsync -a --delete \
   --exclude=/51_http-server/10_basics.ts \
   --exclude=/51_http-server/20_testing.ts \
   --exclude=/51_http-server/fixtures/api/Users.ts \
+  --exclude=/51_http-server/fixtures/server/Authorization.ts \
+  --exclude=/51_http-server/fixtures/server/Users.ts \
   --exclude=/51_http-server/fixtures/server/Users/http.ts \
   --exclude=/51_http-server/index.md \
+  --exclude=/52_graphql/10_basics.ts \
+  --exclude=/52_graphql/30_batching.ts \
+  --exclude=/52_graphql/40_aliased-batching.ts \
+  --exclude=/52_graphql/50_errors-and-retries.ts \
   --exclude=/60_child-process/10_working-with-child-processes.ts \
   --exclude=/60_child-process/index.md \
   --exclude=/70_cli/index.md \
   --exclude=/71_ai/index.md \
+  --exclude=/71_ai/10_language-model.ts \
+  --exclude=/71_ai/20_tools.ts \
+  --exclude=/71_ai/30_chat.ts \
   --exclude=/80_cluster/index.md \
   "$snapshot/ai-docs/src/" "$here/examples/"
 
@@ -73,6 +88,7 @@ rsync -a --delete \
 rsync -a --delete \
   --exclude=/fiberref.md \
   --exclude=/schema.md \
+  --exclude=/services.md \
   --exclude=/v3-to-v4.md \
   --include='/*.md' --exclude='*' "$snapshot/migration/" "$here/migration/"
 cp "$snapshot/MIGRATION.md" "$here/migration/MIGRATION.md"
