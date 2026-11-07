@@ -7,9 +7,12 @@ Read only the matching tool folders.
 | Python | [`runtime/`](./runtime/) | Python runtime and supported versions |
 | uv | [`uv/`](./uv/) | Dependency management and lock files |
 | uv2nix | [`uv2nix/`](./uv2nix/) | Nix builds the Python environment |
-| Ruff | [`ruff/`](./ruff/) | Formatting and linting |
-| mypy | [`mypy/`](./mypy/) | Type checking |
+| Ruff | [`ruff/`](./ruff/) | Formatting, linting, and import sorting |
+| Pyright | [`pyright/`](./pyright/) | Type checking and editor support |
 | pytest | [`pytest/`](./pytest/) | Tests |
+
+Use Ruff and Pyright in both the editor and repository checks. When updating a repository, migrate the settings
+and remove superseded Python lint, format, and type-check dependencies, commands, configs, and CI steps.
 
 ## Environment
 
@@ -25,6 +28,10 @@ repository needs Nix-built Python dependencies or already uses that setup.
 
 Run project commands through `direnv exec . <command>` from the repository root. Just fragments call tools directly
 from the active environment. For a uv-managed environment, prefix each Python tool command with `uv run --locked`.
+
+Launch Neovim from the repository root in the same environment: `direnv exec . uv run --locked nvim` for uv,
+or `direnv exec . nvim` for uv2nix. This puts the selected Python interpreter and Ruff on the editor's `PATH`.
+Supply Pyright through its [installation guidance](./pyright/README.md#installation).
 
 ## Configuration
 

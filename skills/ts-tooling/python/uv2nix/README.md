@@ -10,8 +10,8 @@ Set `<python-nix-attribute>` to the interpreter selected in [`runtime/`](../runt
 - Prefer wheels. Add package-specific build overrides only when required.
 - Match the project's build-backend requirement to the version supplied by the build-system overlay.
 - Use the editable environment for development. Use `workspace.deps.default` for runtime packages without dev tools.
-- Run `python`, Ruff, and mypy directly from the shell through direnv. Do not use `uv run`, `uv sync`, or `pip install`
-  to manage this environment.
+- Run Python, Ruff, and Pyright directly from the shell through direnv.
+  Do not use `uv run`, `uv sync`, or `pip install` to manage this environment.
 - Keep `UV_NO_SYNC`, `UV_PYTHON`, and `UV_PYTHON_DOWNLOADS` set as shown in the fragment.
 
 Add or upgrade a dependency with `uv add --no-sync '<package>==<version>'`. Add `--dev` for development tools.

@@ -25,7 +25,7 @@ package name.
   update declarations, the lockfile, and `.venv` together.
 - Use `uv sync --locked` to install the committed dependency set. Run commands with `uv run --locked`.
 - Use `uv lock --upgrade-package <package>` for transitive upgrades allowed by the dependency constraints, then sync.
-- Ignore `.venv/`, `__pycache__/`, `.ruff_cache/`, `.mypy_cache/`, and `.pytest_cache/` in Git.
+- Ignore `.venv/`, `__pycache__/`, `.ruff_cache/`, and `.pytest_cache/` in Git.
 
 For Nix shells, add [`reference/flake.fragment.nix`](./reference/flake.fragment.nix) to `packages`. When Nix supplies
 Python, set `UV_PYTHON` to that interpreter and `UV_PYTHON_DOWNLOADS = "never"` in the shell.

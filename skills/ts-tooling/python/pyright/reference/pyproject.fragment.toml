@@ -1,0 +1,4 @@
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "<python-minor>"
+typeCheckingMode = "standard"

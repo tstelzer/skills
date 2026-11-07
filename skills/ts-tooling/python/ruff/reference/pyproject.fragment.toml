@@ -1,2 +1,5 @@
 [dependency-groups]
 dev = ["ruff==<latest-0.x>"]
+
+[tool.ruff.lint]
+extend-select = ["I"]

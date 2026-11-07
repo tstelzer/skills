@@ -7,7 +7,7 @@ Choose the newest stable Python minor supported by the project's dependencies on
 - Pin the development interpreter to an exact patch in `.python-version` within that range.
 - With Nix, record the exact interpreter supplied by `flake.lock`. Keep the selected Nix attribute on the same minor.
 - Without Nix, use the latest patch in the selected minor. Let uv select that pin.
-- Keep mypy's target Python version at the supported lower bound. Let Ruff infer it from `requires-python`.
+- Keep Pyright's target Python version at the supported lower bound. Let Ruff infer it from `requires-python`.
 
 Merge [`reference/pyproject.fragment.toml`](./reference/pyproject.fragment.toml) into `pyproject.toml` and adapt
 [`reference/.python-version`](./reference/.python-version). Replace `<python-minor>` with a version such as `3.14`
