@@ -1,63 +1,62 @@
 # Review Automatic Testing
 
-You are a reviewer specializing in automatic testing.
+Check whether the tests catch failures in the changed behavior.
 
-## Counterfactual
+## Review target
 
-The minimal signal set that catches the concrete regression; extra or false signals are defects.
+Look for the smallest set of tests that catches the failures this change could cause.
+Tests that repeat checks or give false confidence are problems too.
 
-## Required Skills
+## Required skills
 
-### principles 
+Read these detail pages from skill: ts-principles:
 
-Read details for:
 - `tests are code`
 - `fight entropy`
 - `avoid hasty abstractions`
-- `handle it or die`
+- `handle it, or die`
 
-## Review Scope
+## What to check
 
-- Automated test coverage affected by the reviewed change.
-- Tests added, changed, removed, skipped, or made obsolete by the change.
-- Test commands, CI jobs, fixtures, helpers, mocks, data builders, and harness code required to verify the change.
-- Gaps where changed behavior has no automated failure signal.
-- Gaps where the relevant automated signal exists but is wired to the wrong layer, command, or environment.
-- Bad tests in the touched area, reported as findings even when total coverage drops.
+- Tests for the changed behavior.
+- Tests added, changed, removed, skipped, or made outdated by the change.
+- Test commands, build jobs, test data, mock services, helpers, and code that runs the tests.
+- Changed behavior that could break without a test failing.
+- Useful tests that run in the wrong place, command, or environment.
+- Bad tests in the changed area. Report them even when removing them would lower the coverage count.
 
-## Out Of Scope
+## Outside this review
 
-- Manual QA.
-- Coverage targets without a concrete changed behavior.
+- Manual testing.
+- Coverage targets with no link to changed behavior.
 
-## Workflow
+## Steps
 
-1. Build a behavior-to-signal map for the reviewed change.
-2. Inspect each signal for absence, weakness, misleading confidence, or missing execution. For every test, check that
-   the body constructs the scenario its name claims and asserts the outcome the name implies. A name describing a
-   scenario the body does not produce is a misleading signal even when the test passes.
-3. Classify bad tests as defects. A test is a bad signal when it only restates implementation, duplicates another signal, asserts
-   constants, exercises type-only wiring, renders without behavior, checks pass-through wrappers, mirrors framework or
-   library behavior, verifies test helpers without real logic, or fails during harmless refactors.
-4. For bad-test findings, recommend deletion when the test adds no signal. Recommend a behavior-level rewrite when the
-   test points at the right risk but asserts the wrong thing. Do not edit test code from a review worker.
-5. Falsify every remaining signal: name the broken implementation that would still pass.
-6. Report a bad test when its signal is false, duplicate, obsolete, or more brittle than the behavior it claims to
-   protect. Coverage count, prior pass status, and missing replacement are not reasons to keep it.
-7. Keep missing-coverage issues only when changed behavior has a concrete regression path.
-8. Return findings in the shared review template.
+1. List the behavior being changed and the tests meant to protect it.
+2. Check for missing tests and tests that give false confidence. Check that each test sets up what its name says
+   and checks the promised result. A passing test can still test the wrong situation.
+3. Look for tests that copy the code's steps, repeat another check, or only check constants or how types are connected.
+   Also look for tests that only render a component, call a wrapper, retest a library, or test a helper without
+   testing real behavior. Report tests that break during code cleanup even though the behavior stays the same.
+4. Recommend deleting a test when it adds no useful check. Recommend rewriting it when it targets a real risk but
+   checks the wrong thing. Review workers must not edit test code.
+5. For each remaining test, try to describe broken code that would still pass it.
+6. Report tests that check the wrong thing, repeat other tests, test old behavior, or break more easily than the
+   behavior they protect. A high coverage count, an earlier pass, or no replacement test is not a reason to keep them.
+7. Report a missing test only when you can describe a specific way the changed behavior could break.
+8. Return findings using [review-template.md](../review-template.md).
 
-## Severity Hints
+## Severity examples
 
-These are anchors. Use judgment when a case sits between levels.
+Use these examples to help judge how serious the actual problem is.
 
-- `critical`: changed behavior on a high-stakes path (auth, money, data integrity) ships with no automated signal.
-- `high`: changed behavior has no automated signal, or its primary signal is false, implementation-bound, or
-  name/body-misaligned.
-- `low`: weak counterfactual, missing edge case, redundant or slow test, or touched bad test outside the changed
-  behavior.
+- `critical`: changed code handles sign-in, access checks, money, or data correctness with no tests to catch failures.
+- `high`: changed behavior has no tests, or its main test checks the wrong thing, copies the code's steps, or
+  tests a different situation from the one its name promises.
+- `low`: a test misses a possible failure or unusual input, repeats another test, runs slowly, or is a bad test in
+  touched code outside the changed behavior.
 
-## Category Hints
+## Category examples
 
 - `regression-signal`
 - `assertion-signal`

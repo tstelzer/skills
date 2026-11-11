@@ -1,68 +1,70 @@
 # Review Performance
 
-You are a reviewer specializing in runtime cost and capacity.
+Check how much time and computing power the changed code needs, and how much work it can handle.
 
-## Counterfactual
+## Review target
 
-The minimal implementation that stays inside the cost budget for the hot path.
+Look for the simplest code that keeps the main work within its time and resource limits.
 
-## Required Skills
+## Required skills
 
-### principles
+Read these detail pages from skill: ts-principles:
 
-Read details for:
 - `performance is not optional`
 - `design for operation`
 - `avoid hasty abstractions`
 
-## Review Scope
+## What to check
 
-- Hot-path latency, throughput, and tail latency affected by the change.
-- Request cost: fan-out, rows scanned, bytes moved, objects allocated, locks
-  held, retries, external calls, and serialization.
-- Algorithmic complexity, repeated work, and unnecessary work.
-- Database and network round trips.
-- Memory growth, retention, buffering, and allocation churn.
-- Concurrency, pools, locks, queues, serialization, missing backpressure, and
-  bottlenecks.
-- Overload behavior: rejection, shedding, degradation, queue bounds, and
-  admission control.
-- Cache contracts: key, size, freshness, invalidation, and failure mode.
-- Observability needed to prove or detect performance regressions.
+- Response time in frequent or time-sensitive code. Include both typical and unusually slow requests, and how much
+  work the system can finish per second.
+- Work caused by one request: other calls it starts, rows read, bytes moved, objects created, locks held, retries,
+  and converting data into a form that can be sent or stored.
+- How work grows with input size, repeated work, and work that is not needed.
+- Database and network calls.
+- Memory growth, values kept longer than needed, data waiting to be processed, and frequent memory allocation.
+- Work running at the same time, shared workers and connections, locks, queues, and tasks forced to run one by one.
+  Check whether the system slows incoming work when it cannot keep up.
+- Overload: when to reject or drop work, reduce service, limit queues, or stop accepting more work.
+- Cache rules: how keys match requests, how much can be stored, how old data can be, when to remove it, and what
+  happens if the cache fails.
+- Logs and measurements needed to notice or prove a slowdown or rise in resource use.
 
-## Out Of Scope
+## Outside this review
 
-- Micro-optimizations without a hot path or cost argument.
-- Readability-only rewrites.
-- Generic cache advice without a cache contract.
-- Pure reliability issues with no runtime cost.
-- Pure security resource-abuse issues unless requested as performance.
-- Test coverage quality except missing benchmark or regression signal.
+- Tiny speed improvements with no reason to think they affect important work or its cost.
+- Changes that only make code easier to read.
+- Generic cache advice with no specific rules to check.
+- Reliability problems with no cost in time or resources.
+- Attacks that waste resources, unless the user requested a performance review of them.
+- General test quality. Include missing benchmarks or tests that would catch a performance regression.
 
-## Workflow
+## Steps
 
-1. Build a path-to-cost map for the reviewed change.
-2. Identify hot paths, unbounded paths, fan-out points, loops, queues, pools,
-   locks, caches, and shared dependencies.
-3. Compare old and new cost: queries, requests, rows, bytes, allocations,
-   concurrency, retries, serialization, and blocking time.
-4. Check tail behavior and average behavior separately.
-5. Check saturation: where does work queue when demand exceeds capacity?
-6. Check whether concurrency is bounded at the limiting resource.
-7. Check whether caches and buffering have explicit bounds and freshness rules.
-8. Keep only issues with measured evidence, a clear complexity proof, or a
-   concrete hot-path cost increase.
-9. Return findings in the shared review template.
+1. List the changed code paths and the time and resources each needs.
+2. Find frequent or time-sensitive code, work with no upper limit, calls that start other calls, loops, queues,
+   shared workers or connections, locks, caches, and shared services.
+3. Compare the old and new costs. Count queries, requests, rows, bytes, and memory allocations.
+   Check work running at the same time, retries, data conversion, and time spent waiting.
+4. Check the slowest requests separately from average requests.
+5. Find where work waits when requests arrive faster than the system can handle them.
+6. Check whether limits on work running at once match the part of the system that runs out of capacity first.
+7. Check that caches and waiting data have size limits. Check the rules for keeping data up to date.
+8. Keep only problems backed by measurements, a clear explanation of how work grows with input size, or specific
+   extra work in a frequent or time-sensitive code path.
+9. Return findings using [review-template.md](../review-template.md).
 
-## Severity Hints
+## Severity examples
 
-These are anchors. Use judgment when a case sits between levels.
+Use these examples to help judge how serious the actual problem is.
 
-- `critical`: a measured hot-path regression, unbounded memory, or an unbounded queue under normal load.
-- `high`: accidental quadratic, chatty IO, missing concurrency cap, or a cache without an explicit contract.
-- `low`: cost concern off the hot path; cleanup without measured impact.
+- `critical`: a measured rise in time or resource use in a main code path, or memory or queues that can grow without
+  limit during normal use.
+- `high`: doubling the input accidentally causes about four times the work, too many database, network, or file
+  operations, no limit on work running at once, or a cache with no clear rules for storing and reusing data.
+- `low`: extra cost outside the main code paths, or cleanup with no measured effect.
 
-## Category Hints
+## Category examples
 
 - `latency`
 - `tail-latency`

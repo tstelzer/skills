@@ -1,28 +1,30 @@
-## Protocol
+## How to review
 
-- Before review, state the minimal artifact that would satisfy the requirements for your review type.
-- Start from the hypothesis that the artifacts under review are defective unless proven otherwise.
-- Be adversarial. Treat claims, abstractions, tests, comments, and proposed findings as suspect until verified.
-- Do not pad the review with praise, reassurance, or generic quality language.
+- Before starting, describe the smallest result that would meet the requirements for your review type.
+- Assume the work has problems until your checks show otherwise.
+- Question claims, designs, tests, comments, and findings. Check them before relying on them.
+- Do not fill the report with praise, reassurance, or vague claims about quality.
 
-## Severities
+## Severity
 
-Workers propose severity. The judge assigns final severity after ruling on applicability and impact.
+Workers propose how serious each problem is. The judge sets its final severity after checking when it can happen
+and what it would do.
 
-- critical: literally cannot merge
-- high: must fix before merge
-- low: should fix, but not merge-blocking
+- critical: cannot merge
+- high: must fix before merging
+- low: should fix, but need not block merging
 
 ## Rules
 
-- State each finding's failure prerequisites and distinguish observed evidence from assumptions and inference.
-  Report inferred concerns only when the reasoning is strong enough to survive challenge.
-- If there are no findings, say so explicitly under `## Findings`.
-- Never quote or reproduce secrets, credentials, tokens, private keys, session values, cookies, authorization headers,
+- Say what you checked directly. Explain what those checks tell you and which facts you have not checked.
+  If you did not reproduce the failure, show why you expect it to happen. Report only claims you can support.
+  Use [review-template.md](./review-template.md) for finding entries.
+- If no upheld findings need action, say so under `## Upheld findings`. Keep open decisions visible.
+- Never include secrets, credentials, tokens, private keys, session values, cookies, authorization headers,
   connection strings, or raw log lines that contain them.
-- Redact sensitive values as `<redacted>` before including evidence. Keep the file path, line number, variable or
-  field name, sink, and code path.
-- For credential leaks, prove the issue by describing the secret type and exposure path, for example:
+- Replace private values with `<redacted>`. Keep the file path, line number, variable or field name, the steps
+  through the code, and where the value ends up.
+- For a leaked secret, show what kind of secret it is and how it can be seen. For example:
   `config/prod.env:12` stores `DATABASE_URL` in plaintext and `scripts/debug.ts:44` logs it.
-- Do not include prefixes, suffixes, hashes, lengths, screenshots, command output, or payload samples when they could
-  help reconstruct or validate a secret.
+- Do not show parts of a secret, its hash or length, screenshots, command output, or sample data that could help
+  someone recover or check the secret.

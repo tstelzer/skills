@@ -5,141 +5,152 @@ description: Review local code. Only explicitly triggered by user.
 
 # Review
 
-## Required Reading
-
-- skill: ts-principles
-  - Read `ts-principles/SKILL.md`.
-  - Read every linked principle detail document before reviewing.
-- skill: ts-technical-writing
-  - Required when the judge writes any review artifact.
-  - Before ruling on findings, read `ts-technical-writing/SKILL.md`, `ts-technical-writing/audience.md`,
-    `ts-technical-writing/prose.md`, and `ts-technical-writing/structure.md`.
-  - For `technical-writing` reviews, read every linked technical-writing detail document before reviewing.
-
 ## Role
 
-Review is a judge.
+You lead the review as the judge.
 
-It sets scope, assigns workers, reads context, rules on findings, sets final severity, and writes artifacts.
-Workers try to find defects and report them. The judge challenges both the reviewed work and the workers' claims.
-Investigate missing or conflicting evidence. Do not repeat inspection that was sound.
+Choose what to review and assign work to other agents, called workers. Check the problems they report, decide how
+serious each one is, and write the report. A reported problem is called a finding.
 
-## Authority And Evidence
+Check the workers' claims as well as the work under review. Look into missing facts or conflicting reports.
+Reuse checks that were done well.
 
-The caller may name a request, plan, design, decision, or scope as the requirements to review against.
-Apply principles within those requirements. Do not use them to add product or architecture work.
+When asked to rewrite an existing review, go straight to [Write the report](#write-the-report).
+Edit the supplied file in place and use it as your source. Keep its findings, IDs, rulings, user decisions, and
+severities. Keep the supporting facts and the limits on what the review established. Do not start workers or
+look for new problems.
 
-Prior reviews and handoffs do not prove the current work is correct. Revisit accepted decisions when current evidence
-shows their assumptions no longer hold.
+## Required reading
 
-The judge uses skill: ts-project-context to load and maintain shared context.
-Keep the record and prior rulings with the judge. Do not pass them to workers.
+- skill: ts-simple
+  - Use it for all review writing, including titles, descriptions, fixes, and reasons for decisions.
+- skill: ts-principles
+  - Read `ts-principles/SKILL.md` and every detail document it links to before reviewing.
+- skill: ts-technical-writing
+  - Use it whenever the judge writes a review report.
+  - Before writing or deciding on findings, read `ts-technical-writing/SKILL.md`, `ts-technical-writing/audience.md`,
+    `ts-technical-writing/prose.md`, and `ts-technical-writing/structure.md`.
+  - For a `technical-writing` review, read every detail document that skill links to.
 
-## Review Workers
+## Requirements and background
 
-Use different model classes for workers of the same review type.
-A model class is one provider and model-line pair. Two releases of the same model line count as one class.
+The review request may name a plan, design, decision, or other requirements to check.
+Check the work against those requirements. Use the principles within that scope. Do not add new product or
+architecture work to the review.
 
-## Workflow
+Earlier reviews and handoffs do not prove that the current work is correct. Recheck an accepted decision when new
+facts show that it relied on something that is no longer true.
 
-1. DETERMINE_TYPE
-2. DETERMINE_SCOPE
-3. SPAWN_REVIEW_WORKERS
-4. ADJUDICATE_FINDINGS
-5. WRITE_ARTIFACT
+Use skill: ts-project-context to read and update the shared project notes.
+Keep those notes and past rulings with the judge. Do not give them to workers.
 
-### DETERMINE_TYPE
+## Worker models
 
-- Choose the most useful review types from the user's request and your judgment.
-- Available review types:
-    - `automatic-testing` - broken tests, weak tests, and missing automated coverage for changed behavior
-    - `technical-writing` - incorrect, missing, stale, unsafe, or unclear technical writing, examples, docs,
-      upgrade guidance, or instructions readers must follow
-    - `performance` - latency, throughput, memory, concurrency, unnecessary work, and hot-path regressions
-    - `robustness` - correctness, failure handling, maintainability, coupling, developer experience, and overall
-      implementation quality
-    - `security` - trust boundaries, auth, input handling, secret exposure, and exploitability
-    - `stability` - backwards compatibility, changed interface promises, migrations, deployment safety,
-      and user-visible behavior changes
-- If the user asks for a docs review, select `technical-writing`.
-- Unless explicitly requested, include at least:
-    - `automatic-testing`
-    - `robustness`
+Use different model classes for workers who review the same type of problem.
+A model class is one provider and model line. Two releases of the same model line count as one class.
 
-### DETERMINE_SCOPE
+## Steps
 
-- Determine review scope based on the user's request: files, commits, docs, plans, designs, etc.
+1. Choose review types.
+2. Choose what to review.
+3. Assign workers.
+4. Decide on findings.
+5. Write the report.
 
-### SPAWN_REVIEW_WORKERS
+### Choose review types
 
-- Workers own one review type only.
-- Workers must not spawn other workers, widen scope, or combine findings from other workers.
-- Workers must not write files unless the review type file explicitly allows direct edits.
-- `technical-writing` is the only review type that may directly edit files.
-- When direct edits are enabled for `technical-writing`, dispatch only one worker for that review type. The worker owns
-  the writing pass.
-- When the judge performs a `technical-writing` review directly, the judge may make the same direct edits.
-- Only when the user explicitly requests exactly one review type may the judge perform that review directly.
-- Otherwise, including the default review type set, spawn two sub-agent workers for each selected review type when
-  model availability permits. Use different model classes for the two workers so the judge gets independent
-  perspectives. If only one model class is available, spawn one worker for that review type. The `technical-writing`
-  direct-edit rule takes priority over this worker-count rule.
-- Workers report findings and direct-edit notes to the judge.
-- Each reviewer prompt must include:
-    - The review type.
-    - The worker's assigned provider, model line, and reasoning level.
-    - The local review files the worker must read by path, relative to this skill directory:
-        - `./by-type/<type>.md`, e.g. [technical-writing.md](./by-type/technical-writing.md)
+- Choose the types that best fit the user's request and the work.
+- Available types:
+    - `automatic-testing`: broken or weak tests, and changed behavior with no tests to catch failures
+    - `technical-writing`: wrong, missing, outdated, unsafe, or unclear docs, examples, and instructions
+    - `performance`: response time, how much work the system can handle, memory use, and unnecessary work
+    - `robustness`: correct behavior, failure handling, code structure, and ease of use for developers
+    - `security`: who can access what, unsafe input, leaked secrets, and ways an attacker could misuse the code
+    - `stability`: support for older clients and saved data, safe upgrades, and changes to promised behavior
+- For a docs review, choose `technical-writing`.
+- Unless the user asks for a different set, include at least `automatic-testing` and `robustness`.
+
+### Choose what to review
+
+- Use the user's request to choose the files, commits, docs, plans, or designs to check.
+
+### Assign workers
+
+- Give each worker one review type. Workers must not start other workers, expand their task, or combine findings
+  from other workers.
+- Workers report their findings to the judge in chat. They must not write a report file.
+- Only `technical-writing` workers may edit files, as allowed by [their guide](./by-type/technical-writing.md).
+  Every other worker must leave files unchanged.
+- Use one worker for `technical-writing` when that worker may edit files. That worker owns the writing pass.
+  The judge may make the same edits when doing that review directly.
+- The judge may do a review directly only when the user asks for exactly one review type.
+- Otherwise, use two workers for each review type, from different model classes.
+  Use one worker when only one model class is available. The one-worker rule for writing edits still applies.
+- Each worker's prompt must include:
+    - What to review, where to stop, which requirements to check, and the inputs needed for the task.
+    - The review type, provider, model line, and reasoning level assigned to the worker.
+    - The required writing skill `skill: ts-simple`.
+    - These files to read, with paths relative to this skill:
+        - `./by-type/<type>.md`, such as [technical-writing.md](./by-type/technical-writing.md)
         - [shared.md](./shared.md)
         - [review-template.md](./review-template.md)
-        - Any review-local files referenced by the review type file.
-    - For `technical-writing`, the required semantic skill `skill: ts-technical-writing`, including every linked
-      local detail document.
-    - The rule that findings must follow the [review-template.md](./review-template.md) structure and be returned
-      inline in chat, never written as a file.
-    - For `technical-writing`, the direct-edit policy from [technical-writing.md](./by-type/technical-writing.md).
-      Direct edits must be reported inline with changed paths and a short purpose.
-    - For every other review type, the rule that the worker is read-only and must not write files.
-    - Base findings on the assigned inspection. State what must be true for the failure to occur.
-      Separate evidence from assumptions. Leave rulings to the judge; do not read `docs/project-context.md`
-      or prior rulings.
-    - The rule that if a required tool (read, grep, test runner, etc.) fails after the obvious fix, the worker returns
-      the failure to the judge as a tooling-escalation note. Workers must not silently weaken findings.
-    - What to review, its scope, the requirements it must meet, and inputs needed for inspection.
-- Use semantic skill names only for external skills, e.g. `skill: ts-principles`.
+        - Any other files inside this skill that the review type guide links to.
+    - For `technical-writing`, `skill: ts-technical-writing` and every detail document it links to.
+    - Return findings in chat using [review-template.md](./review-template.md). Do not write a findings file.
+    - For `technical-writing`, follow the edit rules in [technical-writing.md](./by-type/technical-writing.md).
+      Report each edit in chat with its path and a short reason.
+    - For every other type, leave all files unchanged.
+    - Report problems from your assigned checks. Say what must be true for each problem to happen.
+      Say what you checked and what you are taking as true without checking it. Leave decisions to the judge.
+      Do not read `docs/project-context.md` or past rulings.
+    - If a required tool still fails after the obvious fix, report the failure to the judge.
+      Do not hide the failed check by making a weaker claim.
+- Refer to other skills by name, such as `skill: ts-principles`.
 
-### ADJUDICATE_FINDINGS
+### Decide on findings
 
-- Rule on every finding using [review-template](./review-template.md), including findings from a direct judge review.
-- Check how the failure occurs, whether its conditions apply, what happens, and which requirement or accepted risk
-  matters. Use current evidence and recorded context. Missing context proves neither safety nor a defect.
-- Inspect available evidence first. Ask the user a concrete question when an unclear fact, requirement, assumption,
-  or accepted risk could change the ruling or severity. Continue independent work while awaiting the answer;
-  wait for the answer before making the affected ruling. Save answers useful to later tasks in project context.
-- Preserve every worker finding and its source, proposed severity, evidence, and conclusion. Clarify wording without
-  changing the claim. Put corrections and disagreements in the ruling; never delete a finding to express rejection.
-- Rule `upheld`, `rejected`, `deferred`, `resolved`, or `duplicate`. Explain each ruling with evidence and context;
-  name missing information for deferrals and the retained finding ID for duplicates. Preserve direct-edit reports.
-- Set final severity for upheld findings from what happens when the relevant conditions apply.
-  Explain changes from the proposed severity. Severity hints guide judgment; they do not automatically block a change.
-- Assign each finding a document-wide ID: `F001`, `F002`, and so on. Preserve prior IDs in follow-up reviews and give
-  new findings the next unused ID. Keep duplicates visible with their own IDs and source attribution.
-- If two workers of the same review type but different model classes directly conflict on a finding, the judge may
-  spawn a third worker for that review type using another available model class. If no third model
-  class is available, the judge resolves the conflict directly and records the evidence used.
-- If any worker returned a tooling-escalation note, stop. Do not write the final artifact; surface the failure as the
-  review's outcome.
+- Decide on every finding, including ones the judge found. Use [review-template.md](./review-template.md).
+- Check how the problem happens, whether those conditions apply, and what the result would be.
+  Use the current facts, the requirements, and any risks the user has accepted.
+  An unknown fact does not prove that the work is safe or broken.
+- Check the available information first. Ask the user a specific question when their answer could change your
+  decision or severity. Wait for that answer before deciding on the finding. Continue other work while waiting.
+  Save answers that will help later tasks in the project notes.
+- Keep every worker finding, who reported it, their proposed severity, their supporting facts, and their claim.
+  Make the wording clearer without changing its meaning. Put corrections and disagreements in the ruling.
+  Do not delete a finding because you reject it. Keep reports of direct edits too.
+- Give each finding one ruling and explain why:
+    - `upheld`: the finding is valid
+    - `rejected`: the claim does not hold
+    - `deferred`: more information or a decision is needed
+    - `resolved`: the problem has been fixed
+    - `duplicate`: another finding covers the same problem; give that finding's ID
+- For a deferred finding, say which information or decision is missing.
+- For an upheld finding, set the final severity from what happens when its failure conditions apply.
+  Explain any change from the worker's proposed severity. The severity examples help you decide;
+  they do not decide whether a change can proceed.
+- Give each finding a unique ID within the report: `F001`, `F002`, and so on.
+  Keep existing IDs in later reviews and use the next unused ID for each new finding.
+  Keep duplicates with their own IDs and sources.
+- If two workers of the same review type and different model classes disagree on a finding, the judge may ask a
+  third worker from another model class to check it. If no third class is available, check it yourself and record
+  which facts settled the disagreement.
+- If any worker reports a tool failure that blocked a required check, stop. Report the failure to the user as the
+  review's result. Do not write the final report.
 
-### WRITE_ARTIFACT
+### Write the report
 
-- Only the judge writes the artifact.
-- Skip if the user explicitly asks for an informal or ad-hoc review.
-- Create `<repository-root>/docs/reviews/` if it doesn't exist yet.
-- Write the findings to `<repository-root>/docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
-- If `technical-writing` direct edits were made, include a `## Direct Edits` section with changed paths and purpose.
-- Put the result and findings before scope and reviewer metadata.
-- Base the result on rulings and final severity. State unresolved decisions. A review with deferred findings is not
-  clean. Include the context behind rulings so the artifact stands alone.
-- In `## Reviewer Metadata`, record the judge line and one worker line per worker as provider, model line, and
-  reasoning level.
-- Use `Workers: none (judge direct)` only when the judge performed the only requested review type directly.
+- Only the judge writes the report.
+- Skip the report file when the user asks for an informal review.
+- For a new review, write `<repository-root>/docs/reviews/YYYY-MM-DD_HH:MM_<review-type>_<review-name>.md`.
+  Create the directory as needed.
+- If the `technical-writing` review changed files, list their paths and the reason for each change under
+  `## Direct Edits`.
+- Follow [review-template.md](./review-template.md). Put the result and findings before the background and reviewer
+  details.
+- Base the result on the rulings, final severities, and recorded user decisions. Say what needs fixing and which
+  decisions remain open. Do not call the review clear while findings still await a decision.
+  Include enough background to explain each ruling without the chat.
+- Use short reviewer IDs in findings. Under `## Reviewer Metadata`, list each ID with its review type, provider,
+  model line, and reasoning level. Include earlier reviewers whose findings remain in the report.
+- Use `Workers: none (judge direct)` only when the judge did the only requested review type directly.

@@ -1,70 +1,63 @@
 # Review Stability
 
-You are a reviewer specializing in contract and rollout stability.
+Check whether existing users and code still work after the change or an upgrade.
 
-## Counterfactual
+## Review target
 
-The minimal change that preserves every existing consumer's contract.
+Look for the smallest change that keeps the promises made to existing callers and users.
 
-## Required Skills
+## Required skills
 
-### principles
+Read these detail pages from skill: ts-principles:
 
-Read details for:
 - `evolve contracts deliberately`
 - `keep boundaries sharp`
 - `parse, don't validate`
 - `handle it, or die`
 - `design for operation`
 
-## Review Scope
+## What to check
 
-- Public APIs, SDKs, CLI flags, environment variables, and config schemas.
-- HTTP request and response shapes, status codes, error codes, and headers.
-- Persisted data, database migrations, backfills, indexes, constraints, and
-  seed data.
-- Queue messages, events, jobs, subscriptions, webhooks, and replayed data.
-- Generated contracts: OpenAPI, JSON Schema, GraphQL, protobuf, typed clients,
-  and exported schema artifacts.
-- Defaults, fallbacks, feature flags, parsing rules, ordering, and side effects
-  behind an existing interface.
-- Mixed-version deploys, rollback, partial migration, old readers, old writers,
-  and old clients.
+- Public APIs, SDKs, command-line flags, environment variables, and rules for settings.
+- HTTP request and response fields, status and error codes, and headers.
+- Saved data, database migrations, work that fills in old records, indexes, database rules, and initial data.
+- Queue messages, events, jobs, subscriptions, webhooks, and data sent again later.
+- Generated API descriptions and types: OpenAPI, JSON Schema, GraphQL, protobuf, client code, and exported schemas.
+- Defaults, fallback behavior, feature flags, input parsing, event order, and effects of existing calls.
+- Old and new versions running together, returning to a previous version, unfinished migrations, and older clients
+  or code that reads and writes data.
 
-## Out Of Scope
+## Outside this review
 
-- Correctness of brand-new behavior with no existing consumer.
-- Generic implementation quality.
-- Pure test coverage quality.
-- Pure performance cost.
-- Security exploitability.
-- Documentation quality except missing upgrade or migration instructions needed
-  to avoid breakage.
+- New behavior that no existing caller uses.
+- General code quality.
+- Test quality alone.
+- Speed or resource cost alone.
+- Attacks and security checks.
+- General docs quality. Include missing upgrade or migration instructions when their absence could break usage.
 
-## Workflow
+## Steps
 
-1. Build a contract map for the reviewed change.
-2. Identify producers, consumers, stored data, generated artifacts, old readers,
-   old writers, and old clients.
-3. Compare old and new behavior, not only old and new types.
-4. Check rolling deploy paths: old producer with new consumer, new producer with
-   old consumer, rollback, replay, and partial migration.
-5. Check silent drift: renamed fields, removed fields, changed defaults, changed
-   ordering, removed fallbacks, and removed or repurposed error or status codes.
-6. Check whether incompatible changes have a deliberate migration path.
-7. Keep only issues with a concrete breakage path for an existing or plausible
-   consumer.
-8. Return findings in the shared review template.
+1. List the promises that the change affects, such as accepted inputs, saved formats, and returned values.
+2. List what sends, receives, and stores the data. Include generated files and older code that reads or writes it.
+3. Compare what the old and new code do, as well as their types.
+4. Check old senders with new receivers and new senders with old receivers. Check returning to the old version,
+   sending old messages again, and stopping a migration partway through.
+5. Look for changes that callers may not notice until something breaks: renamed or removed fields, new defaults,
+   changed event order, removed fallbacks, and removed or reused error and status codes.
+6. Check whether changes that break old behavior have a planned way to move existing users and data across.
+7. Keep only problems that could break a specific existing caller or one that could reasonably exist.
+8. Return findings using [review-template.md](../review-template.md).
 
-## Severity Hints
+## Severity examples
 
-These are anchors. Use judgment when a case sits between levels.
+Use these examples to help judge how serious the actual problem is.
 
-- `critical`: outage-class break for an existing consumer; persisted data, rolling deploy, or contract violation.
-- `high`: silent drift that fails open or coerces; missing migration step.
-- `low`: ergonomic break without functional impact.
+- `critical`: an existing caller stops working, or saved data, a gradual rollout, or an interface promise breaks.
+- `high`: a change silently allows a request it should block, converts data differently, or misses a migration step.
+- `low`: the interface becomes harder to use, but its behavior still works.
 
-## Category Hints
+## Category examples
 
 - `api-contract`
 - `request-contract`

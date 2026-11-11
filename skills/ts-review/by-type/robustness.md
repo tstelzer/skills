@@ -1,16 +1,15 @@
 # Review Robustness
 
-You are a reviewer specializing in implementation robustness.
+Check whether the changed code works as intended and handles failures.
 
-## Counterfactual
+## Review target
 
-The minimal implementation that satisfies the behavior claim under all relevant inputs and failure modes.
+Look for the simplest code that does the promised job with the inputs and failures it must handle.
 
-## Required Skills
+## Required skills
 
-### principles
+Read these detail pages from skill: ts-principles:
 
-Read details for:
 - `shape code by domain`
 - `keep boundaries sharp`
 - `parse, don't validate`
@@ -22,43 +21,45 @@ Read details for:
 - `fight entropy`
 - `design for operation`
 
-## Review Scope
+## What to check
 
-- Changed behavior and the implementation paths that produce it.
-- Domain modeling, state modeling, invariants, and ownership boundaries affected by the change.
-- Input, output, persistence, config, and dependency boundaries touched by the change.
-- Failure handling, cleanup, lifecycle, retries, fallbacks, and partial-success behavior.
-- Complexity, coupling, naming, and structure introduced or reinforced by the change.
-- Operational behavior that affects correctness or debuggability but is not primarily performance or security.
-- Missing inline docs for non-obvious invariants, contracts, failure modes,
-  sharp edges, or operational constraints in touched implementation paths.
+- Changed behavior and the code that causes it.
+- How the code represents business concepts and states, which rules must always hold, and what each part owns.
+- Data coming in, going out, or being saved. Include settings and calls to other parts of the system.
+- How the code handles failures, starts and stops work, cleans up, retries, and recovers when only some steps succeed.
+- Names, structure, and dependencies that make the changed code harder to understand or change.
+- Problems running or debugging the system that do not mainly concern speed or security.
+- Missing comments that explain unusual rules, interface promises, failure cases, or limits on how to run the code.
 
-## Out Of Scope
+## Outside this review
 
-- Backwards compatibility and migration safety.
-- Exploitability and trust-boundary abuse.
-- Pure performance cost.
-- Test coverage quality.
-- Broad documentation quality outside touched implementation paths.
+- Support for older versions and safe data migrations.
+- Attacks and security checks.
+- Speed or resource cost alone.
+- Test quality and coverage.
+- Broad docs cleanup outside the changed code.
 
-## Workflow
+## Steps
 
-1. Build a claim-to-code map for the reviewed change.
-2. Trace the weakest execution paths: invalid input, empty state, partial failure, ordering, cleanup, retry, cancellation, and lifecycle.
-3. Check whether data and errors cross boundaries in the right shape.
-4. Check whether the implementation makes illegal states, hidden coupling, or future changes more likely.
-5. Keep only issues with a concrete failure mode, maintenance trap, or operational consequence.
-6. Return findings in the shared review template.
+1. List what the change promises and the code responsible for each promise.
+2. Follow the code for bad input, missing data, failures after earlier steps succeed, and events in the wrong order.
+   Check cleanup, retries, cancellation, and starting and stopping work.
+3. Check whether data and errors have the form the next part of the system expects.
+4. Look for states that should be impossible, hidden links between unrelated parts, and code that makes later
+   changes harder.
+5. Keep only problems with a specific failure, a trap for someone changing the code, or a problem running it.
+6. Return findings using [review-template.md](../review-template.md).
 
-## Severity Hints
+## Severity examples
 
-These are anchors. Use judgment when a case sits between levels.
+Use these examples to help judge how serious the actual problem is.
 
-- `critical`: a correctness defect on the happy path, or a leaked invariant that corrupts state.
-- `high`: failure-path defect, representable illegal state, or a boundary leak.
-- `low`: naming, mild coupling, or opportunistic cleanup.
+- `critical`: wrong results during normal use, or a broken rule that corrupts the program's state.
+- `high`: a failure is handled badly, the code allows a state that should be forbidden, or one part exposes details
+  that another part should not depend on.
+- `low`: unclear names, small avoidable dependencies, or nearby code that needs cleanup.
 
-## Category Hints
+## Category examples
 
 - `behavior-correctness`
 - `boundary-shape`

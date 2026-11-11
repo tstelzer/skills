@@ -1,16 +1,15 @@
 # Review Security
 
-You are a reviewer specializing in application security.
+Check how an attacker could misuse the changed code.
 
-## Counterfactual
+## Review target
 
-The minimal control set that closes the attacker capability for the change.
+Look for the smallest set of protections that blocks attacks made possible by the change.
 
-## Required Skills
+## Required skills
 
-### principles
+Read these detail pages from skill: ts-principles:
 
-Read details for:
 - `privilege is earned`
 - `keep boundaries sharp`
 - `parse, don't validate`
@@ -18,58 +17,53 @@ Read details for:
 - `evolve contracts deliberately`
 - `design for operation`
 
-## Review Scope
+## What to check
 
-- Authentication, session, token, and identity binding touched by the change.
-- Authorization, privilege, tenant, and object boundaries touched by the change.
-- User-controlled input that reaches sensitive decisions or sinks.
-- Secrets, credentials, logs, telemetry, errors, URLs, and client bundles.
-- Sensitive data leaving its intended boundary through responses, events, exports,
-  caches, logs, analytics, or third parties.
-- Filesystem, network, browser, and third-party trust boundaries affected by the
-  change.
-- Attacker-triggered resource abuse: unbounded input, fan-out, uploads, retries,
-  concurrency, expensive queries, or archive processing.
-- Security configuration and supply-chain exposure when the change makes it
-  reachable or privileged.
+- Sign-in, sessions, tokens, and whether the code ties them to the right user.
+- Who can access which actions, accounts, organizations, and records.
+- User input that affects access decisions or reaches code that can do harm.
+- Secrets and credentials in logs, measurements, errors, URLs, or code sent to users.
+- Private data sent to the wrong place through responses, events, exports, caches, logs, analytics, or outside
+  services.
+- Where the code trusts input from files, networks, browsers, or outside services.
+- Ways an attacker could waste resources through large inputs, calls that start more calls, uploads, retries,
+  work running at once, expensive queries, or archive files.
+- Security settings, dependencies, and published packages that the change makes reachable or gives new access to.
 
-## Out Of Scope
+## Outside this review
 
-- Generic robustness defects with no attacker capability or security impact.
-- Speculative checklist items with no concrete changed exposure.
-- Dependency trivia with no reachable privilege, runtime path, or artifact
-  publication risk.
-- Pure performance issues unless an attacker can trigger the cost.
-- Test coverage quality unless missing coverage hides a concrete security
-  regression.
+- General code problems with no way for an attacker to use them and no security effect.
+- Checklist concerns with no specific change that creates a risk.
+- Dependency details with no reachable attack, new access, or package publishing risk.
+- Performance problems unless an attacker can cause the extra cost.
+- General test quality, unless missing tests hide a specific security failure caused by the change.
 
-## Workflow
+## Steps
 
-1. Build an attacker-control map for the reviewed change.
-2. Map identities, privileges, protected assets, trust boundaries, and sensitive
-   sinks.
-3. Follow attacker-controlled data to storage, logs, commands, templates,
-   network calls, filesystem access, browser APIs, third parties, and privileged
-   operations.
-4. Check whether authentication, authorization, parsing, and boundary mapping
-   happen before trust is granted or side effects occur.
-5. Check whether secrets or sensitive data cross into responses, clients, logs,
-   telemetry, caches, errors, queues, exports, or third parties.
-6. Assign severity from attacker capability, exploit path, blast radius,
-   detectability, and required privileges.
-7. Keep only issues with a concrete attacker capability, exposed asset, trust
-   boundary, and impact path.
-8. Return findings in the shared review template.
+1. List what an attacker can control in the changed code.
+2. List who can access what, which data and resources need protection, and where outside input reaches trusted code.
+3. Follow attacker-controlled input into storage, logs, commands, templates, network calls, files, browser APIs,
+   outside services, and operations that need special access.
+4. Check that identity checks, access checks, input parsing, and data conversion happen before the code trusts
+   the input or changes anything.
+5. Check whether secrets or private data reach responses, clients, logs, measurements, caches, errors, queues,
+   exports, or outside services.
+6. Choose severity from what the attacker can do, how they do it, how much damage it causes, how easily someone
+   would notice, and which permissions the attacker needs.
+7. Keep only problems where you can explain what the attacker controls, what they can reach, which check or limit
+   they cross, and how that causes harm.
+8. Return findings using [review-template.md](../review-template.md).
 
-## Severity Hints
+## Severity examples
 
-These are anchors. Use judgment when a case sits between levels.
+Use these examples to help judge how serious the actual problem is.
 
-- `critical`: exploitable bypass, secret exposure, or an attacker-controlled sink that reaches a high-value asset.
-- `high`: missing authorization, missing parsing at a trust boundary, or attacker-triggered cost.
-- `low`: defense-in-depth gap without a current exploit path.
+- `critical`: an attacker can bypass a required check, a secret is exposed, or attacker-controlled input reaches
+  important data or operations.
+- `high`: a missing access check, input entering trusted code without parsing, or an attacker causing extra cost.
+- `low`: missing extra protection, with no known way to exploit the gap now.
 
-## Category Hints
+## Category examples
 
 - `authentication`
 - `authorization`
