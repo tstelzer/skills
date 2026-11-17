@@ -78,13 +78,16 @@ authorization, secrets, sensitive data, or dangerous capabilities.
 
 ### handle it, or die
 
-- Let errors pass through internal boundaries by default. A module boundary does not justify a new error type.
+- Pass errors through internal boundaries unchanged.
+- Do not wrap errors just to rename them, mark a module boundary, or shorten an error union.
+- Adding `cause` does not make a needless wrapper useful.
 - Use domain errors for business outcomes that callers need to handle.
-- Keep expected failures in the Effect error channel, `Result`, or similar types.
-  Technical errors can keep technical types.
-- Handle known failures where recovery belongs. Retry using the original error when it provides enough information.
-- Parse and enrich errors only when handling needs trusted fields or useful context. Preserve the original cause.
-- Do not catch every infrastructure failure and rename it as a domain error.
+- Put failures in the Effect error channel, `Result`, or similar types only when callers know how to handle them.
+- Keep recognized technical errors in their original types.
+- Handle known failures where recovery belongs.
+- Keep unknown failures and failures with no recovery path out of the typed error channel.
+- In Effect, let those failures become defects with their original error values.
+- Record operation context in logs and traces instead of adding an error wrapper.
 - Let defects propagate to the application boundary. Do not turn them into recoverable business errors.
 - Stop work when a rule the program relies on no longer holds.
 - Map errors leaving the application to safe responses for the external interface. Include a catch-all for defects.

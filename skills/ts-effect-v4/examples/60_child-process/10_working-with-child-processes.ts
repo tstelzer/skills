@@ -7,36 +7,25 @@ import { NodeServices } from "@effect/platform-node"
 import { Console, Context, Effect, Layer, PlatformError, Schema, Stream, String } from "effect"
 import { ChildProcess, ChildProcessSpawner } from "effect/process"
 
-export class DevToolsPlatformError extends Schema.TaggedError<DevToolsPlatformError>()(
-  "DevToolsPlatformError",
-  {
-    operation: Schema.Literals([
-      "node --version",
-      "git diff",
-      "git log",
-      "pnpm lint-fix spawn",
-      "pnpm lint-fix output",
-      "pnpm lint-fix exit"
-    ]),
-    reason: Schema.instanceOf(PlatformError.PlatformError)
-  }
-) {}
-
 export class CommandFailed extends Schema.TaggedError<CommandFailed>()("CommandFailed", {
   command: Schema.String,
   exitCode: Schema.Int
 }) {}
 
-export type DevToolsError = DevToolsPlatformError | CommandFailed
-
-const mapPlatformError = (operation: DevToolsPlatformError["operation"]) =>
-  Effect.mapError((reason: PlatformError.PlatformError) => new DevToolsPlatformError({ operation, reason }))
-
 export class DevTools extends Context.Service<DevTools, {
-  readonly nodeVersion: Effect.Effect<string, DevToolsError>
-  readonly recentCommitSubjects: Effect.Effect<ReadonlyArray<string>, DevToolsError>
-  readonly runLintFix: Effect.Effect<void, DevToolsError>
-  changedTypeScriptFiles(baseRef: string): Effect.Effect<ReadonlyArray<string>, DevToolsError>
+  readonly nodeVersion: Effect.Effect<string, PlatformError.PlatformError>
+  readonly recentCommitSubjects: Effect.Effect<
+    ReadonlyArray<string>,
+    PlatformError.PlatformError
+  >
+  readonly runLintFix: Effect.Effect<
+    void,
+    PlatformError.PlatformError | CommandFailed
+  >
+  changedTypeScriptFiles(baseRef: string): Effect.Effect<
+    ReadonlyArray<string>,
+    PlatformError.PlatformError
+  >
 }>()("docs/DevTools") {
   // Keep the platform requirement visible. Provide NodeServices at the
   // application boundary below.
@@ -52,8 +41,7 @@ export class DevTools extends Context.Service<DevTools, {
     const nodeVersion = spawner.string(
       ChildProcess.make("node", ["--version"])
     ).pipe(
-      Effect.map(String.trim),
-      mapPlatformError("node --version")
+      Effect.map(String.trim)
     )
 
     const changedTypeScriptFiles = Effect.fn("DevTools.changedTypeScriptFiles")(function*(baseRef: string) {
@@ -63,8 +51,6 @@ export class DevTools extends Context.Service<DevTools, {
       // output.
       const files = yield* spawner.lines(
         ChildProcess.make("git", ["diff", "--name-only", `${baseRef}...HEAD`])
-      ).pipe(
-        mapPlatformError("git diff")
       )
 
       return files.filter((file) => file.endsWith(".ts"))
@@ -76,8 +62,6 @@ export class DevTools extends Context.Service<DevTools, {
       ChildProcess.make("git", ["log", "--pretty=format:%s", "-n", "20"]).pipe(
         ChildProcess.pipeTo(ChildProcess.make("head", ["-n", "5"]))
       )
-    ).pipe(
-      mapPlatformError("git log")
     )
 
     const runLintFix = Effect.gen(function*() {
@@ -88,20 +72,15 @@ export class DevTools extends Context.Service<DevTools, {
           env: { FORCE_COLOR: "1" },
           extendEnv: true
         })
-      ).pipe(
-        mapPlatformError("pnpm lint-fix spawn")
       )
 
       yield* handle.all.pipe(
         Stream.decodeText(),
         Stream.splitLines,
-        Stream.runForEach((line) => Console.log(`[lint-fix] ${line}`)),
-        mapPlatformError("pnpm lint-fix output")
+        Stream.runForEach((line) => Console.log(`[lint-fix] ${line}`))
       )
 
-      const exitCode = yield* handle.exitCode.pipe(
-        mapPlatformError("pnpm lint-fix exit")
-      )
+      const exitCode = yield* handle.exitCode
 
       if (exitCode !== ChildProcessSpawner.ExitCode(0)) {
         return yield* new CommandFailed({

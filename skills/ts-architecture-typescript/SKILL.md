@@ -1,26 +1,22 @@
 ---
 name: ts-architecture-typescript
-description: TypeScript application and package architectur
+description: TypeScript application and package architecture.
 ---
 
 # TypeScript architecture
 
 ## Start here
 
-1. Read skill: ts-principles.
-2. Read the relevant sections of [shared architecture](./shared.md).
-3. Check whether the application or package uses NestJS, Effect, both, or neither. Read the matching row below.
-   Choose from its dependencies and runtime owner.
-
-| Code uses | Read |
-| --- | --- |
-| Plain Typescript | [Plain TypeScript](./plain-typescript.md) |
-| Only NestJS | [NestJS](./nestjs.md) |
-| Only Effect | [Effect](./effect.md) |
-| Combined NestJS and Effect | [NestJS](./nestjs.md), [Effect](./effect.md), then [their integration](./nestjs-effect.md) |
-
-For a new application, choose the execution style from its needs before following a row.
-Read only the selected path. Each path applies the shared rules to its dependency and resource model.
+- Read skill: ts-principles.
+- Read the relevant sections of [shared architecture](./shared.md).
+- For a new application, choose how to run it based on what it needs.
+- Check the dependencies and which framework starts the application before choosing a guide.
+- For plain TypeScript, read [Plain TypeScript](./plain-typescript.md).
+- For NestJS, read [NestJS](./nestjs.md).
+- For Effect, read [Effect](./effect.md).
+- For NestJS with Effect, read [NestJS](./nestjs.md), [Effect](./effect.md), then
+  [their integration](./nestjs-effect.md).
+- Read only the guides that match the application or package.
 
 ## Shared architecture index
 

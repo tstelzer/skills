@@ -4,19 +4,16 @@
  * Learn how to create effects from various sources, including plain values,
  * synchronous code, Promise APIs, optional values, and callback-based APIs.
  */
-import { Effect, Schema } from "effect"
+import { Effect } from "effect"
 
-class InvalidPayload extends Schema.TaggedError<InvalidPayload>()("InvalidPayload", {
-  input: Schema.String,
-  cause: Schema.Defect()
-}) {}
+// This is the error the Promise client throws, not a wrapper added by Effect.
+class UserNotFound extends Error {
+  readonly _tag = "UserNotFound"
 
-class UserLookupError extends Schema.TaggedError<UserLookupError>()("UserLookupError", {
-  userId: Schema.Int,
-  cause: Schema.Defect()
-}) {}
-
-class MissingWorkspaceId extends Schema.TaggedError<MissingWorkspaceId>()("MissingWorkspaceId", {}) {}
+  constructor(readonly userId: number) {
+    super(`Missing user ${userId}`)
+  }
+}
 
 // Some request fields are optional and may be absent.
 const requestHeaders = new Map<string, string>([
@@ -26,17 +23,21 @@ const requestHeaders = new Map<string, string>([
 // `Effect.succeed` wraps values you already have in memory.
 export const fromValue = Effect.succeed({ env: "prod", retries: 3 })
 
-// `Effect.sync` defers synchronous work that should not throw. Use Effect
-// capabilities instead when the work reads time, randomness, or platform state.
+// `Effect.sync` leaves thrown errors as defects. Use it when the application
+// has no recovery for them. Use Effect capabilities for time or platform state.
 export const fromSyncComputation = Effect.sync(
   () => new Map<string, string>()
 )
 
-// `Effect.try` wraps synchronous code that may throw.
+// The caller can ask for corrected JSON on SyntaxError. Keep that original
+// error in the channel; every other exception is a defect.
 export const parsePayload = Effect.fn("parsePayload")((input: string) =>
   Effect.try({
-    try: () => JSON.parse(input) as { readonly userId: number },
-    catch: (cause) => new InvalidPayload({ input, cause })
+    try: (): unknown => JSON.parse(input),
+    catch: (error) => {
+      if (error instanceof SyntaxError) return error
+      throw error
+    }
   })
 )
 
@@ -45,23 +46,32 @@ const users = new Map<number, { readonly id: number; readonly name: string }>([
   [2, { id: 2, name: "Lin" }]
 ])
 
-// `Effect.tryPromise` wraps Promise-based APIs that can reject or throw.
+// A small Promise client for this example.
+const lookupUser = async (userId: number) => {
+  const user = users.get(userId)
+  if (!user) throw new UserNotFound(userId)
+  return user
+}
+
+// This caller has no recovery for lookup failures, so they stay defects.
+export const fetchRequiredUser = Effect.fn("fetchRequiredUser")(
+  (userId: number) => Effect.promise(() => lookupUser(userId))
+)
+
+// This caller can handle a missing user. Expose the client's original error.
 export const fetchUser = Effect.fn("fetchUser")((userId: number) =>
   Effect.tryPromise({
-    async try() {
-      const user = users.get(userId)
-      if (!user) {
-        throw new Error(`Missing user ${userId}`)
-      }
-      return user
-    },
-    catch: (cause) => new UserLookupError({ userId, cause })
+    try: () => lookupUser(userId),
+    catch: (error) => {
+      if (error instanceof UserNotFound) return error
+      throw error
+    }
   })
 )
 
 // `Effect.fromNullishOr` turns nullable values into a typed effect.
-export const fromNullishHeader = Effect.fromNullishOr(requestHeaders.get("x-workspace-id")).pipe(
-  Effect.mapError(() => new MissingWorkspaceId())
+export const fromNullishHeader = Effect.fromNullishOr(
+  requestHeaders.get("x-workspace-id")
 )
 
 // `Effect.callback` wraps callback-style asynchronous APIs.

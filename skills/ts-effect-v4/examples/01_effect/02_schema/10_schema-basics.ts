@@ -4,7 +4,7 @@
  * Define `Schema.Class`s, decode unknown input into typed values, and
  * encode typed values back into their external representation.
  */
-import { Effect, Schema } from "effect"
+import { Schema } from "effect"
 
 // Schema.Class defines both a runtime validator and a TypeScript class.
 // This is useful for domain models that should only be constructed from valid
@@ -40,13 +40,5 @@ export const decodeUserOption = Schema.decodeUnknownOption(User)
 export const decodeUserSync = Schema.decodeUnknownSync(User)
 export const decodeUserPromise = Schema.decodeUnknownPromise(User)
 
-export class InvalidUserPayload extends Schema.TaggedError<InvalidUserPayload>()("InvalidUserPayload", {
-  reason: Schema.instanceOf(Schema.SchemaError)
-}) {}
-
-export const parseUserPayload = Effect.fn("parseUserPayload")((input: unknown) =>
-  decodeUser(input).pipe(
-    // Map only this boundary operation and retain the structured SchemaError.
-    Effect.mapError((reason) => new InvalidUserPayload({ reason }))
-  )
-)
+// `decodeUser` already returns SchemaError with the fields a caller needs to
+// report invalid input. Do not add an InvalidUserPayload wrapper around it.

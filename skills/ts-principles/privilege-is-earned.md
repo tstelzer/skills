@@ -65,7 +65,7 @@ concurrency caps are part of the trust decision.
 - Privileged operations: require explicit authority for admin actions, billing,
   impersonation, export, deletion, feature flags, and policy changes.
 - Third parties: parse responses, bound timeouts and response sizes, constrain
-  redirects, map external errors, and send only needed secrets.
+  redirects, keep private error details out of responses, and send only needed secrets.
 - Configuration: keep development defaults, debug endpoints, public buckets,
   CORS, cookies, TLS assumptions, and route order out of production by default.
 - Supply chain: treat packages, install hooks, native binaries, generated code,

@@ -1,64 +1,38 @@
 /**
- * @title Creating and handling errors with reasons
+ * @title Handling reasons from a dependency
  *
- * Define a tagged error with a tagged `reason` field, then recover with
- * `Effect.catchReason`, `Effect.catchReasons`, or by unwrapping the reason into
- * the error channel with `Effect.unwrapReason`.
+ * Handle the reason already supplied by an AI provider. Do not add an
+ * application wrapper just to use these operators.
  */
+import { Effect } from "effect"
+import type { AiError } from "effect/ai"
 
-import { Effect, Schema } from "effect"
-
-export class RateLimitError extends Schema.TaggedError<RateLimitError>()("RateLimitError", {
-  retryAfter: Schema.Finite
-}) {}
-
-export class QuotaExceededError extends Schema.TaggedError<QuotaExceededError>()("QuotaExceededError", {
-  limit: Schema.Int
-}) {}
-
-export class SafetyBlockedError extends Schema.TaggedError<SafetyBlockedError>()("SafetyBlockedError", {
-  category: Schema.String
-}) {}
-
-export class AiError extends Schema.TaggedError<AiError>()("AiError", {
-  reason: Schema.Union([RateLimitError, QuotaExceededError, SafetyBlockedError])
-}) {}
-
-declare const callModel: Effect.Effect<string, AiError>
-
-export const handleOneReason = callModel.pipe(
-  // Use `Effect.catchReason` to handle a specific reason type
-  Effect.catchReason(
-    "AiError", // The parent error _tag to catch
-    "RateLimitError", // The reason _tag to catch
-    // The handler for the caught reason
-    (reason) => Effect.succeed(`Retry after ${reason.retryAfter} seconds`),
-    // Optionally handle all the other reasons with a catch-all handler
-    (reason) => Effect.succeed(`Model call failed for reason: ${reason._tag}`)
-  )
+// The fallback calls another model and must answer the same request.
+export const handleOneReason = (
+  callModel: Effect.Effect<string, AiError.AiError>,
+  fallback: Effect.Effect<string, AiError.AiError>
+) => callModel.pipe(
+  Effect.catchReason("AiError", "RateLimitError", () => fallback)
 )
 
-export const handleMultipleReasons = callModel.pipe(
-  // Use `Effect.catchReasons` to handle multiple reason types for a given error
-  // in one go
-  Effect.catchReasons(
-    "AiError",
-    {
-      RateLimitError: (reason) => Effect.succeed(`Retry after ${reason.retryAfter} seconds`),
-      QuotaExceededError: (reason) => Effect.succeed(`Quota exceeded at ${reason.limit} tokens`)
-    }
-    // Optionally handle all the other reasons with a catch-all handler
-    // (reason) => Effect.succeed(`Unhandled reason: ${reason._tag}`)
-  )
+export const handleMultipleReasons = (
+  callModel: Effect.Effect<string, AiError.AiError>,
+  fallback: Effect.Effect<string, AiError.AiError>
+) => callModel.pipe(
+  Effect.catchReasons("AiError", {
+    RateLimitError: () => fallback,
+    QuotaExceededError: () => fallback
+  })
 )
 
-export const unwrapAndHandle = callModel.pipe(
-  // Use `Effect.unwrapReason` to move the reasons into the error channel, then
-  // handle them all with `Effect.catchTags` or other error handling combinators
+export const unwrapAndHandle = (
+  callModel: Effect.Effect<string, AiError.AiError>,
+  fallback: Effect.Effect<string, AiError.AiError>
+) => callModel.pipe(
+  // Unwrap the dependency's existing reason instead of creating another error.
   Effect.unwrapReason("AiError"),
   Effect.catchTags({
-    RateLimitError: (reason) => Effect.succeed(`Back off for ${reason.retryAfter} seconds`),
-    QuotaExceededError: (reason) => Effect.succeed(`Increase quota beyond ${reason.limit}`),
-    SafetyBlockedError: (reason) => Effect.succeed(`Blocked by safety category: ${reason.category}`)
+    RateLimitError: () => fallback,
+    QuotaExceededError: () => fallback
   })
 )

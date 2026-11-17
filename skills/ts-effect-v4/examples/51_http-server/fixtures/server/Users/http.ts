@@ -13,49 +13,16 @@ export const UsersApiHandlersNoDeps = HttpApiBuilder.group(
     const users = yield* Users
 
     return handlers.handleAll({
-      list: ({ query }) =>
-        users.list(query.search).pipe(
-          Effect.catchReason(
-            "UsersError",
-            "SearchQueryTooShort",
-            Effect.fail,
-            // No other UsersError reason belongs to the list contract.
-            Effect.die
-          )
-        ),
+      list: ({ query }) => users.list(query.search),
       search: Effect.fn(function*({ payload }) {
         if (payload.search === "bad-request") {
           return yield* new HttpApiError.RequestTimeout()
         }
-        return yield* users.list(payload.search).pipe(
-          Effect.catchReason(
-            "UsersError",
-            "SearchQueryTooShort",
-            // Re-fail the reason declared by the protocol.
-            Effect.fail,
-            // Undeclared reasons violate the protocol contract.
-            Effect.die
-          )
-        )
+        return yield* users.list(payload.search)
       }),
-      getById: ({ params }) =>
-        users.getById(params.id).pipe(
-          Effect.catchReasons("UsersError", {
-            UserNotFound: (e) => Effect.fail(e)
-          }, Effect.die)
-        ),
-      create: ({ payload }) =>
-        users.create(payload).pipe(
-          // The API contract declares UsersError impossible for this endpoint.
-          // Do not use orDie when the protocol should expose the failure.
-          Effect.orDie
-        ),
-      update: ({ params, payload }) =>
-        users.update(params.id, payload).pipe(
-          Effect.catchReasons("UsersError", {
-            UserNotFound: (e) => Effect.fail(e)
-          }, Effect.die)
-        ),
+      getById: ({ params }) => users.getById(params.id),
+      create: ({ payload }) => users.create(payload),
+      update: ({ params, payload }) => users.update(params.id, payload),
       me: () =>
         // The Authorization middleware provides the CurrentUser service, so we
         // can access it here.

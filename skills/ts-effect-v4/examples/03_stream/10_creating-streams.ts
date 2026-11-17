@@ -12,7 +12,7 @@
  * - `NodeStream.fromReadable` for Node.js readable streams
  */
 import { NodeStream } from "@effect/platform-node"
-import { Array, Effect, Queue, Schedule, Schema, Stream } from "effect"
+import { Array, Effect, Queue, Schedule, Stream } from "effect"
 import * as Option from "effect/Option"
 import { Readable } from "node:stream"
 
@@ -49,10 +49,6 @@ export const fetchJobsPage = Stream.paginate(
   })
 )
 
-class LetterError extends Schema.TaggedError<LetterError>()("LetterError", {
-  cause: Schema.Defect()
-}) {}
-
 async function* asyncIterable() {
   yield "a"
   yield "b"
@@ -60,12 +56,12 @@ async function* asyncIterable() {
 }
 
 // Create a stream from an async iterable.
-// The second argument is a function that converts any errors thrown by the
-// async iterable into a typed error.
+// The required mapper keeps the original error. This caller has no recovery
+// for iterator failures, so Stream.orDie turns them into defects.
 export const letters = Stream.fromAsyncIterable(
   asyncIterable(),
-  (cause) => new LetterError({ cause })
-)
+  (error) => error
+).pipe(Stream.orDie)
 
 const button = document.getElementById("my-button")!
 
@@ -88,16 +84,11 @@ export const callbackStream = Stream.callback<PointerEvent>(Effect.fn(function*(
   )
 }))
 
-export class NodeStreamError extends Schema.TaggedError<NodeStreamError>()("NodeStreamError", {
-  cause: Schema.Defect()
-}) {}
-
 // Create a stream from a Node.js readable stream.
 //
-// It takes options to convert any errors emitted by the stream into a typed
-// error, and to evaluate the stream lazily.
+// Preserve errors from the readable. This caller has no recovery for them.
 export const nodeStream = NodeStream.fromReadable({
   evaluate: () => Readable.from(["Hello", " ", "world", "!"]),
-  onError: (cause) => new NodeStreamError({ cause }),
+  onError: (error) => error,
   closeOnDone: true // true by default
-})
+}).pipe(Stream.orDie)

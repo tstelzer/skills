@@ -63,7 +63,7 @@ Paths are relative to this file.
   - [01_basics/](./examples/01_effect/01_basics/index.md): writing Effect code.
     - `01_effect-gen.ts`: using `Effect.gen`.
     - `02_effect-fn.ts`: using `Effect.fn` and `Effect.fnUntraced`.
-    - `10_creating-effects.ts`: creating effects from values, sync, Promises, nullables, callbacks.
+    - `10_creating-effects.ts`: creating effects from values, sync, Promises, nullables, callbacks, and known errors.
   - [02_schema/](./examples/01_effect/02_schema/index.md): runtime schemas and domain models.
     - `10_schema-basics.ts`: decoded and encoded types, decoding, encoding, and boundary errors.
     - `20_primitives-composition.ts`: primitives, structs, collections, records, and template literals.
@@ -85,7 +85,7 @@ Paths are relative to this file.
   - [04_errors/](./examples/01_effect/04_errors/index.md): error handling.
     - `01_error-handling.ts`: custom errors, `Effect.catch` / `Effect.catchTag`.
     - `10_catch-tags.ts`: handle several tagged errors with `Effect.catchTags`.
-    - `20_reason-errors.ts`: tagged `reason` fields, `catchReason` / `unwrapReason`.
+    - `20_reason-errors.ts`: handling a dependency's existing `reason` field with `catchReason` / `unwrapReason`.
   - [05_resources/](./examples/01_effect/05_resources/index.md): resources and `Scope`s.
     - `10_acquire-release.ts`: `Effect.acquireRelease` lifecycles.
     - `20_layer-side-effects.ts`: background tasks via `Layer.effectDiscard`.
@@ -155,8 +155,11 @@ Before finishing an Effect implementation or review, check the whole change for:
 - Hidden service inputs or platform layers supplied inside implementations instead of where the program starts.
 - Promises managed by hand, `try` / `finally`, or cleanup that should use a scope.
 - `catch` handlers that only log, render, set metadata, or return `void`.
-- Broad `mapError`, `unknown`, `instanceof`, `catchDefect`, or `orDie` usage
-  that hides a more specific error type at the boundary.
+- Error wrappers that only rename an error, mark a module boundary, or shorten an error union.
+- `Effect.tryPromise` or `Effect.try` used without a specific failure that callers recognize and can handle.
+- `catch` callbacks that replace recognized errors instead of returning the original values.
+- Unknown errors returned from `catch` instead of thrown as defects.
+- Re-checking typed errors as `unknown`, or using `catchDefect` / `orDie` to hide a failure callers should handle.
 - Cleanup that hides a failure that must be reported or replaces the original result.
 - Missing, empty, malformed, partial, and complete outcomes that callers need
   to distinguish.

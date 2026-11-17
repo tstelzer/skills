@@ -11,9 +11,10 @@ imports its neighbor's `internal/` folder is reading mail addressed to
 someone else. Each crack invites more, until the boundary is a name on a
 folder and nothing else.
 
-Treat the edge as a translator. External names, wire shapes, library errors,
-and protocol details belong outside. Internal names, domain types, and domain
-errors belong inside. The mapping happens at the edge, in one place.
+Translate external names, data shapes, and protocol details at the edge.
+Keep technical errors intact for the code that handles them. Crossing a module
+boundary does not justify wrapping an error. Follow
+[handle it, or die](handle-it-or-die.md) when choosing which failures callers can handle.
 
 Prefer explicit dependencies to ambient coupling. A function that reaches for a
 global singleton, a process env var, or a sibling module's private export has
@@ -59,20 +60,15 @@ The repository owns the mapping. The rest of the system sees `User`.
 With Effect:
 
 ```ts
-const findUser = (
-  id: UserId,
-): Effect.Effect<Option.Option<User>, RepositoryError> =>
-  Effect.gen(function* () {
-    const document = yield* Effect.tryPromise({
-      try: () => collection.findOne({ _id: id }),
-      catch: (cause) => new RepositoryError({ cause }),
-    })
+const findUser = Effect.fn("findUser")(function* (id: UserId) {
+  const document = yield* Effect.promise(() => collection.findOne({ _id: id }))
 
-    return Option.fromNullable(document).pipe(Option.map(toUser))
-  })
+  return Option.fromNullishOr(document).pipe(Option.map(toUser))
+})
 ```
 
-The signature carries the boundary in its types. No driver shapes leak out.
+The result contains application values. This lookup has no recovery for database
+failures, so `Effect.promise` keeps a rejection as a defect with the original error.
 
 ### map external concepts at the edge
 

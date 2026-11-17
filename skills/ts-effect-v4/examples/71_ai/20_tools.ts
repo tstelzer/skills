@@ -104,17 +104,12 @@ const OpenAiClientLayer = OpenAiClient.layerConfig({
   apiKey: Config.Redacted("OPENAI_API_KEY")
 }).pipe(Layer.provide(FetchHttpClient.layer))
 
-export class ProductAssistantError extends Schema.TaggedError<ProductAssistantError>()(
-  "ProductAssistantError",
-  { reason: AiError.AiErrorReason }
-) {}
-
 // Wrap tool-enabled generation in a service
 export class ProductAssistant extends Context.Service<ProductAssistant, {
   answer(question: string): Effect.Effect<{
     readonly text: string
     readonly toolCallCount: number
-  }, ProductAssistantError>
+  }, AiError.AiError>
 }>()("docs/ProductAssistant") {
   static readonly make = Effect.gen(function*() {
     // Access the toolkit's handlers by yielding the toolkit definition.
@@ -163,16 +158,10 @@ export class ProductAssistant extends Context.Service<ProductAssistant, {
       },
       // Provide the chosen model to use
       Effect.provide(model),
-      (_) => _,
-      // Map AI errors into our domain error type
+      // Keep the provider's AI errors unchanged.
       Effect.catchTag(
         "AiError",
-        (error) =>
-          Effect.fail(
-            new ProductAssistantError({
-              reason: error.reason
-            })
-          ),
+        Effect.fail,
         // For unexpected errors, die with the original error
         (e) => Effect.die(e)
       )

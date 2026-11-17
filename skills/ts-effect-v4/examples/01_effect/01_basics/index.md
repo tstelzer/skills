@@ -6,6 +6,12 @@ not, particularly in library implementations and hot paths. Avoid functions
 that only wrap and return `Effect.gen`. Attach additional behavior with
 combinators.
 
+- Use `Effect.promise` and `Effect.sync` when the application has no recovery for a rejection or throw.
+- Use `Effect.tryPromise` and `Effect.try` only to expose specific errors that callers recognize and can handle.
+- Return recognized errors unchanged from `catch`.
+- Throw all other errors from `catch` so they become defects.
+- Follow the [error rules](../04_errors/index.md) when choosing which failures to expose.
+
 Pass `{ self: this }` before the generator body when `Effect.fnUntraced` or
 `Effect.fnUntracedEager` needs to bind `this`.
 

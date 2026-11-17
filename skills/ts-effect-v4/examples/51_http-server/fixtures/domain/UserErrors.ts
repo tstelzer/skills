@@ -12,11 +12,3 @@ export class SearchQueryTooShort
 {
   static readonly minimumLength = 2
 }
-
-// Create a wrapper error class for all errors in the Users API.
-//
-// This prevents adding too many error types to services / endpoint definitions.
-//
-export class UsersError extends Schema.TaggedError<UsersError>()("UsersError", {
-  reason: Schema.Union([UserNotFound, SearchQueryTooShort])
-}) {}

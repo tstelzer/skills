@@ -13,9 +13,9 @@ Keep secret arguments and environment values as `Redacted` strings. Use
 `CommandLine.display` for logs. Consume both output streams when using a raw
 process handle; output sinks run only while their handle stream is consumed.
 
-Map each spawn, stream, and exit-code failure at that operation. Keep
-`PlatformError` typed until the mapping and inspect `reason` when behavior
-depends on `NotFound`, permissions, or another platform condition.
+Keep `PlatformError` unchanged across spawn, stream, and exit-code operations.
+Inspect `reason` when a caller handles `NotFound`, permissions, or another
+platform condition. Do not add a wrapper just to name the command or operation.
 
 Model command failure separately from a command that succeeds but returns
 invalid output. Preserve missing, empty, malformed, and partial output when

@@ -4,12 +4,7 @@
  * Use `LayerMap.Service` to dynamically build and manage resources that are
  * keyed by some identifier, such as a tenant ID.
  */
-import { Context, Effect, Layer, LayerMap, Schema } from "effect"
-
-class DatabaseQueryError extends Schema.TaggedError<DatabaseQueryError>()("DatabaseQueryError", {
-  tenantId: Schema.String,
-  cause: Schema.Defect()
-}) {}
+import { Context, Effect, Layer, LayerMap } from "effect"
 
 type UserRecord = {
   readonly id: number
@@ -21,7 +16,7 @@ let nextConnectionId = 0
 export class DatabasePool extends Context.Service<DatabasePool, {
   readonly tenantId: string
   readonly connectionId: number
-  readonly query: (sql: string) => Effect.Effect<ReadonlyArray<UserRecord>, DatabaseQueryError>
+  readonly query: (sql: string) => Effect.Effect<ReadonlyArray<UserRecord>>
 }>()("app/DatabasePool") {
   static readonly make = (tenantId: string) =>
     Effect.acquireRelease(

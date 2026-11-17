@@ -6,7 +6,7 @@
  */
 
 import { PgClient } from "@effect/sql-pg"
-import { Array, Config, Context, Effect, Layer, type Option, Schema } from "effect"
+import { Array, Config, Context, Effect, Layer, type Option } from "effect"
 import { SqlClient, SqlError } from "effect/sql"
 
 // Define a layer for the SqlClient service
@@ -17,14 +17,10 @@ export const SqlClientLayer: Layer.Layer<
   url: Config.Redacted("DATABASE_URL")
 })
 
-export class UserRespositoryError extends Schema.TaggedError<UserRespositoryError>()("UserRespositoryError", {
-  reason: SqlError.SqlError
-}) {}
-
 export class UserRepository extends Context.Service<UserRepository, {
   findById(id: string): Effect.Effect<
     Option.Option<{ readonly id: string; readonly name: string }>,
-    UserRespositoryError
+    SqlError.SqlError
   >
 }>()("myapp/UserRepository", {
   make: Effect.gen(function*() {
@@ -36,7 +32,7 @@ export class UserRepository extends Context.Service<UserRepository, {
         readonly name: string
       }>`SELECT * FROM users WHERE id = ${id}`
       return Array.head(results)
-    }, Effect.mapError((reason) => new UserRespositoryError({ reason })))
+    })
 
     return { findById }
   })

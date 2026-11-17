@@ -6,7 +6,7 @@
  */
 import { AnthropicClient, AnthropicLanguageModel } from "@effect/ai-anthropic"
 import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai"
-import { Config, Context, Effect, ExecutionPlan, Layer, Schema, Stream } from "effect"
+import { Config, Context, Effect, ExecutionPlan, Layer, Stream } from "effect"
 import { AiError, LanguageModel, Model, type Response } from "effect/ai"
 import { FetchHttpClient } from "effect/http"
 import { LaunchPlan } from "./fixtures/domain/LaunchPlan.ts"
@@ -25,18 +25,6 @@ const OpenAiClientLayer = OpenAiClient.layerConfig({
 }).pipe(
   Layer.provide(FetchHttpClient.layer)
 )
-
-export class AiWriterError extends Schema.TaggedError<AiWriterError>()("AiWriterError", {
-  // AiErrorReason is a Schema, so we can include it directly in our custom
-  // error schema.
-  reason: AiError.AiErrorReason
-}) {
-  static fromAiError(error: AiError.AiError) {
-    return new AiWriterError({
-      reason: error.reason
-    })
-  }
-}
 
 // You can use `ExecutionPlan` to define a strategy for trying multiple
 // providers with different configurations. In this example, we try a cheaper
@@ -59,9 +47,12 @@ export class AiWriter extends Context.Service<AiWriter, {
   draftAnnouncement(product: string): Effect.Effect<{
     readonly provider: string
     readonly text: string
-  }, AiWriterError>
-  extractLaunchPlan(notes: string): Effect.Effect<LaunchPlan, AiWriterError>
-  streamReleaseHighlights(version: string): Stream.Stream<string, AiWriterError>
+  }, AiError.AiError>
+  extractLaunchPlan(notes: string): Effect.Effect<LaunchPlan, AiError.AiError>
+  streamReleaseHighlights(version: string): Stream.Stream<
+    string,
+    AiError.AiError
+  >
 }>()("docs/AiWriter") {
   static readonly make = Effect.gen(function*() {
     // Calling `captureRequirements` on an `ExecutionPlan` will move the
@@ -93,9 +84,7 @@ export class AiWriter extends Context.Service<AiWriter, {
         }
       },
       // To apply an `ExecutionPlan`, we use `Effect.withExecutionPlan`
-      Effect.withExecutionPlan(draftsModel),
-      // Map AiError into our custom error type
-      Effect.mapError((error) => AiWriterError.fromAiError(error))
+      Effect.withExecutionPlan(draftsModel)
     )
 
     const extractLaunchPlan = Effect.fn("AiWriter.extractLaunchPlan")(
@@ -114,9 +103,7 @@ export class AiWriter extends Context.Service<AiWriter, {
       },
       // The .model(...) apis return a Layer that can be used with
       // Effect.provide
-      Effect.provide(launchPlanModel),
-      // Map AiError into our custom error type
-      Effect.mapError((error) => AiWriterError.fromAiError(error))
+      Effect.provide(launchPlanModel)
     )
 
     const streamReleaseHighlights = (version: string) =>
@@ -125,9 +112,7 @@ export class AiWriter extends Context.Service<AiWriter, {
       }).pipe(
         Stream.filter((part): part is Response.TextDeltaPart => part.type === "text-delta"),
         Stream.map((part) => part.delta),
-        Stream.provide(launchPlanModel),
-        // Map AiError into our custom error type
-        Stream.mapError((error) => AiWriterError.fromAiError(error))
+        Stream.provide(launchPlanModel)
       )
 
     return AiWriter.of({
@@ -149,7 +134,7 @@ export class AiWriter extends Context.Service<AiWriter, {
 // We can now use `AiWriter` like any other Effect service.
 export const program: Effect.Effect<
   void,
-  AiWriterError,
+  AiError.AiError,
   AiWriter
 > = Effect.gen(function*() {
   const writer = yield* AiWriter

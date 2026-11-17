@@ -2,10 +2,12 @@
 
 ## Assemble the executable
 
-Pass dependencies through function arguments or constructors. Use Promises and async iterables for asynchronous work.
-Keep startup and cleanup in the entrypoint. Use `try` / `finally` to close resources when the work finishes or fails.
+- Pass dependencies through function arguments or constructors.
+- Use Promises and async iterables for asynchronous work.
+- Keep startup and cleanup in the entrypoint.
+- Use `try` / `finally` to close resources when the work finishes or fails.
 
-Weak:
+- Avoid connecting during import:
 
 ```ts
 // users.repository.ts
@@ -16,14 +18,9 @@ export const users = new MongoUserRepository(mongo)
 await startServer({ users })
 ```
 
-Stronger:
+- Put startup and cleanup in `main`:
 
 ```ts
-// app.ts
-export const makeApp = ({ users }: Dependencies) => ({
-  start: () => startServer({ users }),
-})
-
 // main.ts
 export const main = async () => {
   const mongoConfig = parseMongoConfig(process.env)
@@ -42,10 +39,11 @@ export const main = async () => {
 
 ## Parse configuration at startup
 
-Load dotenv and read `process.env` only inside an executable's entry function. Read the environment once and pass it
-to each capability's parser.
+- Load dotenv only inside the executable's entry function.
+- Read `process.env` once in that function.
+- Pass the environment to each settings parser.
 
-Weak:
+- Avoid reading the environment inside services:
 
 ```ts
 // payments.service.ts
@@ -58,7 +56,7 @@ class PaymentsService {
 }
 ```
 
-Stronger:
+- Parse settings at startup:
 
 ```ts
 // payments.config.ts
@@ -101,4 +99,4 @@ export const main = async () => {
 }
 ```
 
-Use `randomUUID` from `node:crypto` for UUID generation in Node applications.
+- Use `randomUUID` from `node:crypto` to generate UUIDs in Node applications.

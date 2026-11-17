@@ -3,7 +3,7 @@ import { Context, Effect, Layer, Schema } from "effect"
 import { SqlClient, SqlModel, SqlSchema } from "effect/sql"
 import { User } from "../domain/User.ts"
 import type { UserId } from "../domain/User.ts"
-import { SearchQueryTooShort, UserNotFound, UsersError } from "../domain/UserErrors.ts"
+import { SearchQueryTooShort, UserNotFound } from "../domain/UserErrors.ts"
 
 // The SqlClient layer determines which database the SQL implementation talks
 // to. Swap it for another driver package to target a different database.
@@ -30,10 +30,16 @@ const MigratorLayer = SqliteMigrator.layer({
 })
 
 export class Users extends Context.Service<Users, {
-  list(search: string | undefined): Effect.Effect<Array<User>, UsersError>
-  getById(id: UserId): Effect.Effect<User, UsersError>
-  create(input: typeof User.jsonCreate.Type): Effect.Effect<User, UsersError>
-  update(id: UserId, input: typeof User.jsonUpdate.Type): Effect.Effect<User, UsersError>
+  list(search: string | undefined): Effect.Effect<
+    Array<User>,
+    SearchQueryTooShort
+  >
+  getById(id: UserId): Effect.Effect<User, UserNotFound>
+  create(input: typeof User.jsonCreate.Type): Effect.Effect<User>
+  update(id: UserId, input: typeof User.jsonUpdate.Type): Effect.Effect<
+    User,
+    UserNotFound
+  >
 }>()("acme/Users") {
   // The SQL implementation only requires a `SqlClient`, so entrypoints and
   // tests decide how the database is provided.
@@ -70,9 +76,7 @@ export class Users extends Context.Service<Users, {
       if (search === undefined || search.length === 0) {
         return yield* Effect.orDie(listAll())
       } else if (search.length < SearchQueryTooShort.minimumLength) {
-        return yield* new UsersError({
-          reason: new SearchQueryTooShort()
-        })
+        return yield* new SearchQueryTooShort()
       }
       yield* Effect.annotateCurrentSpan({ search })
       return yield* Effect.orDie(searchUsers(search))
@@ -81,9 +85,8 @@ export class Users extends Context.Service<Users, {
     const getById = Effect.fn("Users.getById")((id: UserId) =>
       repo.findById(id).pipe(
         Effect.catchTags({
-          NoSuchElementError: () => new UsersError({ reason: new UserNotFound() }),
-          // Database and encoding failures are unexpected, so treat them as
-          // defects to keep the service interface focused on domain errors.
+          NoSuchElementError: () => new UserNotFound(),
+          // This application has no recovery for database or encoding failures.
           SchemaError: Effect.die,
           SqlError: Effect.die
         })
@@ -138,9 +141,7 @@ export class Users extends Context.Service<Users, {
       if (search === undefined || search.length === 0) {
         return allUsers
       } else if (search.length < SearchQueryTooShort.minimumLength) {
-        return yield* new UsersError({
-          reason: new SearchQueryTooShort()
-        })
+        return yield* new SearchQueryTooShort()
       }
       yield* Effect.annotateCurrentSpan({ search })
       const normalized = search.toLowerCase()
@@ -153,9 +154,7 @@ export class Users extends Context.Service<Users, {
       yield* Effect.annotateCurrentSpan({ id })
       const user = users.get(id)
       if (user === undefined) {
-        return yield* new UsersError({
-          reason: new UserNotFound()
-        })
+        return yield* new UserNotFound()
       }
       return user
     })

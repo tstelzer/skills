@@ -5,19 +5,15 @@
  * a resource, ensuring that it is properly cleaned up when the service is no
  * longer needed.
  */
-import { Config, Context, Effect, Layer, Redacted, Schema } from "effect"
+import { Config, Context, Effect, Layer, Redacted } from "effect"
 import * as NodeMailer from "nodemailer"
-
-export class SmtpError extends Schema.Error<SmtpError>("SmtpError")({
-  cause: Schema.Defect()
-}) {}
 
 export class Smtp extends Context.Service<Smtp, {
   send(message: {
     readonly to: string
     readonly subject: string
     readonly body: string
-  }): Effect.Effect<void, SmtpError>
+  }): Effect.Effect<void>
 }>()("app/Smtp") {
   static readonly make = Effect.gen(function*() {
     const user = yield* Config.String("SMTP_USER")
@@ -46,16 +42,15 @@ export class Smtp extends Context.Service<Smtp, {
       readonly subject: string
       readonly body: string
     }) =>
-      Effect.tryPromise({
-        try: () =>
-          transporter.sendMail({
-            from: "Acme Cloud <cloud@acme.com>",
-            to: message.to,
-            subject: message.subject,
-            text: message.body
-          }),
-        catch: (cause) => new SmtpError({ cause })
-      }).pipe(
+      // No SMTP recovery is defined here. Keep rejections as original defects.
+      Effect.promise(() =>
+        transporter.sendMail({
+          from: "Acme Cloud <cloud@acme.com>",
+          to: message.to,
+          subject: message.subject,
+          text: message.body
+        })
+      ).pipe(
         Effect.asVoid
       )
     )
@@ -69,12 +64,8 @@ export class Smtp extends Context.Service<Smtp, {
 // We can then use the `Smtp` service in another service, and the transporter
 // will be properly managed by the Layer system.
 
-export class MailerError extends Schema.TaggedError<MailerError>()("MailerError", {
-  reason: SmtpError
-}) {}
-
 export class Mailer extends Context.Service<Mailer, {
-  sendWelcomeEmail(to: string): Effect.Effect<void, MailerError>
+  sendWelcomeEmail(to: string): Effect.Effect<void>
 }>()("app/Mailer") {
   static readonly make = Effect.gen(function*() {
     const smtp = yield* Smtp
@@ -84,9 +75,7 @@ export class Mailer extends Context.Service<Mailer, {
         to,
         subject: "Welcome to Acme Cloud!",
         body: "Thanks for signing up for Acme Cloud. We're glad to have you!"
-      }).pipe(
-        Effect.mapError((reason) => new MailerError({ reason }))
-      )
+      })
       yield* Effect.logInfo(`Sent welcome email to ${to}`)
     })
 

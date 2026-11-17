@@ -1,47 +1,50 @@
 # NestJS with Effect
 
-Use the provider rules below, then read the section for the executable's process owner:
-
-- [Nest owns the process](#nest-owns-the-process): Nest starts the application and runs Effect workflows.
-- [Effect owns the process](#effect-owns-the-process): an Effect program opens a Nest application context.
+- Read the provider rules below.
+- If Nest starts the application, read [Nest owns the process](#nest-owns-the-process).
+- If an Effect program opens Nest, read [Effect owns the process](#effect-owns-the-process).
 
 ## Use Nest injection for Nest services
 
-Mirroring every Nest provider as an Effect service creates two dependency graphs. Each graph needs its own wiring and
-lifecycle. Return Effects from Nest provider methods without declaring matching Effect services.
+- Let Nest inject the dependencies of Nest providers.
+- Return Effects from provider methods without creating matching Effect services.
+- Duplicating Nest providers as Effect services gives each system its own setup and cleanup to manage.
 
-Bad:
+- Avoid registering the same services in both systems:
 
 ```text
 Nest:   OrdersRepository -> OrdersService
-Effect: OrdersRepositoryTag -> OrdersRepositoryLayer -> OrdersServiceTag
+Effect: OrdersRepository -> OrdersRepository.layer -> OrdersService
 ```
 
-Good:
+- Return an Effect from the Nest provider:
 
 ```ts
 @Injectable()
 class OrdersService {
   constructor(private readonly orders: OrdersRepository) {}
 
-  place(input: PlaceOrder) {
-    return this.orders.insert(input).pipe(Effect.map(toOrder))
-  }
+  place = Effect.fn("OrdersService.place")((input: PlaceOrder) =>
+    this.orders.insert(input).pipe(Effect.map(toOrder)),
+  )
 }
 ```
 
-Use an Effect service or Layer when an Effect-owned component needs that service graph or owns scoped resources. Adapt
-only the Nest dependencies that component needs. Do not look up arbitrary Nest providers inside its workflow.
+- Use an Effect service or Layer when an Effect component needs Effect dependencies or owns scoped resources.
+- Adapt only the Nest dependencies that component needs.
+- Do not look up arbitrary Nest providers inside the workflow.
 
 ## Nest owns the process
 
 ### Give Nest one Effect runtime
 
-Nest creates providers and defines their shutdown lifecycle. A runtime inside each service gives each Layer its own
-scope and finalizers. Logging and tracing can diverge across those runtimes. Register one `ManagedRuntime` as a Nest
-provider per application context. Inject that provider where Nest starts Effect work.
+- Let Nest create providers and manage their shutdown.
+- Register one `ManagedRuntime` as a Nest provider per application context.
+- Inject that provider where Nest starts Effect work.
+- A runtime in each service creates separate scopes and cleanup work.
+- Separate runtimes can use different logging and tracing settings.
 
-Bad:
+- Avoid a runtime in each service:
 
 ```text
 SearchService -> ManagedRuntime(SearchLayer)
@@ -49,7 +52,7 @@ OrdersService -> ManagedRuntime(OrdersLayer)
 Scheduler    -> ManagedRuntime(SchedulerLayer)
 ```
 
-Good:
+- Share one runtime through a Nest provider:
 
 ```text
 EffectModule -> EffectRunner -> ManagedRuntime(ApplicationLayer)
@@ -58,21 +61,23 @@ OrdersConsumer   -> EffectRunner
 Scheduler        -> EffectRunner
 ```
 
-The application Layer connects Effect to the logger, tracing, metrics, and platform services used by that Nest
-application. A service that only returns Effects does not need `EffectRunner`.
+- Connect Effect to the application's logger, tracing, metrics, and platform services through the application Layer.
+- A service that only returns Effects does not need `EffectRunner`.
 
 ### Stay in Effect until Nest runs the workflow
 
-Running an inner Effect starts a new root fiber. Its failure leaves the typed error channel, and the outer fiber no
-longer supplies cancellation or context automatically. Compose service calls as Effects and run the completed workflow
-once at a Nest controller, consumer, scheduled job, or lifecycle hook.
+- Combine service calls as Effects.
+- Run the whole workflow once at a Nest controller, consumer, scheduled job, or lifecycle hook.
+- Calling a runner inside an Effect starts a separate fiber.
+- That call moves failures out of the typed error channel.
+- The new fiber does not inherit the outer fiber's cancellation or context automatically.
 
-Bad:
+- Avoid running part of the workflow inside a service:
 
 ```ts
 class OrdersRepository {
   insert(input: PlaceOrder) {
-    return Effect.tryPromise(signal => this.client.insert(input, { signal }))
+    return Effect.promise(signal => this.client.insert(input, { signal }))
   }
 }
 
@@ -91,21 +96,21 @@ class OrdersController {
 }
 ```
 
-Good:
+- Pass the whole workflow to the runner at the controller:
 
 ```ts
 class OrdersRepository {
-  insert(input: PlaceOrder) {
-    return Effect.tryPromise(signal => this.client.insert(input, { signal }))
-  }
+  insert = Effect.fn("OrdersRepository.insert")((input: PlaceOrder) =>
+    Effect.promise(signal => this.client.insert(input, { signal })),
+  )
 }
 
 class OrdersService {
-  place(input: PlaceOrder) {
-    return this.orders.insert(input).pipe(
+  place = Effect.fn("OrdersService.place")((input: PlaceOrder) =>
+    this.orders.insert(input).pipe(
       Effect.flatMap(order => this.payments.reserve(order)),
-    )
-  }
+    ),
+  )
 }
 
 class OrdersController {
@@ -117,16 +122,18 @@ class OrdersController {
 }
 ```
 
-The bad service returns a `Promise<Effect>`. The controller cannot pass its signal or fiber context to the
-repository run because that run already happened inside the service.
+- The first service returns a `Promise<Effect>`.
+- Its repository call has already run before the controller can pass a cancellation signal or context.
 
 ### Map failures where Nest receives the result
 
-The shared runner cannot know whether a typed failure means HTTP 404, a rejected message, or a retried job. Keep
-execution in the runner. Map expected failures at the Nest entrypoint that knows the protocol. Report unhandled
-failures once there; logging every failure in the runner also logs routine business outcomes as errors.
+- Keep execution in the shared runner.
+- Map expected failures at the Nest entrypoint that knows the protocol.
+- The runner cannot choose between an HTTP response, a rejected message, or a retried job.
+- Report unhandled failures once at that entrypoint.
+- Do not log routine business outcomes as errors in the runner.
 
-Bad:
+- Avoid turning every failure into an HTTP 500 in the runner:
 
 ```ts
 async runAtController(effect: Effect.Effect<unknown, unknown>) {
@@ -139,7 +146,7 @@ async runAtController(effect: Effect.Effect<unknown, unknown>) {
 }
 ```
 
-Good:
+- Map the business failure at the controller:
 
 ```ts
 return this.ordersService.place(body).pipe(
@@ -150,22 +157,24 @@ return this.ordersService.place(body).pipe(
 )
 ```
 
-The controller maps `OutOfStock` to HTTP 409. Other failures reach the application's exception filter.
+- The controller maps `OutOfStock` to HTTP 409.
+- Other failures reach the application's exception filter.
 
-### Share observability, pass request context per run
+### Share logging and tracing
 
-Separate loggers and telemetry exporters split one request across different records. A logger bridge that forwards
-only the message drops Effect annotations and causes. Start the application's OpenTelemetry instrumentation before
-Nest creates instrumented clients. Connect Effect to that telemetry pipeline and the Nest logger.
+- Use the same logging and tracing setup for Nest and Effect.
+- Forward Effect log levels, messages, annotations, and causes to the Nest logger.
+- Start OpenTelemetry before Nest creates clients that it needs to trace.
+- Send Effect traces through the application's OpenTelemetry setup.
 
-Bad:
+- Avoid separate logging and tracing paths:
 
 ```text
 Nest logs -> Pino               Effect logs -> console
 Nest spans -> OTel exporter A   Effect spans -> OTel exporter B
 ```
 
-Good:
+- Connect both systems to the same outputs:
 
 ```text
 Effect log level, message, annotations, cause -> Nest/Pino logger
@@ -173,23 +182,28 @@ Effect spans and parent context              -> application OTel pipeline
 Nest request signal, trace parent, request ID -> one Effect run
 ```
 
-The runtime is shared across requests. Supply cancellation, trace parent, and request metadata for each run rather
-than storing request state in that runtime.
+- Share the runtime across requests.
+- Pass each request's cancellation signal to its run.
+- Pass the parent trace and request metadata to that run.
+- Keep request state out of the shared runtime.
 
 ### Close Effect work through Nest
 
-A Nest-owned runtime is only useful if Nest closes it. Long-running fibers and telemetry exporters need an ordered
-shutdown so work stops before its dependencies disappear. Enable Nest shutdown handling for long-running processes,
-close application contexts when they finish, and give owned fibers a stop path.
+- Enable Nest shutdown handling for long-running processes.
+- Close application contexts when their work ends.
+- Give background fibers a way to stop.
+- Stop work before closing the dependencies it uses.
+- Await `runtime.dispose()` during Nest shutdown.
+- Runtime disposal interrupts managed fibers before releasing Layer resources.
 
-Bad:
+- Avoid exiting without cleanup:
 
 ```text
 SIGTERM -> process exits
 worker fiber, ManagedRuntime, telemetry exporter: no application shutdown
 ```
 
-Good:
+- Close resources in dependency order:
 
 ```text
 Nest shutdown or app.close()
@@ -202,21 +216,22 @@ Nest shutdown or app.close()
 
 ### Start Nest adapters on demand
 
-Defer Nest startup when only some operations need its providers. Build the adapter Layer inside the operation or
-workflow branch that uses it. For example, returning cached results or showing CLI help should not start Nest.
-Start Nest eagerly when its availability is a startup requirement.
+- Start Nest only when an operation needs its providers.
+- Build the adapter Layer inside the operation or branch that uses it.
+- Returning a cached result or showing CLI help should not start Nest.
+- Start Nest at application startup when the application cannot run without it.
+- Let an enclosing Effect scope own the Nest application context that Effect creates.
+- Use a root module with only the Nest dependencies the operation needs.
+- Acquire the context with `Effect.acquireRelease`.
+- Release it with `app.close()`.
 
-When Effect creates the Nest application context, let an enclosing Effect scope own its lifetime. Use a small root
-module containing only the needed Nest dependencies. Acquire the context with `Effect.acquireRelease` and release
-it with `app.close()`.
-
-Bad:
+- Avoid providing an optional Nest Layer around the whole program:
 
 ```ts
 program.pipe(Effect.provide(nestLayer))
 ```
 
-Good:
+- Provide it in the branch that needs Nest:
 
 ```ts
 const nestLayer = Layer.suspend(() =>
@@ -230,14 +245,15 @@ const program = Effect.gen(function* () {
 })
 ```
 
-Here, `makeReportsModule` returns the small root module. `makeNestApplicationContextLayer` is an application helper
-that owns the acquire/release pair above.
-
-For repeated calls, get `scope` with `yield* Effect.scope` inside the owning `Effect.scoped`.
-Create one loader with `yield* Effect.cached(Layer.buildWithScope(nestLayer, scope))`. Run that loader only when
-Nest is needed and provide its resulting context to each call. Concurrent callers share startup.
-Closing the owning scope closes Nest.
-
-`Layer.suspend` delays the factory until the Layer is built. Providing it around the whole program still builds
-it before choosing a branch. Static imports still run eagerly; use `import()` inside a deferred Effect when loading
-the JavaScript module must also wait.
+- `makeReportsModule` returns the small root module.
+- `makeNestApplicationContextLayer` is an application helper that owns the acquire/release pair.
+- For repeated calls, get `scope` with `yield* Effect.scope` inside the owning `Effect.scoped`.
+- Create one loader with `yield* Effect.cached(Layer.buildWithScope(nestLayer, scope))`.
+- Run that loader only when Nest is needed.
+- Supply the returned context to each call with `Effect.provideContext`.
+- Concurrent callers share startup.
+- Closing the owning scope closes Nest.
+- `Layer.suspend` delays its factory until the Layer is built.
+- Providing that Layer around the whole program still builds it before choosing a branch.
+- Static imports load their modules before the program chooses a branch.
+- To delay loading a module too, call `import()` inside a deferred Effect.

@@ -2,10 +2,11 @@
 
 ## Workspace and package boundaries
 
-Create a workspace only for something deployed separately or code shared by multiple workspaces.
-A service, frontend, mobile app, or CLI can be deployed separately. Keep domains and features in their workspace.
+- Create a workspace only for a separately deployed program or code shared by several workspaces.
+- A service, frontend, mobile app, or CLI can have its own deployment.
+- Keep an application's domains and features in its workspace.
 
-Weak:
+- Avoid splitting one application into workspaces by domain:
 
 ```text
 workspaces/
@@ -14,7 +15,7 @@ workspaces/
   payments/
 ```
 
-Stronger when one application owns all three domains:
+- Keep those domains in the application's workspace:
 
 ```text
 workspaces/api/src/
@@ -23,24 +24,28 @@ workspaces/api/src/
   payments/
 ```
 
-Create an internal `core`, `lib` workspace when multiple
-workspaces share that code. Keep it private. Publish an npm package only when
-other repositories need the code or you intend to release it as open source.
+- Create an internal `core` or `lib` workspace when several workspaces share the code.
+- Keep internal workspaces private.
+- Publish an npm package only when other repositories need the code or you plan to release it as open source.
 
 ## Executables
 
-Give each executable one entrypoint. Assemble the application there: load runtime inputs, create adapters,
-connect resources, start the process, and close resources. This is the composition root.
-
-Keep imports free of side effects. Importing a module must not connect to a database, start a server,
-register process handlers, or run a command.
-
-Use a separate entrypoint for each independently run API, worker, CLI, or
-scheduled task. Set up only the resources that executable needs.
-
-For a CLI with multiple subcommands, give each subcommand its own module. Put its arguments, command setup,
-and CLI coordination there. Keep business and storage logic outside it. The entrypoint loads configuration,
-assembles the command tree, creates shared dependencies, runs the command, and closes resources.
+- Give each separately run API, worker, CLI, or scheduled task one entrypoint.
+- The entrypoint is the composition root: the place that puts the application together.
+- Load runtime inputs there.
+- Construct dependencies there.
+- Connect resources there.
+- Start the application there.
+- Close resources there.
+- Set up only the resources that the executable needs.
+- Importing a module must not start work such as connecting to a database or starting a server.
+- Do not register process handlers during import.
+- Do not run commands during import.
+- Give each CLI subcommand its own module.
+- Keep its arguments, command setup, and calls to application code in that module.
+- Keep business rules and storage code outside command modules.
+- Assemble the command tree in the entrypoint.
+- Run the selected command from the entrypoint.
 
 ```text
 src/
@@ -53,23 +58,19 @@ src/
 
 ## File roles
 
-Choose the most specific role that fits the behavior.
-
-| Role | Owns |
-| --- | --- |
-| Concept module | Domain types, schemas, rules that must hold, constructors, and pure functions |
-| Top-level function | Stateless logic that makes its caller clearer, kept with its domain |
-| Service | Work that coordinates dependencies or manages its own lifecycle |
-| Repository | Storage operations and translation between stored and application values |
-| Adapter | A stateful client and the domain operations it supports |
-| Controller or handler | Protocol input, request context, one application operation, and protocol output |
-| DTO | Protocol schemas, wire types, and translation to or from domain values |
-| Configuration module | One capability's settings parser and typed settings |
-| Framework-specific file | Framework setup such as modules, providers, decorators, or layers |
-| Composition root | Runtime inputs, object creation, startup, and shutdown |
-
-Do not create one file for every function. Keep a small function beside its
-domain types or the workflow that uses it.
+- Choose the most specific role that describes what the code does.
+- A domain module keeps one concept's types, schemas, rules, constructors, and pure functions together.
+- A top-level function holds stateless work that makes its caller clearer.
+- A service coordinates dependencies or manages its own resources over time.
+- A repository owns storage calls and conversion between stored and application values.
+- An adapter translates a client's API into application operations.
+- A controller or handler owns request parsing, request context, one application call, and the response.
+- A DTO defines the data sent over a protocol and how it maps to domain values.
+- A config module owns one part of the application's settings parser and typed settings.
+- A framework file sets up modules, providers, decorators, or Layers.
+- The composition root owns runtime inputs, object creation, startup, and shutdown.
+- Do not create one file for every function.
+- Keep a small function beside its domain types or the workflow that uses it.
 
 ```ts
 // invoice.ts
@@ -84,10 +85,11 @@ export const invoiceTotal = (invoice: Invoice): Money =>
   )
 ```
 
-Put a workflow in the service responsible for it. Add a service only when the work needs a separate owner.
-Call a dependency directly when that call does the whole job.
+- Put a workflow in the service responsible for it.
+- Add a service only when the work needs a separate owner.
+- Call a dependency directly when that call does the whole job.
 
-Weak:
+- Avoid services that only forward calls:
 
 ```ts
 class UserService {
@@ -97,7 +99,7 @@ class UserService {
 }
 ```
 
-Stronger:
+- Call the repository directly for a lookup:
 
 ```ts
 const handleShowUser = async (
@@ -108,7 +110,11 @@ const handleShowUser = async (
   const user = await users.findById(id)
   return user === null ? { status: 404 } : { status: 200, body: user }
 }
+```
 
+- Use a service when the workflow needs to coordinate dependencies:
+
+```ts
 class RegisterUser {
   constructor(
     private readonly users: UserRepository,
@@ -123,9 +129,10 @@ class RegisterUser {
 }
 ```
 
-Always put a constructed, stateful client behind an application adapter. The adapter accesses the client,
-translates its data, and exposes domain operations rather than the vendor API.
-Create and close the client in the adapter or composition root. Pure, stateless client modules may be used directly.
+- Keep client details inside the module that owns the integration.
+- Add an adapter only when the client's API needs translation.
+- Let the owning module or entrypoint manage client setup and cleanup.
+- Call a client directly when its API already fits the operation.
 
 ```ts
 // main.ts
@@ -143,40 +150,39 @@ import { addDays } from "date-fns"
 export const paymentDueAt = (issuedAt: Date) => addDays(issuedAt, 30)
 ```
 
-A controller, handler, or consumer translates between the protocol and application. It parses input, sets up request
-context, calls one application operation, and translates the result back. Keep business rules and storage outside it.
+- Let controllers, handlers, and consumers translate between the protocol and the application.
+- Parse incoming data there.
+- Set up request context there.
+- Call one application operation.
+- Translate the result into the protocol's response.
+- Keep business rules and storage code outside these handlers.
 
 ## Configuration and secrets
 
-- Load runtime configuration at the composition root. Do not use the environment as global application configuration.
-- Let each capability define a parser that extracts only its own settings. Call those parsers in the composition root
-  and pass their typed results to the code that needs them.
-- Do not create or inject one config object containing unrelated settings.
-- Convert environment names to application names during parsing.
-- Wrap secrets in a redacted type. Reveal them only at the final client or
-  process boundary.
-- Keep secret values out of committed configuration, errors, logs, and
-  serialized objects.
+- Load runtime settings in the entrypoint.
+- Do not use the environment as global application settings.
+- Let each part of the application parse only its own settings.
+- Call those parsers in the entrypoint.
+- Pass their typed results to the code that needs them.
+- Do not combine unrelated settings in one config object.
+- Convert environment names to application names while parsing.
+- Wrap secrets in a type that hides their value when logged or serialized.
+- Reveal secrets only when passing them to the final client or process.
+- Keep secret values out of committed config, errors, logs, and serialized objects.
 
 ## Library selection
 
-Prefer focused libraries, platform APIs, and official clients. Put stateful
-clients behind adapters even when the client is the preferred low-level
-library.
-
-| Avoid | Prefer |
-| --- | --- |
-| Joi, Yup, `class-validator`/`class-transformer`, Superstruct | Zod or Effect Schema |
-| Global config libraries and super-config services | Capability-owned schema parsers |
-| Winston or `console` for application logging | Pino or Effect logging |
-| Lodash for basic array, object, string, or numeric operations | Built-in JavaScript APIs |
-| ORMs and ODMs such as Mongoose | Official database clients or query builders |
-| The `uuid` package when the runtime provides UUID generation | The runtime's UUID API |
-| RxJS | Promises, async iterables, or explicit APIs |
-| Moment | date-fns or Day.js |
-
-Do not add a wrapper around a pure utility solely to hide the library. Import
-`date-fns` functions where the domain logic uses them. Adapt RxJS at a framework
-boundary when the framework requires it; do not spread observables through the
-application. Deliberate CLI output to stdout or stderr is not application
-logging.
+- Prefer libraries with a clear job, platform APIs, and official clients.
+- Use Zod or Effect Schema instead of Joi, Yup, `class-validator`, `class-transformer`, or Superstruct.
+- Use each part's settings parser instead of a global config library or service.
+- Use Pino or Effect logging instead of Winston or `console` for application logs.
+- Use built-in JavaScript APIs instead of Lodash for basic array, object, string, or number operations.
+- Use official database clients or query builders instead of ORMs or ODMs such as Mongoose.
+- Use the runtime's UUID API instead of the `uuid` package when the runtime provides one.
+- Use Promises, async iterables, or explicit APIs instead of RxJS.
+- Use date-fns or Day.js instead of Moment.
+- Do not wrap a pure utility just to hide its library.
+- Import `date-fns` functions where the domain code uses them.
+- Convert required RxJS observables at the framework boundary.
+- Keep observables out of the rest of the application.
+- CLI output to stdout or stderr is separate from application logs.

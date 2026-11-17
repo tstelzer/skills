@@ -604,12 +604,15 @@ effect/rpc/Utils (barrel: effect/rpc)
 - `@effect/sql-drizzle/Mysql`: No single module replacement; follow the curated per-API guidance below.
 - `@effect/sql-drizzle/Pg`: No single module replacement; follow the curated per-API guidance below.
 - `@effect/sql-drizzle/Sqlite`: No single module replacement; follow the curated per-API guidance below.
-- `@effect/sql-kysely/Kysely` -> `none`: The Effect integration was removed. Use native kysely#Kysely, explicitly wrap promise execution with Effect.tryPromise, and define an application service if needed. No Effect-native equivalent remains; construct native new Kysely(config) and explicitly wrap builder execution and errors with Effect.tryPromise.
+- `@effect/sql-kysely/Kysely` -> `none`: The Effect integration was removed. Use native `Kysely`.
+  Adapt queries with `Effect.promise` when the application has no recovery for their errors.
+  Use `Effect.tryPromise` only to expose recognized errors unchanged; throw all others from `catch`.
 - `@effect/sql-kysely/Mssql` -> `none`: The integration was removed; use native Kysely with MssqlDialect and wrap promises, or rewrite against @effect/sql-mssql for Effect-native queries.
 - `@effect/sql-kysely/Mysql` -> `none`: The integration was removed; use native Kysely with MysqlDialect and wrap promises, or rewrite against @effect/sql-mysql2 for Effect-native queries.
 - `@effect/sql-kysely/Pg` -> `none`: The integration was removed; use native Kysely with PostgresDialect and wrap promises, or rewrite against @effect/sql-pg for Effect-native queries.
 - `@effect/sql-kysely/Sqlite` -> `none`: The integration was removed; use native Kysely with SqliteDialect and wrap promises, or rewrite against a matching @effect/sql-sqlite-\* client.
-- `@effect/sql-kysely/patch.types` -> `none`: The @effect/sql-kysely package was removed in v4 along with its kysely type patches; depend on native kysely types directly and wrap query execution with Effect.tryPromise.
+- `@effect/sql-kysely/patch.types` -> `none`: Use native Kysely types after removing the integration's type patches.
+  Follow the error policy in the `Kysely` entry above when adapting query execution.
 - `@effect/sql-libsql/index` -> `@effect/sql-libsql`: The explicit /index entrypoint was removed; import the same namespaces from the @effect/sql-libsql package root or import specific modules directly.
 - `@effect/sql-mssql/index` -> `@effect/sql-mssql`: The explicit /index entrypoint was removed; import the same namespaces from the @effect/sql-mssql package root or import specific modules directly.
 - `@effect/sql-mysql2/index` -> `@effect/sql-mysql2`: The explicit /index entrypoint was removed; import the same namespaces from the @effect/sql-mysql2 package root or import specific modules directly.
@@ -10597,11 +10600,18 @@ Arbitrary.schema(schema)
 
 - `Effect.transposeMapOption` -> `Option.match`: Return `Effect.succeedNone` for None and map the Effect result to Some. Adapt arguments and imports to the v4 API.
 
-- `Effect.try` -> `Effect.try`: Use the callback overload for Cause.UnknownError, or the object overload with try and catch to map failures to a custom error. The callback-only overload does not accept a custom error type parameter.
+- `Effect.try` -> `Effect.try`: Use the object overload to return recognized errors unchanged from `catch`.
+  Throw unknown errors from `catch` so they become defects.
+  Use `Effect.sync` when no thrown error has a known recovery path.
+  The callback-only overload creates `Cause.UnknownError`; avoid it in application code.
 
-- `Effect.tryMap` -> `Effect.flatMap + Effect.try`: FlatMap the source value into the v4 synchronous try constructor. Adapt arguments and imports to the v4 API.
+- `Effect.tryMap` -> `Effect.flatMap + Effect.try`: Use the object overload of `Effect.try` for known handled errors.
+  Return those errors unchanged from `catch`; throw all others.
+  Use `Effect.sync` when the caller has no recovery path.
 
-- `Effect.tryMapPromise` -> `Effect.flatMap + Effect.tryPromise`: FlatMap the source value into the v4 Promise try constructor. Adapt arguments and imports to the v4 API.
+- `Effect.tryMapPromise` -> `Effect.flatMap + Effect.tryPromise`: Use `Effect.tryPromise` for known handled errors.
+  Return those errors unchanged from `catch`; throw all others.
+  Use `Effect.promise` when the caller has no recovery path.
 
 - `Effect.unless` -> `Effect.suspend`: Select `Effect.void` or the target Effect with a negated lazy condition. Adapt arguments and imports to the v4 API.
 
@@ -13759,7 +13769,9 @@ Schema.toFormatter(schema)
 
 - `STM.map` -> `Effect.map`: The combinator keeps its name, but STM values are now ordinary Effects. Run the complete transaction with Effect.tx. V4 Tx operations return ordinary Effects; compose multiple operations under one outer Effect.tx to keep them atomic.
 
-- `STM.mapAttempt` -> `Effect.flatMap(self, (a) => Effect.try(() => f(a)))`: Use Effect.try in flatMap so thrown exceptions remain typed failures rather than defects.
+- `STM.mapAttempt` -> `Effect.flatMap + Effect.try`: Select known handled errors with an explicit `catch` callback.
+  Return the original recognized errors and throw all others.
+  Use `Effect.sync` when the caller has no recovery path.
 
 - `STM.mapInputContext` -> `Effect.updateContext`: The context-input mapping operation was renamed on Effect.
 

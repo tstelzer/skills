@@ -43,19 +43,11 @@ const ToolsLayer = Tools.toLayer(Effect.gen(function*() {
 // Service that wraps Chat for a domain use-case
 // ---------------------------------------------------------------------------
 
-export class AiAssistantError extends Schema.TaggedError<AiAssistantError>()("AiAssistantError", {
-  reason: AiError.AiErrorReason
-}) {
-  static fromAiError(error: AiError.AiError) {
-    return new AiAssistantError({ reason: error.reason })
-  }
-}
-
 export class AiAssistant extends Context.Service<AiAssistant, {
   // Send a message while maintaining conversation history across turns.
-  chat(message: string): Effect.Effect<string, AiAssistantError>
+  chat(message: string): Effect.Effect<string, AiError.AiError>
   // Ask a question and use an agentic loop with tool calls to answer it.
-  agent(question: string): Effect.Effect<string, AiAssistantError>
+  agent(question: string): Effect.Effect<string, AiError.AiError>
 }>()("acme/AiAssistant") {
   static readonly make = Effect.gen(function*() {
     // Choose the model you want to use for the chat sessions.
@@ -95,8 +87,7 @@ export class AiAssistant extends Context.Service<AiAssistant, {
         )
 
         return response.text
-      },
-      Effect.mapError((error) => AiAssistantError.fromAiError(error))
+      }
     )
 
     // ---------------------------------------------------------------------------
@@ -135,11 +126,10 @@ export class AiAssistant extends Context.Service<AiAssistant, {
           return response.text
         }
       },
-      // Remap AI errors to our domain-specific error type, but die on
-      // unexpected errors.
+      // Preserve the provider's AI errors. Unexpected failures stay defects.
       Effect.catchTag(
         "AiError",
-        (error) => Effect.fail(AiAssistantError.fromAiError(error)),
+        Effect.fail,
         (e) => Effect.die(e)
       )
     )

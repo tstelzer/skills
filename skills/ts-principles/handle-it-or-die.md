@@ -2,15 +2,19 @@
 
 ## reasoning
 
-An error type earns its place when it helps a caller decide what to do. A pricing
-rule can fail with `DiscountTooLarge` because the caller can ask for a smaller
-discount. Renaming every failure to `PricingFailed` removes that distinction.
-Adding a wrapper at each layer also makes the original failure harder to find.
+Wrapping an error without changing what the caller can do is an anti-pattern.
+Do not turn every failure into `RepositoryError`, `ServiceError`, or another name
+for the module it passed through. Keeping `cause` does not justify the wrapper.
+Record operation details in logs or traces instead.
 
-Parsing and enriching keep the failure's meaning while making it easier to handle
-or explain. Domain mapping changes that meaning. A database constraint can mean
-that an email is taken; a database outage cannot. The mapping needs evidence for
-the business claim it makes.
+Expose a known technical error unchanged when a caller can handle it. A new
+domain error must describe a business outcome. A pricing rule can fail with
+`DiscountTooLarge` because the caller can ask for a smaller discount. A specific
+database constraint can mean that an email is taken; a database outage cannot.
+
+In Effect, the typed error channel is for failures the application recognizes
+and can handle. Unknown failures and failures with no recovery path are defects.
+Keep their original error values so the application boundary can report them.
 
 External users and internal handlers need different information. A handler may
 need a driver code to recover. An operator needs the cause to debug a failure.
@@ -203,58 +207,39 @@ one retry. Other failures reach the HTTP handler with their original details.
 Returning a default and retrying are both handling: each makes a decision using
 the existing error. Neither needs a domain wrapper or an error log on success.
 
-#### parse and enrich when the handler needs a trusted shape
+### choose failures when adapting to Effect
 
-Suppose another client throws unknown values with a nested `response.status`.
-The handler needs a valid HTTP error status. A technical wrapper can guarantee
-that field and record which profile was being read.
+- Use `Effect.promise` for Promise calls when no rejection has a known recovery path.
+- Use `Effect.sync` for synchronous calls under the same rule.
+- A rejection or throw in these constructors becomes a defect with the original value.
+- Use `Effect.tryPromise` or `Effect.try` only for specific failures callers recognize and can handle.
+- Return the original recognized error from `catch`.
+- Throw every other error from `catch` so Effect treats it as a defect.
+- Do not use the overloads without `catch`; they wrap unknown errors in `UnknownError`.
+
+This caller can recover from HTTP 404 by using default preferences.
+Other failures stop the work with their original errors.
 
 ```ts
-class ProfileHttpError extends Error {
-  private constructor(
-    readonly status: number,
-    readonly profileId: string,
-    cause: unknown,
-  ) {
-    super(`profile read failed for ${profileId}: HTTP ${status}`, { cause })
-  }
+const readProfile = Effect.fn("readProfile")((id: string) =>
+  Effect.tryPromise({
+    try: signal => profileClient.get(id, { signal }),
+    catch: error => {
+      if (error instanceof HttpError && error.status === 404) return error
+      throw error
+    },
+  }),
+)
 
-  static parse(cause: unknown, profileId: string): ProfileHttpError | undefined {
-    if (typeof cause !== "object" || cause === null || !("response" in cause)) return
-    const response = cause.response
-    if (typeof response !== "object" || response === null || !("status" in response)) return
-    const status = response.status
-    if (typeof status !== "number" || !Number.isInteger(status) || status < 400 || status > 599) return
-    return new ProfileHttpError(status, profileId, cause)
-  }
-}
-
-async function readProfile(id: string): Promise<Profile> {
-  try {
-    return await profileClient.get(id)
-  } catch (cause) {
-    const error = ProfileHttpError.parse(cause, id)
-    if (!error) throw cause
-    if (error.status === 404) return defaultProfile(id)
-    throw error
-  }
-}
-
-async function getProfile(id: string, requestId: string): Promise<Response> {
-  try {
-    return Response.json(await readProfile(id))
-  } catch (error) {
-    logger.error({ error, requestId }, "profile lookup failed")
-    return Response.json({ code: "internal-error", requestId }, { status: 500 })
-  }
-}
+const loadProfile = Effect.fn("loadProfile")((id: string) =>
+  readProfile(id).pipe(
+    Effect.catch(() => Effect.succeed(defaultProfile(id))),
+  ),
+)
 ```
 
-A 404 returns the default profile. A 503 reaches the logger with a trusted status,
-the profile ID, and the original error in `cause`. An unrelated exception passes
-through unchanged. The wrapper still describes an HTTP failure; it makes no
-business claim about the profile. Use the project's schema library for these
-shape checks when one is available.
+The `HttpError` comes from the client library. The error channel holds that same
+instance. A known error that this application cannot handle also becomes a defect.
 
 ### define and use business errors
 

@@ -3,11 +3,7 @@
  *
  * Build a layer dynamically from an Effect / Config with `Layer.unwrap`.
  */
-import { Config, Context, Effect, Layer, Schema } from "effect"
-
-export class MessageStoreError extends Schema.TaggedError<MessageStoreError>()("MessageStoreError", {
-  cause: Schema.Defect()
-}) {}
+import { Config, Context, Effect, Layer } from "effect"
 
 export class MessageStore extends Context.Service<MessageStore, {
   append(message: string): Effect.Effect<void>
@@ -26,20 +22,17 @@ export class MessageStore extends Context.Service<MessageStore, {
   })
 
   static readonly makeRemote = (url: URL) =>
-    Effect.try({
-      try: () => {
-        // In a real app this is where you would open a network connection.
-        const messages: Array<string> = []
+    Effect.sync(() => {
+      // This stand-in stores remote messages in memory.
+      const messages: Array<string> = []
 
-        return MessageStore.of({
-          append: (message) =>
-            Effect.sync(() => {
-              messages.push(`[${url.host}] ${message}`)
-            }),
-          all: Effect.sync(() => [...messages])
-        })
-      },
-      catch: (cause) => new MessageStoreError({ cause })
+      return MessageStore.of({
+        append: (message) =>
+          Effect.sync(() => {
+            messages.push(`[${url.host}] ${message}`)
+          }),
+        all: Effect.sync(() => [...messages])
+      })
     })
 
   static readonly layerInMemory = Layer.effect(this, this.makeInMemory)

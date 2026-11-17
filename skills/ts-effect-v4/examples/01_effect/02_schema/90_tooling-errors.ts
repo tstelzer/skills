@@ -4,7 +4,7 @@
  * Keep schema failures structured. Derive documentation, generators,
  * comparison, optics, and patches from the same contract.
  */
-import { Effect, Schema, SchemaIssue } from "effect"
+import { Schema, SchemaIssue } from "effect"
 import * as Arbitrary from "effect/Arbitrary"
 
 export const Product = Schema.Struct({
@@ -24,11 +24,11 @@ export const Product = Schema.Struct({
 })
 
 export const decodeProduct = (input: unknown) =>
-  Schema.decodeUnknownEffect(Product)(input, { errors: "all" }).pipe(
-    Effect.mapError((error) =>
-      SchemaIssue.makeFormatterStandardSchemaV1()(error.issue)
-    )
-  )
+  Schema.decodeUnknownEffect(Product)(input, { errors: "all" })
+
+// Keep SchemaError intact until the UI or protocol needs formatted issues.
+// At that boundary, pass error.issue to this formatter.
+export const formatProductIssue = SchemaIssue.makeFormatterStandardSchemaV1()
 
 // Standard Schema integrates with consumers that implement Standard Schema V1.
 export const ProductStandardSchema = Schema.toStandardSchemaV1(Product)
