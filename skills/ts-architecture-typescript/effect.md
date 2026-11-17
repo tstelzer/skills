@@ -1,9 +1,9 @@
 # Effect
 
-## Choose the matching API reference
+## Use the API reference
 
-Check the application's installed `effect` version. Read the relevant topics in skill: ts-effect-v3 for `effect@3`,
-or skill: ts-effect-v4 for `effect@4`. Keep API details in those handbooks.
+Check the application's installed `effect` version. For `effect@4`, read the relevant topics in skill: ts-effect-v4.
+Keep API details in that handbook.
 
 Use Effect Schema for boundary parsing and Effect logging for application logs. Use Effect platform services for I/O
 and runtime inputs. Keep native APIs at adapters when an Effect service cannot provide the required behavior.

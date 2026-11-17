@@ -37,7 +37,6 @@ entries while preserving entries from other sources.
 - ts-principles: mature
 - ts-architecture-typescript: draft
 - ts-zod-v4: mature
-- ts-effect-v3: mature
 - ts-explore: mature
 - ts-review: mature
 - ts-plan: mature
@@ -47,6 +46,7 @@ entries while preserving entries from other sources.
 - ts-qa: draft
 - ts-effect-v4: mature
 - ts-bevy: draft
+- ts-rust: draft
 - ts-create-skill: mature
 - ts-performance-browser: draft
 - ts-tooling: draft
@@ -56,6 +56,7 @@ entries while preserving entries from other sources.
 These skills are in `archive/` and are removed on the next sync:
 
 - ts-architecture-nestjs-effect, merged into ts-architecture-typescript
+- ts-effect-v3
 - ts-implement
 - ts-explain-skill
 - ts-workflow-explore-plan-review
@@ -87,9 +88,9 @@ Reference skills may trigger by topic:
 - `ts-architecture-typescript`
 - `ts-performance-browser`
 - `ts-zod-v4`
-- `ts-effect-v3`
 - `ts-effect-v4`
 - `ts-bevy`
+- `ts-rust`
 
 Explicit-only reference skills:
 
@@ -288,7 +289,7 @@ External skills use semantic names:
 
 ```text
 skill: ts-principles
-skill: ts-effect-v3
+skill: ts-effect-v4
 skill: ts-zod-v4
 ```
 

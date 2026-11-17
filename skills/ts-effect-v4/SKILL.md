@@ -1,6 +1,6 @@
 ---
 name: ts-effect-v4
-description: Effect v4 handbook for effect@4.1 and platform, SQL, AI, and testing packages. Use ts-effect-v3 for v3.
+description: Effect v4 handbook for effect@4.1 and platform, SQL, AI, and testing packages.
 ---
 
 # Effect v4
@@ -35,8 +35,6 @@ Use this handbook for Effect 4.1:
 - Imports from `effect/http`, `effect/http-api`, `effect/cli`, `effect/sql`, `effect/rpc`, or other grouped modules.
 - `Context.Service` for services, `Effect.fn(...)` or `Effect.fnUntraced(...)` for effectful functions, and
   `Schema.TaggedError` for errors.
-
-For `effect@3` / `@effect/platform@0.x`, use skill: ts-effect-v3.
 
 ## Release requirements
 
