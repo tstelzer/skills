@@ -55,6 +55,7 @@ entries while preserving entries from other sources.
 
 These skills are in `archive/` and are removed on the next sync:
 
+- ts-architecture-nestjs-effect, merged into ts-architecture-typescript
 - ts-implement
 - ts-explain-skill
 - ts-workflow-explore-plan-review
