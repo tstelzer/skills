@@ -51,7 +51,7 @@ enum Job {
 Two account IDs still have the same type. Use clear parameter names or a named request struct to show their roles.
 Do not create a type for every temporary value; give it a rule or meaning worth preserving.
 
-## Represent absence and failure separately
+## Choose the result shape
 
 ### Bad
 
@@ -75,5 +75,37 @@ fn first_line(text: &str) -> Option<&str> {
 - Use a return type of `!` for a function that never returns.
   Do not invent a dummy result after exit or an endless loop.
 
+Return partial output with diagnostics when incomplete output is useful behavior.
+For an editor, `Parse { tree, diagnostics }` can represent useful output from unfinished source.
+Give partial output a type whose contract permits missing or erroneous parts.
+Require a checked conversion before exposing a type that promises full validity.
+
 Keep the fields private when callers must use a constructor to establish a rule.
 Public fields suit plain records whose entire representation is part of the API.
+
+## Preserve unknown protocol values
+
+Preserve extensible numeric protocol values in a wrapper.
+Use a separate enum when code needs to match the values this implementation recognizes.
+
+```rust
+#[derive(Clone, Copy)]
+struct WireKind(u8);
+
+enum KnownKind { Ping, Data }
+
+impl TryFrom<WireKind> for KnownKind {
+    type Error = WireKind;
+
+    fn try_from(value: WireKind) -> Result<Self, Self::Error> {
+        match value.0 {
+            1 => Ok(Self::Ping),
+            2 => Ok(Self::Data),
+            _ => Err(value),
+        }
+    }
+}
+```
+
+Keep an unknown number until the protocol rules say to skip or reject it.
+A well-formed number can still be unsupported for an operation. Require a known variant where support is necessary.

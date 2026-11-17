@@ -4,7 +4,7 @@ Remove unnecessary work before changing storage types. Include cleanup and retai
 
 | Need | Read |
 | --- | --- |
-| Reduce temporary strings and repeated allocation | [Allocations](./allocations.md) |
+| Reduce temporary strings, reuse buffers, or prepare work once | [Allocations](./allocations.md) |
 | Choose inline storage, boxing, or compact layouts | [Layout](./layout.md) |
 | Release resources and control drop behavior | [Resources](./resources.md) |
 

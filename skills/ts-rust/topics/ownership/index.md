@@ -6,7 +6,7 @@ Decide who owns a value and how long each caller needs it before choosing pointe
 | --- | --- |
 | Temporary access, slices, or conditional ownership | [Borrowing](./borrowing.md) |
 | Transfer a value, make a copy, or move out of a field | [Moves and clones](./moves.md) |
-| Return a borrow or fix an overly broad borrow | [Lifetimes](./lifetimes.md) |
+| Return borrows, narrow their scope, or use IDs into owned storage | [Lifetimes](./lifetimes.md) |
 | Share data or mutate through a shared reference | [Shared ownership](./sharing.md) |
 
 For cleanup, read [resources](../memory/resources.md).

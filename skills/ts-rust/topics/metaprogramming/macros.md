@@ -57,7 +57,7 @@ It does not bypass privacy. Exported expansions need accessible helpers.
 `#[doc(hidden)]` hides a public helper from ordinary docs; it does not make the helper private.
 
 - Use precise fragments such as `expr`, `ty`, `path`, and `ident` when they describe the accepted input.
-- Use `tt` when the macro genuinely needs to process token syntax.
+- Use `tt` to accept token groups that the narrower fragments cannot describe.
 - Evaluate each expression argument once unless repeated evaluation is the documented contract.
 - Keep generated names from colliding with caller names. Test expansion from a separate consumer.
 - `#[macro_export]` exports at the crate root. Do not re-import the same macro under the same root name.

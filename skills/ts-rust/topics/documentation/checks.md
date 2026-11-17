@@ -24,7 +24,8 @@ fn has_values(values: &[u8]) -> bool {
 ```
 
 When a lint conflicts with a deliberate API or platform requirement, keep the exception local and explain the reason.
-Use the lint mechanism supported by the project's Rust version.
+Prefer `#[expect(lint_name, reason = "...")]` for a known exception on supported compilers.
+It reports an unfulfilled expectation when the lint no longer fires, which helps remove stale exceptions.
 
 ## Match the check to the change
 

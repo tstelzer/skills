@@ -2,6 +2,8 @@
 
 Use async I/O in async work. Put blocking APIs on a blocking pool or a dedicated thread.
 An `.await` only yields when the awaited operation needs to suspend; a ready future can continue immediately.
+Calling an `async fn` creates a future. Its body runs only when that future is polled.
+Awaiting or spawning the future lets it make progress.
 
 ## Bad
 
@@ -47,6 +49,9 @@ The outer result reports task failure. The inner result reports the read failure
 - A long-running blocking loop may need a dedicated thread.
 - A started `spawn_blocking` job does not become cancellable just because its handle is aborted or timed out.
 - Break cooperative CPU work into useful chunks only when doing so meets the latency requirement.
+
+Timeouts and task abort requests cannot interrupt code that keeps running without giving control back to the runtime.
+Moving work to `spawn_blocking` frees the async worker but does not give that work a forced stop mechanism.
 
 Create and configure the runtime at the application boundary.
 Do not start a runtime inside reusable library functions or call a blocking runtime entrypoint from an async worker.

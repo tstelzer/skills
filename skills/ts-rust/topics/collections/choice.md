@@ -46,4 +46,5 @@ Use `LinkedList` only when its particular operations justify pointer overhead an
 
 Do not depend on hash iteration order for user output, snapshots, or serialization.
 Sort the result or choose a collection with the required order.
+Use `sort_unstable` when equal-key items may change order. Use `sort` when their original order must be preserved.
 Do not change a stored key's equality, hash, or ordering in a way that breaks the collection's rules.

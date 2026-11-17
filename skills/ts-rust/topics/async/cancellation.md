@@ -70,6 +70,7 @@ Cancelling the whole function can still abandon the read. This example preserves
 - Consult the operation's cancellation contract. `read_exact` and `read_to_end` need different treatment from `read`.
 - A buffer outside the future is not enough when the number of consumed bytes is lost.
 - Keep a timer outside a loop when the deadline should not restart on every iteration.
+- With `select! { biased; ... }`, put shutdown ahead of branches that can stay ready so it gets polled.
 - Await `&mut JoinHandle` in a race when the owner must keep the handle after another branch wins.
 - Cancelling a `send` can drop the unsent value. Reserve capacity first when ownership must survive that wait.
 - Cancelling a lock wait may lose the waiter's place in the queue, even when it loses no application data.
@@ -82,7 +83,10 @@ A `tokio_util::sync::CancellationToken` asks workers to stop; it does not join o
 Call `cancel()` explicitly. Dropping an ordinary token is not the same as cancellation.
 
 Use child tokens when a parent's cancellation should reach child work.
-Choose a deadline for graceful completion. After it expires, abort eligible async tasks and drain their handles.
+Choose a deadline for graceful completion.
+If dropping the work is safe, abort remaining async tasks after the deadline, then drain their handles.
+Aborting asks the runtime to drop a task at a cancellation point; it does not wait for that drop to finish.
 Preserve unexpected task errors while distinguishing the cancellation you requested.
 A `TaskTracker` wait completes only after the tracker is closed and all tracked tasks finish.
+Closing the tracker does not prevent more tasks from being added. Stop the code that creates them too.
 Started blocking jobs need their own cooperative stop or completion plan.

@@ -63,6 +63,10 @@ An `Option` field can represent missing data; do not make every field optional t
 - Use `flatten` to inline a nested record or capture extra keys. Do not combine it with `deny_unknown_fields`.
 - Review missing, null, and empty values as separate cases when the protocol distinguishes them.
 
+Derived deserialization of `Option<T>` normally maps both a missing field and an explicit null to `None`.
+Nesting it as `Option<Option<T>>` does not by itself keep those cases separate.
+Use an explicit field-state type with custom deserialization, or a suitable adapter, when that distinction matters.
+
 ## Give variants an unambiguous representation
 
 Prefer an explicit tag when you control the format:

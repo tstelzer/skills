@@ -42,6 +42,8 @@ Use the crate's actual public import path, realistic input, and an assertion.
 Propagate expected failure with `?` instead of making a normal error path panic.
 Hide setup or the final result type with rustdoc's `# ` lines when that keeps the visible example short.
 Keep the setup real; hiding it does not excuse an incomplete example.
+Use `no_run` for examples that should compile but need external resources to run.
+Use `compile_fail` for an example that must be rejected. `ignore` skips the check, so state why it is needed.
 
 Use intra-doc links such as ``[`std::path::Path`]`` for related API items.
 Check that links and examples still work after a rename.

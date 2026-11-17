@@ -25,16 +25,31 @@ trait Loader {
 
 An implementation that holds `&self` across suspension may need `Self: Sync` to meet the returned future's promise.
 State only the bounds the implementation and callers need.
+A `Send` future can still borrow data. Spawning also requires `'static`.
+Move an owned loader into the spawned async block, then call and await its method inside that block.
 
-Ordinary native async methods do not directly provide a `dyn Trait` interface in the supplied reference baseline.
-For dynamic dispatch, a method can return a boxed future, or the project can use a suitable macro such as `async_trait`.
-Account for the allocation and lifetime requirements.
-Do not assume generating a `Send` variant also generates a dynamically callable boxed-future interface.
+## Return a pinned boxed future for dynamic calls
+
+A method written as `async fn` is not dynamically callable.
+For calls through `dyn Trait`, return a pinned boxed future or use a macro such as `async_trait`:
+
+```rust
+use std::future::Future;
+use std::pin::Pin;
+
+trait Loader {
+    fn load(&self) -> Pin<Box<dyn Future<Output = String> + Send + '_>>;
+}
+```
+
+The `'_` lets the future borrow from `self`. `Send` permits moving the future across threads.
+This shape allocates for the boxed future. Read [pinning](./pinning.md) for the address guarantee it needs.
+Generating a `Send` version of a native async trait does not by itself make the methods dynamically callable.
 
 ## Match callback bounds to captured borrows
 
-For supported compilers, the `AsyncFn`, `AsyncFnMut`, and `AsyncFnOnce` family can express async callbacks whose futures
-borrow from the callback or its arguments.
+On Rust 1.85 or newer, `AsyncFn`, `AsyncFnMut`, and `AsyncFnOnce` express async callbacks whose futures can borrow from
+the callback or its arguments.
 
 ```rust
 use std::ops::AsyncFnMut;

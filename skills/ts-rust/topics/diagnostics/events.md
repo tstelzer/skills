@@ -37,7 +37,7 @@ Do not format an expensive report before knowing the event will be recorded.
 | `trace` | Very detailed events that can be costly at high volume |
 
 Choose levels from the audience and event rate. A successful retry does not need the same report as a final failure.
-Log at the handling boundary; intermediate functions can add context and propagate without repeating the same report.
+Log where code handles the failure. Pass the same error through intermediate functions without logging it again.
 
 Do not record credentials, raw request bodies, or personal fields just because `Debug` is available.
 Use approved identifiers and redacted values. Check errors and nested fields too.

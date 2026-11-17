@@ -32,6 +32,8 @@ fn byte_count(items: u64, item_size: u64) -> Option<usize> {
 Use saturation for a quantity that should stop at a limit, such as a bounded display counter.
 Do not saturate sizes, balances, or offsets when hiding overflow would change correctness.
 Use wrapping arithmetic for a protocol or algorithm that requires it.
+Use checked division when a zero divisor or a signed `MIN / -1` result is possible.
+Plain integer division can panic even in an optimized build.
 
 Use `From` for supported lossless conversions and `TryFrom` for conversions that can fail.
 Use `as` only when the intended truncation or representation conversion is clear.
@@ -47,9 +49,12 @@ fn batch_size(value: usize) -> Option<NonZeroUsize> {
 }
 ```
 
-`NonZero` makes zero impossible after construction. Some `Option<NonZero*>` forms also have compact layout guarantees.
-Use the documented guarantee for the exact type, not a guess from one `size_of` result.
+`NonZero` makes zero impossible after construction.
+`Option<NonZeroUsize>` has the same size and alignment as `usize`; zero represents `None`.
+Use documented layout guarantees for other types rather than guessing from one `size_of` result.
 
 Choose smaller integers when the valid range supports them and storage size matters.
 Use `usize` for collection sizes and indexes; do not assume it is always 64 bits.
 Use `clamp` for a deliberate range restriction. Validate that the lower bound does not exceed the upper bound.
+For binary formats, use `from_le_bytes`, `from_be_bytes`, and matching `to_*_bytes` methods.
+Choose the byte order required by the format; native byte order can differ between machines.

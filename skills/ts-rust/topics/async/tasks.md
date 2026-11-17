@@ -53,9 +53,37 @@ Use a task owner that outlives the caller when shutdown must still join that chi
 `join!` and `select!` provide concurrency within one task, not separate worker threads.
 Blocking one branch blocks polling the others. Enable Tokio's `macros` feature for these macros.
 
+With spawned tasks, `try_join!` sees the handles' outer `Result`, which reports task failure.
+An inner application error still needs handling. Dropping an unfinished handle detaches its task instead of stopping it.
+Do not use `try_join!` over handles as a substitute for owning and shutting down those tasks.
+
 `tokio::spawn` requires owned data or suitable `'static` references, and a `Send` future.
-The values kept across suspension points affect whether the future is `Send`.
+Its output must also be `Send + 'static`.
+The values stored in the future, including those kept across suspension points, determine whether it is `Send`.
 Use local task support only when the runtime arrangement supports it.
+
+## Bound concurrent work without spawning
+
+Poll a limited number of child futures inside the caller when they do not need separate tasks.
+This uses `futures-util` and Tokio's `fs` feature:
+
+```rust
+use futures_util::{stream, StreamExt, TryStreamExt};
+use std::num::NonZeroUsize;
+use std::path::PathBuf;
+
+async fn load_unordered(paths: &[PathBuf], limit: NonZeroUsize) -> std::io::Result<Vec<String>> {
+    stream::iter(paths)
+        .map(|path| tokio::fs::read_to_string(path))
+        .buffer_unordered(limit.get())
+        .try_collect()
+        .await
+}
+```
+
+Results arrive in completion order. Use `buffered` when results must keep input order.
+The positive limit bounds active read futures. It does not bound file sizes or the final result vector.
+On the first error, `try_collect` drops the other futures. Already-started blocking file work may still finish.
 
 ## Bound and drain dynamic work
 
@@ -64,7 +92,7 @@ For a `JoinSet`, limit admission as well as tracking results:
 1. Pick a positive maximum number of active tasks.
 2. Spawn up to that limit.
 3. Await `join_next`, handle its task result, then admit another job.
-4. Stop admission on shutdown or the failure policy's stop condition.
+4. Stop accepting new jobs on shutdown or when the chosen failure requires it.
 5. Request cancellation or abort remaining tasks, then join them when completion must be confirmed.
 
 `JoinSet` does not impose a concurrency limit by itself.

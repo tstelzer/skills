@@ -42,64 +42,78 @@ impl Username {
 ```
 
 Keep later mutation from breaking the same rule. Deserialization and alternate constructors must also enforce it.
-Private fields protect callers outside the defining module; code inside that module still has to follow the rule.
+The defining module and its descendants can still write private fields. Keep that code subject to the same rule.
 
 ## Keep construction as simple as the options allow
 
-Use a constructor for a few required inputs. Use a builder when optional settings make calls hard to read.
+Use a constructor for a few required inputs. A named options struct may be enough for optional settings.
+Use a builder when callers need several steps to choose fields that must be checked together.
+
+This example uses Jiff. Changing October 31 to November 30 must allow setting the month first.
 
 ### Bad
 
 ```rust
-fn connect(host: &str, tls: bool, retry: bool, timeout_ms: u64) {
-    // Connection setup omitted.
+use jiff::civil::{date, Date};
+
+fn set_month(value: Date, month: i8) -> Result<Date, jiff::Error> {
+    Date::new(value.year(), month, value.day())
 }
 
-connect("example.test", true, false, 500);
+assert!(set_month(date(2024, 10, 31), 11).is_err());
 ```
+
+The first change tries to create November 31. It fails before the caller can set the day to 30.
 
 ### Good
 
 ```rust
-use std::time::Duration;
+use jiff::civil::date;
 
-struct ConnectOptions {
-    tls: bool,
-    retry: bool,
-    timeout: Duration,
-}
+let original = date(2024, 10, 31);
+let updated = original.with().month(11).day(30).build()?;
+assert_eq!(updated, date(2024, 11, 30));
+assert_eq!(original.with().day(30).month(11).build()?, updated);
 
-let options = ConnectOptions {
-    tls: true,
-    retry: false,
-    timeout: Duration::from_millis(500),
-};
+# Ok::<(), jiff::Error>(())
 ```
 
-A named options struct may be enough.
-A builder should provide valid defaults and report invalid combinations in `build`.
+Collect related changes in the builder. Check their combined validity in `build`.
+Setting different fields in a different order should not cause an early failure.
+Choose defaults only for values callers can safely omit.
 Mark consuming builder methods `#[must_use]` when discarding the returned builder would silently lose the setting.
 Do not implement `Default` when no sensible default exists.
 
-## Encode a short protocol with types
+## Carry required checks into the next state
 
 Use typestate when the caller controls a small sequence of transitions.
 Each transition consumes the old value and returns the next type.
+Make a successful check produce a value required by the next operation.
 
 ```rust
-struct Draft { text: String }
-struct Published { text: String }
+struct PendingFrame { payload: Vec<u8> }
+struct CheckedFrame { length: u16, payload: Vec<u8> }
 
-impl Draft {
-    fn publish(self) -> Published {
-        Published { text: self.text }
+impl PendingFrame {
+    fn check_length(self) -> Result<CheckedFrame, std::num::TryFromIntError> {
+        let length = u16::try_from(self.payload.len())?;
+        Ok(CheckedFrame { length, payload: self.payload })
     }
 }
 
-impl Published {
-    fn text(&self) -> &str { &self.text }
+impl CheckedFrame {
+    fn encode(self) -> Vec<u8> {
+        let mut output = self.length.to_be_bytes().to_vec();
+        output.extend(self.payload);
+        output
+    }
 }
 ```
+
+Only the checked state exposes `encode`. Its payload length must stay unchanged after the check.
+Keep checked fields private and let checking operations construct the value.
+Each constructor or custom verifier must perform the promised check.
+Carry the checked data with the proof so it cannot be reused for another input.
 
 Use an enum for states loaded from a database or changed at runtime by another actor.
 Type state does not prove an external fact is still true.

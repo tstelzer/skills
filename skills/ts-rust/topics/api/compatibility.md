@@ -49,6 +49,8 @@ Do not make an item public merely to make an internal test convenient.
 - Put `#[non_exhaustive]` on a public enum when external callers must allow future variants.
   Put it on a struct when external construction should go through provided methods.
   Adding the attribute later can break callers.
+  It governs Rust API evolution; represent [unknown wire values](../types/modeling.md#preserve-unknown-protocol-values)
+  in the parsed data.
 - Seal a trait with a private supertrait when only your crate should implement it. Document that restriction.
   Sealing does not make changes to public method signatures harmless.
 - Treat public trait implementations, fields, feature names, and serialized forms as contracts.

@@ -34,6 +34,32 @@ Use borrowed views when the owning container adds no useful capability.
 A borrowed view avoids requiring one storage type. It does not make every operation on the view free.
 Use `AsRef` only when accepting several input types improves actual call sites.
 
+## Borrow values inside `Option` and `Result`
+
+Use `as_ref` or `as_mut` to work through a borrow of the contained value.
+Use `as_deref` to turn `Option<String>` into `Option<&str>` without copying its text.
+
+### Bad
+
+```rust
+fn has_name(name: &Option<String>) -> bool {
+    name.clone().is_some_and(|text| !text.is_empty())
+}
+```
+
+### Good
+
+```rust
+fn has_name(name: Option<&str>) -> bool {
+    name.is_some_and(|text| !text.is_empty())
+}
+
+let name = Some(String::from("Ada"));
+assert!(has_name(name.as_deref()));
+```
+
+The caller keeps its owned value. The function accepts a borrowed name from any storage type.
+
 ## Borrow until a change needs a new value
 
 Use `Cow` when the usual result can borrow from the input and another path needs owned storage.

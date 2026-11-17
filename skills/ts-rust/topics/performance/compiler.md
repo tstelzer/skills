@@ -35,6 +35,12 @@ Use `#[inline(always)]` sparingly; duplicated code can increase instruction-cach
 | SIMD | Process several data elements together | Platform support, layout, tails, and added complexity |
 
 Do not set `target-cpu=native` for a portable binary just because it runs faster on the build machine.
+Check CPU support before calling code that uses extra instructions.
+Use the build target's guarantees or a runtime feature check.
+A constructor can perform the check and return `None` when the CPU lacks support.
+Keep the returned type's fields private so safe code cannot skip the check.
+Use a portable fallback when the extra instructions are unavailable.
+
 Check stable support before using SIMD or branch-hint APIs from a tutorial.
 Prefer ordinary iterators and safe slice structure before removing bounds checks with unsafe operations.
 

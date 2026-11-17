@@ -11,5 +11,6 @@ These pages use Tokio when a runtime API is needed. Follow the project's runtime
 | Race work, set deadlines, or shut down | [Cancellation](./cancellation.md) |
 | Queue requests, reply once, or publish changes | [Channels](./channels.md) |
 | Define async traits or callback bounds | [Traits and callbacks](./traits.md) |
+| Store a future or understand `Pin` and `Unpin` | [Pinning](./pinning.md) |
 
 Read tasks and cancellation together when adding background work.

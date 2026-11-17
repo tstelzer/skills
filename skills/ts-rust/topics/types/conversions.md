@@ -1,6 +1,7 @@
 # Use conversion traits for their stated meaning
 
-Implement `From` for an infallible, meaningful conversion. Rust then provides the matching `Into` implementation.
+Implement `From` for a conversion that cannot fail and preserves the value's meaning.
+Rust then provides the matching `Into` implementation.
 Use `TryFrom` when input may be rejected. Use `FromStr` when parsing text should work through `.parse()`.
 
 ## Bad
@@ -46,7 +47,8 @@ This type permits port zero. Reject it in the constructor when the domain requir
 | Trait | Meaning |
 | --- | --- |
 | `AsRef<T>` / `AsMut<T>` | Cheap access to a borrowed view |
-| `From<T>` / `TryFrom<T>` | Convert an owned input, with or without possible failure |
+| `Borrow<T>` | Borrow a view with matching equality, ordering, and hashing |
+| `From<T>` / `TryFrom<T>` | Convert from `T`, with or without possible failure; `T` may itself be a reference |
 | `Display` | Deliberate text for users |
 | `Debug` | Diagnostic view for developers |
 | `FromIterator<T>` / `Extend<T>` | Build a collection or add items from an iterator |
@@ -56,8 +58,15 @@ Use `&str` or `&mut [T]` when a simple borrowed parameter meets the need.
 Use `impl Into<String>` for a storing API when callers benefit from passing either owned or borrowed text.
 Keep large generic bodies out of that convenience layer; see [build costs](../performance/builds.md).
 
+Use `AsRef` for a view that changes equality or hashing rules.
+For example, a case-insensitive key must not implement `Borrow<str>` when its comparisons differ from `str`.
+
 Derive standard traits when their meaning fits the type. Check `Eq` and `Hash` together: equal values must hash equally.
-Keep ordering consistent with equality. Do not derive `Debug` for secrets without redacting their contents.
+Keep `Ord` and `PartialOrd` consistent with equality and with each other.
+For an `Eq` type, cloning must produce an equal value. Do not derive `Debug` for secrets without redacting them.
+
+Implement `Display` instead of implementing `ToString` directly. Rust supplies `ToString` for types with `Display`.
+Do not promise that `Display` and `FromStr` round-trip unless the format is intended to preserve the full value.
 
 Implement operators only when the operation has the meaning readers expect.
 Implement `LowerHex`, `Binary`, or related formatting traits when callers need those views of a numeric wrapper.

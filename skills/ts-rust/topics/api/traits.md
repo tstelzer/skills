@@ -1,7 +1,10 @@
 # Choose a trait for a real shared operation
 
-Use inherent methods for one concrete type.
-Add a trait when several types share behavior or callers need an abstraction.
+Use methods on a concrete type for behavior that belongs to that type.
+Add a trait for code that must work with several implementations of the same operation.
+Before exposing the trait, decide whether callers need to use it or supply their own implementation.
+Keep a fixed set of internal choices behind a concrete type. A private enum can select the implementation.
+A public type parameter can force callers to repeat that choice in their own types and functions.
 
 ## Bad
 

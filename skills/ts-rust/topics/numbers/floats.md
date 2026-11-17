@@ -48,3 +48,33 @@ The finite-difference check rejects subtraction that overflows. Test extreme mag
 - Do not assume all NaNs sort last. Their sign affects the total order.
 
 Choose a domain-specific representation when binary floating point cannot meet the required arithmetic contract.
+
+## Check float-to-integer conversions
+
+An `as` cast discards the fractional part toward zero, clamps out-of-range values, and converts NaN to zero.
+It does not validate a count.
+
+### Bad
+
+```rust
+fn whole_count(value: f64) -> u32 {
+    value as u32
+}
+```
+
+### Good
+
+```rust
+fn whole_count(value: f64) -> Option<u32> {
+    if !value.is_finite()
+        || value.fract() != 0.0
+        || !(0.0..=f64::from(u32::MAX)).contains(&value)
+    {
+        return None;
+    }
+    Some(value as u32)
+}
+```
+
+Here every `u32` value fits exactly in `f64`, so the limit check is exact.
+Do not reuse this check for a wider integer whose maximum rounds when converted to a float.

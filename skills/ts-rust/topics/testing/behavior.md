@@ -1,13 +1,18 @@
 # Assert the behavior that matters
 
 Name the input or condition and the expected outcome. A successful call alone rarely proves the result is right.
+This parser accepts a count with surrounding whitespace.
 
 ## Bad
 
 ```rust
+fn parse_count(text: &str) -> Result<u32, std::num::ParseIntError> {
+    text.trim().parse()
+}
+
 #[test]
 fn test_parse() {
-    let result = "42".parse::<u32>();
+    let result = parse_count("42");
     assert!(result.is_ok());
 }
 ```
@@ -15,18 +20,28 @@ fn test_parse() {
 ## Good
 
 ```rust
-#[test]
-fn parses_decimal_count() {
-    assert_eq!("42".parse::<u32>().unwrap(), 42);
+fn parse_count(text: &str) -> Result<u32, std::num::ParseIntError> {
+    text.trim().parse()
 }
 
-#[test]
-fn rejects_negative_count() {
-    assert!("-1".parse::<u32>().is_err());
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_count_with_surrounding_whitespace() {
+        assert_eq!(parse_count(" \t42\n").unwrap(), 42);
+    }
+
+    #[test]
+    fn rejects_blank_count() {
+        assert!(parse_count(" \t\n").is_err());
+    }
 }
 ```
 
-These examples show assertion shape. In project tests, call the project's parser rather than retesting `str::parse`.
+The tests cover the parser's whitespace rule and the returned value.
+Test behavior your code owns. Do not repeat the standard library's test suite.
 
 - Put tests needing private items in a nearby `#[cfg(test)] mod tests` module. `use super::*` is useful there.
 - Put public API tests in `tests/` when they should behave like external consumers.

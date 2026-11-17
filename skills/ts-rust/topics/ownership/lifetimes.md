@@ -6,12 +6,12 @@ Let Rust infer lifetimes when the relationship is clear.
 ## Bad
 
 ```rust
-fn first_word<'a>(text: &'a str) -> String {
-    text.split_whitespace().next().unwrap_or("").to_owned()
+fn first_word<'a>(text: &'a str) -> Option<String> {
+    text.split_whitespace().next().map(str::to_owned)
 }
 ```
 
-The explicit lifetime adds nothing, and the result copies text only to read it.
+For a caller that only reads the result, the copy is wasted. The explicit lifetime also adds nothing.
 
 ## Good
 
@@ -73,5 +73,22 @@ impl Report {
 For larger operations, pass the needed fields to a helper. Split a struct when its parts own separate behavior.
 Do not introduce `RefCell`, clone the whole object, or require `'static` just to silence a borrow error.
 
-`T: 'static` means the value contains no borrow that expires too soon. It does not mean the value lives forever.
-Owned `String` values can satisfy this bound and still drop normally.
+`T: 'static` means `T` contains no references with a lifetime shorter than `'static`.
+It does not mean the value lives forever. An owned `String` meets this bound and can still be dropped normally.
+
+In `impl<'a> View<'a>`, prefer `&mut self` over `&'a mut self`.
+The second form ties the caller's exclusive borrow to the lifetime stored in `View` and can prevent later calls.
+Name that relationship only when the API actually requires it.
+
+## Use offsets or IDs with owned storage
+
+To keep text and positions together, store byte offsets or ranges into an owned string.
+Do not force a struct to borrow its own movable fields with lifetime annotations or raw pointers.
+Keep ranges valid when the string changes. Read [pinning](../async/pinning.md) for APIs that need a fixed address.
+
+For graphs with one storage owner, use typed IDs for edges into a vector or an index-based arena.
+Borrow through the owner while accessing a node. The ID does not keep the storage alive.
+State which storage instance accepts an ID and which changes invalidate it.
+For reused slots, use handles with a slot number and a generation counter checked on lookup.
+Specify whether rebuilding storage preserves IDs or invalidates them.
+An ID's element type alone cannot detect stale IDs or use with the wrong storage instance.

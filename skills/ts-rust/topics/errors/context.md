@@ -11,54 +11,44 @@ fn load(path: &std::path::Path) -> Result<String, String> {
 }
 ```
 
-This drops the error type and the path. Callers cannot reliably identify a missing file.
+This drops the error type. Callers cannot reliably identify a missing file.
 
 ## Good
 
-This example uses `thiserror` to keep a typed cause and operation context.
-
 ```rust
-use std::path::{Path, PathBuf};
+use std::{io, path::Path};
 
-#[derive(Debug, thiserror::Error)]
-#[error("could not read settings from {path}", path = .path.display())]
-struct LoadError {
-    path: PathBuf,
-    #[source]
-    source: std::io::Error,
-}
-
-fn load(path: &Path) -> Result<String, LoadError> {
-    std::fs::read_to_string(path).map_err(|source| LoadError {
-        path: path.to_owned(),
-        source,
-    })
-}
-```
-
-Use an enum when distinct variants change recovery. Keep a single error struct when callers only need one failure kind.
-Implement `std::error::Error` manually when a derive dependency is not justified.
-
-## Add context at the point that knows it
-
-For a reporting path, `anyhow` can preserve the cause while adding context.
-
-```rust
-use anyhow::Context;
-use std::path::Path;
-
-fn load(path: &Path) -> anyhow::Result<String> {
+fn load(path: &Path) -> io::Result<String> {
     std::fs::read_to_string(path)
-        .with_context(|| format!("could not read settings from {}", path.display()))
 }
 ```
 
-- Use `#[from]` or a `From` implementation for a natural conversion that needs no extra context.
-- Use `#[source]` and `map_err` when the error also needs a path, key, or operation name.
-- Add context that answers what was being attempted. Do not repeat the same message at every layer.
-- Keep chain fragments readable, usually lowercase without a final period. Preserve proper names.
-- Map internal errors into public responses at the interface that serves the caller.
-- Keep secrets and private data out of messages. Even a file path can be sensitive.
+Pass known errors through unchanged when callers can already handle them.
+Do not add a wrapper just to name the module or attach a path.
 
-Propagating code should not log and then return the same failure for every caller to log again.
-Report it where recovery stops or where the application decides the outcome.
+## Expose the error categories callers need
+
+Use a public enum when callers need to match its cases.
+A public `Error` struct can also represent several cases while keeping its fields private.
+Expose a `kind()` method or specific checks such as `is_range()` for the choices callers need to make.
+Use `#[non_exhaustive]` on a public kind enum when callers must allow future categories.
+Do not require callers to inspect error messages to decide how to recover.
+
+Use `thiserror` or a manual `std::error::Error` implementation for errors your API owns.
+When a new error gives the caller a useful recovery choice, keep the original cause through `Error::source`.
+With `thiserror`, use `#[source]` for that cause or `#[from]` when the conversion needs no other fields.
+
+## Report context where the operation is handled
+
+Record the original error and the operation details where code decides what to do about the failure.
+Use logs or traces for details such as the path. This example uses `tracing`:
+
+```rust
+fn report_load_failure(path: &std::path::Path, error: &std::io::Error) {
+    tracing::error!(path = %path.display(), error = %error, "could not read settings");
+}
+```
+
+Do not log an error in each function that passes it back to its caller.
+Map internal errors into public responses at the interface that serves the caller.
+Keep secrets and private data out of messages. Even a file path can be sensitive.
