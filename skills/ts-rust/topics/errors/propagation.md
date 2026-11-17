@@ -1,0 +1,64 @@
+# Return expected failures and let callers decide
+
+Use `?` when the caller should receive the failure. Handle it locally when this code owns a useful recovery action.
+Do not turn failures into success-shaped defaults.
+
+## Bad
+
+```rust
+fn read_settings(path: &std::path::Path) -> String {
+    std::fs::read_to_string(path).unwrap_or_default()
+}
+```
+
+A missing file, a permission error, and an empty file now look the same.
+
+## Good
+
+```rust
+fn read_settings(path: &std::path::Path) -> std::io::Result<String> {
+    std::fs::read_to_string(path)
+}
+```
+
+Return the result directly when there is no more work. Use `?` when later work depends on success.
+
+```rust
+fn first_number(text: &str) -> Result<Option<u32>, std::num::ParseIntError> {
+    text.lines().next().map(str::parse).transpose()
+}
+```
+
+Here empty input means no number, while a malformed first line is an error.
+
+## Handle the exact failure that permits a fallback
+
+### Bad
+
+```rust
+fn load_or_default(path: &std::path::Path) -> String {
+    std::fs::read_to_string(path).unwrap_or_else(|_| "mode=local".into())
+}
+```
+
+### Good
+
+```rust
+use std::io;
+use std::path::Path;
+
+fn load_or_default(path: &Path) -> io::Result<String> {
+    match std::fs::read_to_string(path) {
+        Ok(text) => Ok(text),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {
+            Ok("mode=local".into())
+        }
+        Err(error) => Err(error),
+    }
+}
+```
+
+Use `.ok()` only when discarding the reason is part of the contract.
+Use `let _ = ...` only for an intentional best-effort operation, and state why failure can be ignored.
+Use `ok_or_else` and `unwrap_or_else` when a fallback is expensive and should run only when needed.
+Do not add a conversion or error enum solely because a value crosses a function or module boundary.
