@@ -45,6 +45,8 @@ Test behavior your code owns. Do not repeat the standard library's test suite.
 
 - Put tests needing private items in a nearby `#[cfg(test)] mod tests` module. `use super::*` is useful there.
 - Put public API tests in `tests/` when they should behave like external consumers.
+  Each top-level test file is a separate crate.
+  Put shared helpers in `tests/common/mod.rs` to avoid another test target.
 - Keep setup, action, and assertion easy to distinguish without comments on every obvious line.
 - Assert a specific error variant when it is part of the contract.
 - Use `#[should_panic(expected = "...")]` for an intentional panic contract, not an expected input error.

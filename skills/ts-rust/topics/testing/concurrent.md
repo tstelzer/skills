@@ -48,7 +48,7 @@ Check partial progress and resources after cancellation, not just the returned e
 - Use Miri for supported tests of unsafe code to detect classes of invalid memory access and other undefined behavior.
   Check target and foreign-code limits. Passing a run is not a proof of soundness.
 - Test unsafe abstractions when a supplied callback panics or a value's destructor runs during unwinding.
-- Add compile-fail cases for contracts that should reject invalid programs, including macro input and type-state misuse.
+- Add compile-fail cases for contracts that should reject invalid programs, including macro input and typestate misuse.
 
 Use tools already available to the project. Keep unsupported paths and untested assumptions explicit in the result.
 Stress tests can expose races but do not replace a correct ownership or memory-ordering argument.

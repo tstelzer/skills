@@ -1,7 +1,7 @@
 # Keep recovery choices and the original cause
 
-Use concrete errors when callers need to match outcomes. Use a report type when callers only need to report a failure.
-This depends on the caller, not just whether the crate is a library or an application.
+Use concrete errors when callers need to match outcomes.
+Prefer `anyhow::Result` for application code whose caller only needs to report a failure.
 
 ## Bad
 
@@ -24,7 +24,7 @@ fn load(path: &Path) -> io::Result<String> {
 ```
 
 Pass known errors through unchanged when callers can already handle them.
-Do not add a wrapper just to name the module or attach a path.
+Do not add wrappers, `.context()`, or `.with_context()` just to name a module or attach operation details.
 
 ## Expose the error categories callers need
 
@@ -33,8 +33,10 @@ A public `Error` struct can also represent several cases while keeping its field
 Expose a `kind()` method or specific checks such as `is_range()` for the choices callers need to make.
 Use `#[non_exhaustive]` on a public kind enum when callers must allow future categories.
 Do not require callers to inspect error messages to decide how to recover.
+Write error `Display` messages in lowercase without trailing punctuation, such as `invalid port`.
+Keep the usual case for names and acronyms such as `JSON`.
 
-Use `thiserror` or a manual `std::error::Error` implementation for errors your API owns.
+Prefer `thiserror` to implement `std::error::Error` for errors your API owns, especially in libraries.
 When a new error gives the caller a useful recovery choice, keep the original cause through `Error::source`.
 With `thiserror`, use `#[source]` for that cause or `#[from]` when the conversion needs no other fields.
 

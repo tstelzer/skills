@@ -37,7 +37,8 @@ fn take_one(stock: &Mutex<usize>) -> bool {
 
 The example treats a poisoned lock as a broken internal assumption.
 Choose a deliberate recovery policy; do not blindly take poisoned state whose rules may have been broken.
-Poisoning does not record every panic. Unsafe code must stay sound even when a failed update leaves the lock unpoisoned.
+Poisoning does not record every panic.
+Unsafe code must stay sound even when a failed update leaves the lock unpoisoned.
 
 Keep critical sections short. Establish a lock order when code may hold several locks.
 Do not assume `RwLock` wins because reads are common. Measure read overlap, contention, and writer delays.

@@ -29,6 +29,7 @@ Keep inline data when snapshots dominate or allocation cost matters more than en
 | Storage choice | Useful when | Check |
 | --- | --- | --- |
 | `Box<[T]>` | Heap length is fixed after construction | Need for later growth |
+| `Box<str>` | Owned text will not grow | Convert with `String::into_boxed_str`; spare capacity is discarded |
 | `SmallVec` | Most sequences fit a small inline capacity | Larger container size and spill frequency |
 | `ArrayVec` | Capacity is a hard bound and heap use is unwanted | Fallible insertion and overflow behavior |
 | Compact string types | Many stored strings are short | Object size, conversions, and actual length distribution |

@@ -58,6 +58,9 @@ This supplies a default for a missing field. Validate the host and numeric range
 An `Option` field can represent missing data; do not make every field optional to avoid a parse error.
 
 - Use `skip_serializing_if` to omit empty values only when omission preserves the format's meaning.
+  Add `default` when a missing collection or string should deserialize as empty.
+- Use `skip` to exclude a field in both directions, or `skip_serializing` / `skip_deserializing` for one direction.
+  Skipped deserialization needs a valid default value or a `default = "path"` function.
 - Use `deny_unknown_fields` for strict formats where a misspelled key should fail.
 - Permit unknown fields when forward-compatible readers need them.
 - Use `flatten` to inline a nested record or capture extra keys. Do not combine it with `deny_unknown_fields`.
@@ -80,6 +83,14 @@ enum Event {
 }
 ```
 
-Choose external, internal, or adjacent tagging to fit the protocol and variant shapes.
+Choose tagging to fit the protocol and variant shapes:
+
+| Representation | Attribute | Supported variant shapes |
+| --- | --- | --- |
+| External tag | Default | All shapes; tag wraps the payload |
+| Internal tag | `tag = "type"` | Struct, unit, or newtype containing a struct or map; no tuple variants |
+| Adjacent tag | `tag = "type", content = "data"` | All shapes; tag and payload use separate fields |
+| No tag | `untagged` | All shapes; input decides which variant matches |
+
 Untagged enums try alternatives and can accept an unintended shape or give poor errors. Use them for formats that need
 that behavior and test ambiguous inputs.

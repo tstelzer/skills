@@ -67,4 +67,10 @@ async fn worker(mut receiver: mpsc::Receiver<Request>) {
 This uses Tokio's `sync` feature and `anyhow`.
 A reply timeout does not remove an already queued request or undo its effects.
 Give resource-owning workers an explicit stop path; cycles of sender handles can keep a channel open forever.
+Use `mpsc::WeakSender` for a producer handle that must not keep the channel open.
+Handle `upgrade()` returning `None` after all strong senders are gone.
 Keep task spawning separate from the loop that processes requests so its owner can track completion.
+
+For graceful `mpsc` shutdown, call `Receiver::close`, then receive until `recv().await` returns `None`.
+Closing rejects new sends but keeps queued messages. Permits reserved before closure can still send.
+Finish or drop those permits so the receiver can complete draining. Dropping the receiver discards unread messages.

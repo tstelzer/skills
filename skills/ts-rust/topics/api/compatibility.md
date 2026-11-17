@@ -44,6 +44,10 @@ impl RetryLimit {
 Use `pub use` to expose a stable name without exposing the internal module tree.
 Do not make an item public merely to make an internal test convenient.
 
+Keep a public `prelude` limited to types and traits that callers often import together.
+Document its exports and avoid common names such as `Error` that can clash with other imports.
+Treat removing a prelude export as an API change.
+
 ## Make future changes explicit
 
 - Put `#[non_exhaustive]` on a public enum when external callers must allow future variants.

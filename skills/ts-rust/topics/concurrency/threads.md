@@ -22,7 +22,7 @@ This copies the input just to satisfy an independently spawned thread's lifetime
 fn parallel_sum(values: &[u32]) -> u64 {
     std::thread::scope(|scope| {
         let (left, right) = values.split_at(values.len() / 2);
-        let left_sum = scope.spawn(|| left.iter().map(|&value| u64::from(value)).sum::<u64>());
+        let left_sum = scope.spawn(move || left.iter().map(|&value| u64::from(value)).sum::<u64>());
         let right_sum: u64 = right.iter().map(|&value| u64::from(value)).sum();
         left_sum.join().expect("sum worker did not panic") + right_sum
     })
@@ -36,7 +36,8 @@ For small inputs, a sequential sum is simpler and can be faster than creating a 
 - `Sync` allows shared references to cross thread boundaries.
 - Scope completion waits for child threads. It does not make their operations free of deadlocks or panics.
 - Use `split_at_mut` or another safe split for independent mutable regions.
-- Use a reusable pool such as Rayon for repeated CPU work. `par_iter` is useful when items have enough independent work.
+- Use a reusable pool such as Rayon for repeated CPU work.
+  `par_iter` is useful when items have enough independent work.
 - Preserve ordering requirements when parallelizing. Side-effect order and floating-point reduction results may change.
 
 Use `thread_local!` with `Cell` or `RefCell` for state that belongs to each OS thread.

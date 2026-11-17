@@ -1,6 +1,6 @@
 # Document the contract the signature cannot show
 
-Explain units, allowed values, failures, and effects that callers must know.
+Document public items. Explain units, allowed values, failures, and effects that callers must know.
 Use `///` for items and `//!` for module or crate guidance.
 
 ## Bad
@@ -51,4 +51,5 @@ Explain module purpose and how its public types fit together rather than restati
 
 Keep README and crate introduction content consistent. `include_str!` can share the introduction when its links and
 examples work in both contexts. Do not force one file to serve incompatible audiences.
-For a published crate, keep description, license, repository, and other relevant Cargo metadata accurate.
+Document public Cargo features and what the default set enables.
+For a published crate, keep description, license, repository, and `rust-version` accurate in Cargo metadata.

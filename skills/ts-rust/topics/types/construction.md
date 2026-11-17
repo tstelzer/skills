@@ -49,74 +49,49 @@ The defining module and its descendants can still write private fields. Keep tha
 Use a constructor for a few required inputs. A named options struct may be enough for optional settings.
 Use a builder when callers need several steps to choose fields that must be checked together.
 
-This example uses Jiff. Changing October 31 to November 30 must allow setting the month first.
-
-### Bad
+This standard-library builder opens a file for appending and creates it when missing.
 
 ```rust
-use jiff::civil::{date, Date};
+use std::fs::{File, OpenOptions};
+use std::io;
+use std::path::Path;
 
-fn set_month(value: Date, month: i8) -> Result<Date, jiff::Error> {
-    Date::new(value.year(), month, value.day())
+fn open_log(path: &Path) -> io::Result<File> {
+    OpenOptions::new().create(true).append(true).open(path)
 }
-
-assert!(set_month(date(2024, 10, 31), 11).is_err());
 ```
 
-The first change tries to create November 31. It fails before the caller can set the day to 30.
-
-### Good
-
-```rust
-use jiff::civil::date;
-
-let original = date(2024, 10, 31);
-let updated = original.with().month(11).day(30).build()?;
-assert_eq!(updated, date(2024, 11, 30));
-assert_eq!(original.with().day(30).month(11).build()?, updated);
-
-# Ok::<(), jiff::Error>(())
-```
-
-Collect related changes in the builder. Check their combined validity in `build`.
-Setting different fields in a different order should not cause an early failure.
+`create(true)` needs write or append access. `OpenOptions` checks that combination in `open`, so either setter
+can come first. Check related fields together in the builder's final operation, such as `build` or `open`.
 Choose defaults only for values callers can safely omit.
 Mark consuming builder methods `#[must_use]` when discarding the returned builder would silently lose the setting.
-Do not implement `Default` when no sensible default exists.
+Implement `Default` when one valid default makes sense. Keep an argument-free `new() -> Self` consistent with it.
+Write `Default` by hand when the fields' own defaults would produce the wrong values.
 
-## Carry required checks into the next state
+## Add state types when operations need distinct stages
 
-Use typestate when the caller controls a small sequence of transitions.
-Each transition consumes the old value and returns the next type.
-Make a successful check produce a value required by the next operation.
+Keep cheap derived values local to the operation. This frame checks its payload length when encoding.
 
 ```rust
-struct PendingFrame { payload: Vec<u8> }
-struct CheckedFrame { length: u16, payload: Vec<u8> }
+struct Frame { payload: Vec<u8> }
 
-impl PendingFrame {
-    fn check_length(self) -> Result<CheckedFrame, std::num::TryFromIntError> {
+impl Frame {
+    fn encode(self) -> Result<Vec<u8>, std::num::TryFromIntError> {
         let length = u16::try_from(self.payload.len())?;
-        Ok(CheckedFrame { length, payload: self.payload })
-    }
-}
-
-impl CheckedFrame {
-    fn encode(self) -> Vec<u8> {
-        let mut output = self.length.to_be_bytes().to_vec();
+        let mut output = length.to_be_bytes().to_vec();
         output.extend(self.payload);
-        output
+        Ok(output)
     }
 }
 ```
 
-Only the checked state exposes `encode`. Its payload length must stay unchanged after the check.
-Keep checked fields private and let checking operations construct the value.
-Each constructor or custom verifier must perform the promised check.
-Carry the checked data with the proof so it cannot be reused for another input.
+Use typestate when callers need a sequence of distinct operations.
+Each transition consumes the old value and returns the next type.
+For example, `connect` can consume a `Disconnected` value and return a `Connected` value that owns the socket.
+Only `Connected` exposes `send`. Keep its fields private so callers must use the transition to construct it.
 
 Use an enum for states loaded from a database or changed at runtime by another actor.
-Type state does not prove an external fact is still true.
+Typestate does not prove an external fact is still true.
 Use `PhantomData` only when a generic marker or lifetime relationship needs to be represented in a type.
 Its choice affects which lifetimes Rust permits, how it checks cleanup, and whether the type can cross threads.
 Do not add it just to silence an unused parameter.

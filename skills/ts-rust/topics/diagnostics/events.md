@@ -1,7 +1,9 @@
 # Record fields that answer what happened
 
-Use the project's logging facade. `tracing` is useful when structured fields and spans are needed.
-Libraries emit events; applications choose the subscriber, destination, and filtering.
+Use the project's logging API. The `log` crate suits individual events.
+Use `tracing` when spans help follow related work. It also supports events without spans.
+Both crates support fields. With `log`, enable `kv` and use a logger that records those fields.
+Libraries emit events; applications choose the logger or subscriber, output, and filtering.
 
 ## Bad
 
@@ -41,4 +43,5 @@ Log where code handles the failure. Pass the same error through intermediate fun
 
 Do not record credentials, raw request bodies, or personal fields just because `Debug` is available.
 Use approved identifiers and redacted values. Check errors and nested fields too.
-Let the application install filtering such as an `EnvFilter`; a reusable library should not set a global subscriber.
+Let the application configure filtering, such as `EnvFilter` for `tracing`.
+A reusable library should not install a global logger or subscriber.

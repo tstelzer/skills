@@ -59,13 +59,3 @@ Optimize algorithms, I/O frequency, and unnecessary copies before adding unsafe 
 Batch repeated small I/O with `BufReader` or `BufWriter` when the buffering fits latency and memory needs.
 Handle explicit flush errors; see [resources](../memory/resources.md).
 Do not add a universal ban on `chain`, `format!`, dynamic dispatch, or bounds checks based on one microbenchmark.
-
-## Check shortcuts against the full operation
-
-A quick filter may discard an input only when it cannot contain a valid result.
-For example, a filter for the regex `\w+foo\s+` can first look for `foo`.
-Those hits are only possible matches. Check them with the full regex before reporting a match.
-
-Measure inputs that produce many possible matches but few real ones.
-Disable a filter when it repeatedly costs more than it saves.
-Keep a full search that stays within the required time and memory limits on those inputs.

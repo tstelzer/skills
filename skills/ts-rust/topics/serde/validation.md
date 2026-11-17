@@ -36,7 +36,8 @@ For several related fields, deserialize a raw struct and validate their relation
 
 Use `#[serde(into = "Raw")]` only when its owned conversion and cloning requirements fit serialization.
 A custom borrowed serializer can avoid a clone when serialization is frequent.
-Use field-level `with` modules for shared format logic, rather than repeating conversion code at each call site.
+Use field-level `with` modules for shared format logic. They supply both `serialize` and `deserialize` functions.
+Use `serialize_with` or `deserialize_with` to customize only one direction.
 
 Test valid data, malformed data, old payloads that omit defaulted fields, and ambiguous variant shapes.
 Round-trip tests alone do not prove compatibility with existing external data.

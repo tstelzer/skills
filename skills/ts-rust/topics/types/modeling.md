@@ -50,6 +50,7 @@ enum Job {
 
 Two account IDs still have the same type. Use clear parameter names or a named request struct to show their roles.
 Do not create a type for every temporary value; give it a rule or meaning worth preserving.
+Use named flags for independent options that can be combined, such as read and write access.
 
 ## Choose the result shape
 
@@ -74,6 +75,7 @@ fn first_line(text: &str) -> Option<&str> {
 - Use `Result<Option<T>, E>` when a lookup can fail or succeed without finding a value.
 - Use a return type of `!` for a function that never returns.
   Do not invent a dummy result after exit or an endless loop.
+- Use `std::convert::Infallible` when a trait needs an error type but the implementation cannot fail.
 
 Return partial output with diagnostics when incomplete output is useful behavior.
 For an editor, `Parse { tree, diagnostics }` can represent useful output from unfinished source.

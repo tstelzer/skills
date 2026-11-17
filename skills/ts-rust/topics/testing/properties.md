@@ -53,9 +53,7 @@ Save failing cases as regression tests after fixing the cause.
 
 Compare a complex implementation with a simple reference when both should agree.
 Run the same cases directly against each supported implementation, including the fallback.
-Automatic selection on one CPU can leave other implementations untested.
 Test lengths just below, at, and above the sizes where the algorithm changes its path.
-Vary the starting byte of each slice to cover reads at different memory addresses.
 
 ## Fuzz the boundary directly
 

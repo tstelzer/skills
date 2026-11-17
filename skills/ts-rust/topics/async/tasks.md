@@ -54,7 +54,8 @@ Use a task owner that outlives the caller when shutdown must still join that chi
 Blocking one branch blocks polling the others. Enable Tokio's `macros` feature for these macros.
 
 With spawned tasks, `try_join!` sees the handles' outer `Result`, which reports task failure.
-An inner application error still needs handling. Dropping an unfinished handle detaches its task instead of stopping it.
+An inner application error still needs handling.
+Dropping an unfinished handle detaches its task instead of stopping it.
 Do not use `try_join!` over handles as a substitute for owning and shutting down those tasks.
 
 `tokio::spawn` requires owned data or suitable `'static` references, and a `Send` future.

@@ -100,9 +100,6 @@ fn transfer(source: &mut u32, destination: &mut u32, count: u32) -> Result<(), T
 ```
 
 For resumable operations, return or store partial progress so retries do not repeat completed work.
-When further processing would violate the protocol, store a terminal failure before returning the error.
-Make later processing calls reject work before mutation or output.
-Keep documented cleanup operations available and preserve the original error for later reporting.
 Test the next call after failure, including its state and output.
 
 In unsafe code, cleanup must also remain memory-safe if a callback panics.

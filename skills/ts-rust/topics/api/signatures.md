@@ -49,6 +49,7 @@ impl Buffer {
 | `into_*` | Conversion that consumes the source |
 | `len`, `name` | Simple property access; omit `get_` |
 | `get` | Lookup that can fail, often returning `Option` |
+| `set_*` | Change a property on an existing value |
 | `is_*`, `has_*`, `can_*` | Boolean question |
 | `iter`, `iter_mut`, `into_iter` | Shared, exclusive, or consuming iteration |
 

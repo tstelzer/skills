@@ -40,6 +40,9 @@ fn next_job(queue: &mut VecDeque<String>) -> Option<String> {
 | Membership and deduplication | `HashSet<T>` or `BTreeSet<T>` |
 | Insertion order with keyed lookup | A suitable crate such as `indexmap` |
 
+Take items from a `BinaryHeap` with `pop` when priority order matters. Its iterator does not yield priority order.
+Choose a different design for frequent priority changes or removal of arbitrary entries.
+
 For a small collection, a scan through a vector can beat building and maintaining a set.
 Use measured size and lookup frequency instead of replacing every `contains` call.
 Use `LinkedList` only when its particular operations justify pointer overhead and allocation costs.

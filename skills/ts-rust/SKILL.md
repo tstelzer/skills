@@ -36,7 +36,7 @@ Use [API lookup](./sources.md) for exact signatures and behavior.
 | Simplify branches, loops, iterators, or callbacks | [Control flow](./topics/flow/index.md) |
 | Return failures, add context, or decide when to panic | [Errors](./topics/errors/index.md) |
 | Name an API, choose traits, or expose public items | [APIs](./topics/api/index.md) |
-| Choose a collection or update it without extra work | [Collections](./topics/collections/index.md) |
+| Choose a collection, expose its API, or reuse its storage | [Collections](./topics/collections/index.md) |
 | Handle text, filesystem paths, byte parsing, or partial I/O | [Text and I/O](./topics/io/index.md) |
 | Convert numbers or handle overflow and floats | [Numbers](./topics/numbers/index.md) |
 | Reduce allocations or control resource cleanup | [Memory and resources](./topics/memory/index.md) |

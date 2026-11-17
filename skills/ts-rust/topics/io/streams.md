@@ -82,8 +82,3 @@ A future can be dropped between partial reads or writes.
 
 Use a callback when each result borrows from a buffer that the next read will overwrite.
 Call it before clearing or refilling the buffer. Copy a result if it must live past that call.
-
-Use `Result<std::ops::ControlFlow<()>, E>` when the callback can stop early or fail.
-`Ok(Continue(()))` keeps reading. `Ok(Break(()))` stops successfully. `Err(error)` reports failure.
-Use a closure for one kind of event. Add a trait when callers need several event methods.
-Document whether completion callbacks run after a requested stop or an error.

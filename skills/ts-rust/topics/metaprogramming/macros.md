@@ -58,11 +58,16 @@ It does not bypass privacy. Exported expansions need accessible helpers.
 
 - Use precise fragments such as `expr`, `ty`, `path`, and `ident` when they describe the accepted input.
 - Use `tt` to accept token groups that the narrower fragments cannot describe.
+- Allow an optional trailing comma in repeated input with `$(,)?`.
 - Evaluate each expression argument once unless repeated evaluation is the documented contract.
 - Keep generated names from colliding with caller names. Test expansion from a separate consumer.
 - `#[macro_export]` exports at the crate root. Do not re-import the same macro under the same root name.
+  Call macros through ordinary paths or `use` imports in modern editions; avoid `#[macro_use]` in new code.
 
 For procedural macros, use a dedicated proc-macro crate as required by Rust's model.
+Re-export its macros from the library crate when callers need both its types and macros.
 Parse and generate syntax with tools such as `syn`, `quote`, and `proc_macro2` instead of editing token strings.
+Enable only the `syn` features needed to parse the accepted input.
 Return a spanned compile error for bad user input; do not panic to report ordinary input errors.
+Combine independent input errors so one build can report several problems.
 Keep the generated API small and test both valid and invalid uses.

@@ -1,6 +1,7 @@
 # Diagnostics
 
-Record enough context to explain failures and follow work without exposing private data.
+Use logs to record individual events. Use spans to group related work and track its duration.
+Keep enough context to explain failures without exposing private data.
 
 | Need | Read |
 | --- | --- |

@@ -1,7 +1,8 @@
-# Keep generic entrypoints small when their bodies do not need generics
+# Avoid unnecessary generic code
 
+Use a concrete borrowed type when it provides the operations the function needs.
 Generics can produce a separate compiled body for each concrete type.
-Convert flexible input at the edge, then let a concrete helper do shared work when that reduces meaningful build cost.
+Those copies can increase compilation work and binary size.
 
 ## Bad
 
@@ -15,16 +16,12 @@ fn parse_words(input: impl AsRef<str>) -> Vec<String> {
 }
 ```
 
-For a larger parser used with many input types, the generic input can duplicate a body that only needs `&str`.
+This body only needs `&str`. String slices and borrowed `String` values can both use that interface.
 
 ## Good
 
 ```rust
-fn parse_words(input: impl AsRef<str>) -> Vec<String> {
-    parse_words_inner(input.as_ref())
-}
-
-fn parse_words_inner(input: &str) -> Vec<String> {
+fn parse_words(input: &str) -> Vec<String> {
     input.split_whitespace()
         .filter(|word| !word.starts_with('#'))
         .map(str::to_owned)
@@ -32,8 +29,8 @@ fn parse_words_inner(input: &str) -> Vec<String> {
 }
 ```
 
-For this small body, accepting `&str` directly may be simpler. Split the body only when the public flexibility or
-measured compilation cost justifies the extra helper.
+Keep generics when the algorithm or actual callers need them.
+Split a generic function only when its input flexibility is needed and measured build costs justify a helper.
 
 ## Measure the build path you want to improve
 
@@ -42,7 +39,10 @@ measured compilation cost justifies the extra helper.
 - Measure clean builds separately from the usual edit-and-check loop.
 - Inspect unused dependencies, duplicate versions, and unnecessary dependency features.
 - Look for large macro expansions and many generic or const-generic instantiations.
-- Keep build scripts small and deterministic. Declare the inputs that should trigger a rebuild.
+- Keep build scripts small and deterministic.
+  Emit `rerun-if-changed` for file inputs and `rerun-if-env-changed` for external environment inputs.
+  Write generated files only inside `OUT_DIR`. Keep network downloads outside build scripts.
+  Probe compiler capabilities instead of parsing `rustc --version` text.
 - Check the minimum supported Rust version, or MSRV, before adopting newer language or library features.
 
 Use repository commands and its existing tooling. Dependency, linker, and profile changes need their own evidence.

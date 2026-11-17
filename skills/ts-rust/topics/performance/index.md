@@ -4,7 +4,7 @@ Identify whether the problem is CPU time, waiting, allocation, retained memory, 
 
 | Need | Read |
 | --- | --- |
-| Find expensive work, measure reuse, or check a shortcut | [Measurement](./measurement.md) |
+| Find expensive work or measure reuse | [Measurement](./measurement.md) |
 | Choose compiler settings or CPU-specific code | [Compiler choices](./compiler.md) |
 | Reduce compilation cost and dependency work | [Build costs](./builds.md) |
 

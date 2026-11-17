@@ -49,5 +49,5 @@ Moving a lock changes what can happen between operations; preserve the required 
 - Release `RefCell`, `RwLock`, and `watch` borrow guards before unrelated async work too.
 
 Cloning `Arc` creates another owner of the same state; it does not create a snapshot or remove the need for locking.
-Borrowing across `.await` is valid when the borrow and future lifetimes allow it. There is no rule to clone before every
-suspension point.
+Borrowing across `.await` is valid when the borrow and future lifetimes allow it.
+There is no rule to clone before every suspension point.

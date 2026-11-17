@@ -1,7 +1,7 @@
 # Separate a constant value from shared storage
 
 Use `const` for a named value.
-Use `static` when one shared storage location or runtime initialization is the requirement.
+Use `static` when one shared storage location is the requirement.
 Do not assume either form wins a performance comparison without measuring it.
 
 ## Bad

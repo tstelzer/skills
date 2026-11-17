@@ -77,7 +77,8 @@ fn label(state: State) -> &'static str {
 }
 ```
 
-Use a wildcard when all remaining cases intentionally share one meaning, or when a foreign non-exhaustive enum needs it.
+Use a wildcard when all remaining cases intentionally share one meaning,
+or when a foreign non-exhaustive enum needs it.
 Use `matches!` for a boolean pattern test. Use `@` to keep a matched value, such as `port @ 1..=1024`.
 Use `if let` for one case.
 Let chains combine bindings and tests on Rust 1.88 or newer with the 2024 edition.
